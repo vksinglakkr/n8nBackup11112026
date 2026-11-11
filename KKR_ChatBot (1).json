@@ -1,0 +1,1102 @@
+{
+  "name": "KKR_ChatBot",
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        5136,
+        848
+      ],
+      "id": "f20c6d53-0f63-4281-a917-f510b6b661cb",
+      "name": "Respond_To_Webhook1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "groqApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        3792,
+        640
+      ],
+      "id": "b93661ba-4918-4957-b21c-e1d74aa4ec68",
+      "name": "AI_Statistics_Generator1",
+      "credentials": {
+        "groqApi": {
+          "id": "SVypylwZhqG2a8gE",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "text",
+              "cssSelector": "body"
+            }
+          ]
+        },
+        "options": {
+          "trimValues": true
+        }
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        3120,
+        640
+      ],
+      "id": "ef35756d-40bb-443a-a14a-f522c59a526c",
+      "name": "HTML Extract"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat_InfoBotKkr",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1008,
+        832
+      ],
+      "id": "5ce75ee4-5ae0-48f3-a901-83348b7c9e3f",
+      "name": "Webhook",
+      "webhookId": "kurukshetra-universal"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// VERIFIED CODE v6 - COMPLETE WEBSITE-FIRST ARCHITECTURE\n// ============================================\n\nconst rawText = $('HTML Extract').first().json.text || '';\n\n// SMART CONTENT EXTRACTION\nlet cleanText = '';\nconst marker1 = rawText.indexOf('One of the seven forests');\nconst marker2 = rawText.indexOf('This tirtha is located');\nconst marker3 = rawText.indexOf('Kamyak Tirtha Kamoda');\nconst startPos = marker1 > 0 ? marker1\n               : marker2 > 0 ? marker2\n               : marker3 > 0 ? marker3\n               : -1;\n\nif (startPos > 0) {\n    cleanText = rawText.substring(0, 1500)\n              + '\\n\\n[KEY CONTENT SECTION]\\n\\n'\n              + rawText.substring(startPos, startPos + 3000);\n    console.log('Smart extraction: English section found at position', startPos);\n} else {\n    cleanText = rawText.substring(0, 10000);\n    console.log('Standard extraction: using first 10000 chars');\n}\n\nlet question = '';\nlet language = 'en';\nlet isTourism = false;\nlet sourceLink = '';\nlet primaryLink = '';\nlet secondaryLink = '';\n\ntry {\n    const jsNode2 = $('Code in JavaScript2').first().json;\n    question = jsNode2.message || jsNode2.query || '';\n    language = jsNode2.language || 'en';\n    isTourism = jsNode2.isTourism || false;\n    sourceLink = jsNode2.link || '';\n    primaryLink = jsNode2.primaryLink || '';\n    secondaryLink = jsNode2.secondaryLink || '';\n    console.log('Got data from Code_in_JavaScript2');\n} catch (e) {\n    console.log('Method 1 failed:', e.message);\n}\n\nif (!question || !isTourism) {\n    try {\n        const tourismCheck = $('Check_Tourism_Query').first().json;\n        question = tourismCheck.message || '';\n        language = tourismCheck.language || 'en';\n        isTourism = tourismCheck.isTourism || false;\n        console.log('Got data from Check_Tourism_Query');\n    } catch (e) {\n        console.log('Method 2 failed:', e.message);\n    }\n}\n\nif (isTourism) {\n    try {\n        const allItems = $('Merge_Tourism_Links').all();\n        if (allItems.length > 0) {\n            primaryLink = allItems[0].json.primaryLink || 'https://kkrtour.com';\n            secondaryLink = allItems[0].json.secondaryLink || 'https://kurukshetra.gov.in/kurukshetraattractions/';\n            console.log('Got links from Merge_Tourism_Links');\n        }\n    } catch (e) {\n        console.log('Method 3 failed:', e.message);\n    }\n}\n\nif (!question) {\n    try {\n        question = $('Webhook').first().json.body.message || 'Unknown query';\n        console.log('Got question from Webhook');\n    } catch (e) {\n        question = 'Unknown query';\n    }\n}\n\n// ============================================\n// CREATE LOWERCASE VERSIONS FOR PATTERN MATCHING\n// ============================================\nconst lowerMessage = question.toLowerCase();\nconst lowerQuery = question.toLowerCase();\nconsole.log('Lowercase query created for pattern matching');\n\n// GET TERTIARY LINK\nlet tertiaryLink = null;\nlet is48Kos = false;\n\ntry {\n    const mergeData = $('Merge_Tourism_Links').first().json;\n    tertiaryLink = mergeData.tertiaryLink || null;\n    is48Kos = mergeData.is48Kos || false;\n} catch (e) {\n    console.log('Could not get tertiary link');\n}\n\n// ============================================\n// DETECT GENERAL LIST QUERIES\n// ============================================\nfunction isGeneralListQuery(query) {\n    const generalKeywords = [\n        'tourist places', 'tourist spots', 'places to visit', 'visit in kurukshetra',\n        'attractions', 'sightseeing', 'what to see', 'tourism', 'things to do',\n        'main places', 'important places', 'famous places', 'popular places',\n        'top places', 'best places', 'all places', 'list of places',\n        'kurukshetra mein kya', 'kurukshetra ke paryatan', 'ghumne ki jagah',\n        'पर्यटन स्थल', 'दर्शनीय स्थल', 'घूमने की जगह'\n    ];\n    \n    const specificSites = [\n        'brahma', 'sannihit', 'jyotisar', 'bhadrakali', 'sthaneshwar',\n        'nabhi', 'kamyak', 'rantuk', 'kuber', 'krishna museum', 'panorama',\n        'anubhav'\n    ];\n    \n    const lower = query.toLowerCase();\n    const hasGeneralKeyword = generalKeywords.some(kw => lower.includes(kw));\n    const hasSpecificSite = specificSites.some(site => lower.includes(site));\n    \n    return hasGeneralKeyword && !hasSpecificSite;\n}\n\nconst isGeneralQuery = isGeneralListQuery(question);\n\n// ============================================\n// QUERY CATEGORIZATION FUNCTIONS\n// ============================================\n\nfunction isEmergencyQuery(query) {\n    const kw = ['emergency','urgent','help','sos','ambulance','police','fire','accident',\n        'medical emergency','crisis','danger','helpline','emergency number',\n        'emergency contact','dial','call','emergency services',\n        'आपातकाल','आपात','मदद','एम्बुलेंस','पुलिस',\n        'अग्निशमन','दुर्घटना','संकट','हेल्पलाइन'];\n    return kw.some(k => query.toLowerCase().includes(k));\n}\n\nfunction isParikramaQuery(query) {\n    const kw = ['parikrama','48 kos','pilgrimage','circuit',\n        'परिक्रमा','48 कोस','तीर्थयात्रा'];\n    return kw.some(k => query.toLowerCase().includes(k));\n}\n\nfunction isAdminQuery(query) {\n    const kw = ['police','court','dc','sdm','sp','office','government','magistrate','administration',\n        'पुलिस','न्यायालय','कार्यालय','प्रशासन'];\n    return kw.some(k => query.toLowerCase().includes(k));\n}\n\nfunction isEducationQuery(query) {\n    const kw = ['university','college','nit','kuk','school','nielit','nic','education','institute','igm',\n        'विश्वविद्यालय','स्कूल','शिक्षा','संस्थान'];\n    return kw.some(k => query.toLowerCase().includes(k));\n}\n\nfunction isHealthQuery(query) {\n    const kw = ['hospital','doctor','medical','health','clinic',\n        'अस्पताल','डॉक्टर','चिकित्सा','स्वास्थ्य'];\n    return kw.some(k => query.toLowerCase().includes(k));\n}\n\nfunction isServiceQuery(query) {\n    const kw = ['ration','license','certificate','bill','tax',\n        'राशन','लाइसेंस','प्रमाण','बिल','कर'];\n    return kw.some(k => query.toLowerCase().includes(k));\n}\n\nconst isEmergency = isEmergencyQuery(question);\nconst isParikrama = isParikramaQuery(question);\nconst isAdmin = isAdminQuery(question);\nconst isEducation = isEducationQuery(question);\nconst isHealth = isHealthQuery(question);\nconst isService = isServiceQuery(question);\nconst isNonTourism = isAdmin || isEducation || isHealth || isService;\n\nconsole.log('=== QUERY CATEGORIZATION ===');\nconsole.log('Question:', question);\nconsole.log('Language:', language);\nconsole.log('isTourism:', isTourism);\nconsole.log('is48Kos:', is48Kos);\nconsole.log('isGeneralQuery:', isGeneralQuery);\nconsole.log('isEmergency:', isEmergency);\nconsole.log('isParikrama:', isParikrama);\nconsole.log('isNonTourism:', isNonTourism);\nconsole.log('primaryLink:', primaryLink);\nconsole.log('secondaryLink:', secondaryLink);\nconsole.log('tertiaryLink:', tertiaryLink);\nconsole.log('============================');\n\n// ============================================\n// BUILD SYSTEM PROMPT\n// ============================================\n\nlet systemPrompt = 'You are an official district information assistant for Kurukshetra, Haryana (India).';\n\n// ============================================\n// TOURISM SECTION\n// ============================================\n\nif (isTourism && primaryLink && !isNonTourism) {\n\n    // ============================================\n    // PRIORITY 1: DETECT \"HOW TO REACH\" QUERIES\n    // ============================================\n    \n    const isDirectionsQuery = \n        lowerMessage.match(/how to (reach|get to|go to)/i) ||\n        lowerMessage.includes('directions to') ||\n        lowerMessage.includes('direction to') ||\n        lowerMessage.includes('way to') ||\n        lowerMessage.includes('route to') ||\n        lowerMessage.includes('कैसे पहुंचें') ||\n        lowerMessage.includes('कैसे जाएं') ||\n        lowerMessage.includes('रास्ता');\n    \n    if (isDirectionsQuery) {\n        console.log('→ Directions query detected (HIGH PRIORITY)');\n        \n        if (language === 'hi') {\n            systemPrompt += '\\n\\n'\n                + '**दिशा-निर्देश प्रश्न (उच्च प्राथमिकता):**\\n\\n'\n                + 'उपयोगकर्ता ने \"कैसे पहुंचें\" पूछा है - केवल दिशा-निर्देश दें।\\n\\n'\n                + 'उत्तर प्रारूप (संक्षिप्त):\\n\\n'\n                + '**[स्थल का नाम]**\\n\\n'\n                + '**स्थान:** [क्षेत्र, शहर]\\n'\n                + '**दूरी:** कुरुक्षेत्र शहर से: [X किमी यदि ज्ञात हो]\\n\\n'\n                + '**कैसे पहुंचें:**\\n'\n                + '• ऑटो/टैक्सी: [समय यदि ज्ञात हो]\\n'\n                + '• पैदल: [यदि पास हो]\\n'\n                + '• Google Maps से दिशा-निर्देश (नीचे लिंक)\\n\\n'\n                + '📍 **Google Maps:** https://www.google.com/maps/search/' + question.replace(/ /g, '+') + '+Kurukshetra\\n'\n                + '🔗 **अधिक जानकारी:** ' + (primaryLink || 'https://kurukshetra.gov.in/kurukshetraattractions/') + '\\n\\n'\n                + '**निषिद्ध:**\\n'\n                + '❌ ऐतिहासिक/आध्यात्मिक विवरण नहीं\\n'\n                + '❌ केवल: स्थान, दूरी, कैसे पहुंचें\\n'\n                + '❌ अधिकतम 7-8 पंक्तियां';\n        } else {\n            systemPrompt += '\\n\\n'\n                + '**DIRECTIONS/HOW TO REACH QUERY (HIGH PRIORITY):**\\n\\n'\n                + 'User specifically asked \"HOW TO REACH\" - give ONLY directions.\\n\\n'\n                + 'RESPONSE FORMAT (BRIEF):\\n\\n'\n                + '**[Site Name]**\\n\\n'\n                + '**Location:** [Area, Kurukshetra]\\n'\n                + '**Distance:** From Kurukshetra city: [X km if known]\\n\\n'\n                + '**How to Reach:**\\n'\n                + '• Auto/Taxi: [time if known]\\n'\n                + '• Walking: [if nearby]\\n'\n                + '• Use Google Maps for exact navigation (link below)\\n\\n'\n                + '📍 **Google Maps:** https://www.google.com/maps/search/' + question.replace(/ /g, '+') + '+Kurukshetra\\n'\n                + '🔗 **More Info:** ' + (primaryLink || 'https://kurukshetra.gov.in/kurukshetraattractions/') + '\\n\\n'\n                + '**FORBIDDEN:**\\n'\n                + '❌ NO historical/spiritual description\\n'\n                + '❌ NO \"what to see\" information\\n'\n                + '❌ NO \"best time to visit\"\\n'\n                + '❌ Only: Location, Distance, How to reach, Links\\n'\n                + '❌ Maximum 7-8 lines total';\n        }\n    }\n    \n    // ============================================\n    // PRIORITY 2: EXTERNAL SITES (if NOT directions)\n    // ============================================\n    \n    else if (primaryLink && !primaryLink.includes('kurukshetra.gov.in') && !primaryLink.includes('kkrtour.com')) {\n        console.log('→ External tourism site detected');\n        \n        if (language === 'hi') {\n            systemPrompt += '\\n\\n'\n                + 'बाहरी पर्यटन स्थल:\\n\\n'\n                + '**[स्थल का नाम]** - [संक्षिप्त टैगलाइन]\\n\\n'\n                + '[2-3 वाक्य - यह क्या है और क्यों महत्वपूर्ण]\\n\\n'\n                + '**स्थान और पहुंच:**\\n'\n                + '• कुरुक्षेत्र में/के पास स्थित\\n'\n                + '• दिशा-निर्देश: Google Maps का उपयोग करें\\n\\n'\n                + '🔗 **आधिकारिक वेबसाइट:** ' + primaryLink + '\\n'\n                + '📍 **Google Maps:** https://www.google.com/maps/search/' + question.replace(/ /g, '+') + '+Kurukshetra\\n\\n'\n                + 'अन्य आकर्षण: https://kurukshetra.gov.in/kurukshetraattractions/\\n\\n'\n                + 'संक्षिप्त रखें (8-10 पंक्तियां)।';\n        } else {\n            systemPrompt += '\\n\\n'\n                + 'EXTERNAL TOURISM SITE:\\n\\n'\n                + '**[Site Name]** - [Brief tagline]\\n\\n'\n                + '[2-3 sentences - what it is and significance]\\n\\n'\n                + '**Location & Access:**\\n'\n                + '• Located in/near Kurukshetra\\n'\n                + '• For directions: Use Google Maps\\n\\n'\n                + '🔗 **Official Website:** ' + primaryLink + '\\n'\n                + '📍 **Google Maps:** https://www.google.com/maps/search/' + question.replace(/ /g, '+') + '+Kurukshetra\\n\\n'\n                + 'Other attractions: https://kurukshetra.gov.in/kurukshetraattractions/\\n\\n'\n                + 'Keep brief (8-10 lines total).';\n        }\n    }\n    \n    // ============================================\n    // PRIORITY 3: REGULAR TOURISM SITES\n    // ============================================\n    \n    else if (isGeneralQuery) {\n        systemPrompt += '\\n\\n'\n            + 'GENERAL tourism query - List TOP sites in categories.\\n\\n'\n            + 'SPIRITUAL & HERITAGE:\\n'\n            + '1. Brahma Sarovar\\n'\n            + '2. Jyotisar\\n'\n            + '3. Sannihit Sarovar\\n'\n            + '4. Sthaneshwar Mahadev\\n'\n            + '5. Bhadrakali Temple\\n'\n            + '6. Krishna Museum\\n\\n'\n            + 'HISTORICAL:\\n'\n            + '1. Panorama & Science Centre\\n'\n            + '2. Sheikh Chilli Tomb\\n\\n'\n            + '48 KOS PARIKRAMA: 300+ tirthas, 153 km circuit\\n\\n'\n            + 'END WITH:\\n'\n            + 'Complete guide: https://kkrtour.com\\n'\n            + 'Official tourism: https://kurukshetra.gov.in/kurukshetraattractions/';\n\n    } else if (is48Kos && tertiaryLink) {\n        systemPrompt += '\\n\\n'\n            + '48 KOS TIRTHA SITE - CRISP RESPONSE:\\n\\n'\n            + 'SENTENCE 1: Site + distance km + village + unique fact\\n'\n            + 'PARAGRAPH 2: WHO visited, WHAT happened (3-4 sentences)\\n'\n            + 'SENTENCE 3: When to visit, festival\\n'\n            + 'SENTENCE 4: What to do\\n\\n'\n            + 'END WITH:\\n'\n            + '............................................\\n'\n            + 'Complete Details: ' + tertiaryLink + '\\n'\n            + 'Virtual Tour: ' + primaryLink + '\\n'\n            + 'District Tourism: ' + secondaryLink + '\\n'\n            + '............................................\\n\\n'\n            + 'RULES: 80-120 words only, use ONLY [KEY CONTENT SECTION] facts';\n\n    } else {\n        systemPrompt += '\\n\\n'\n            + 'TOURISM QUERY - STRUCTURED RESPONSE:\\n\\n'\n            + '[Site Name] - [What it is]\\n\\n'\n            + 'Paragraph 1: Historical/spiritual significance\\n'\n            + 'Paragraph 2: What visitors see\\n'\n            + 'Paragraph 3: Practical info\\n\\n'\n            + 'Links:\\n'\n            + primaryLink + '\\n'\n            + secondaryLink + '\\n\\n'\n            + 'RULES: 3 paragraphs max, flowing sentences';\n    }\n}\n\n// ============================================\n// ACCOMMODATION & DINING\n// ============================================\n\nconst isAccommodationQuery = \n    lowerMessage.match(/hotel|where to stay|accommodation|guest house|rest house|dharamshala|धर्मशाला/i);\n\nconst isDiningQuery = \n    lowerMessage.match(/restaurant|eating|food|dining|खाना|रेस्टोरेंट/i);\n\nif ((isAccommodationQuery || isDiningQuery) && isTourism) {\n    console.log('→ Accommodation/dining query detected');\n    \n    if (language === 'hi') {\n        systemPrompt += '\\n\\n'\n            + 'आवास/भोजन प्रश्न:\\n\\n'\n            + '**सरकारी सुविधाएं पहले:**\\n'\n            + '- पारकीट पर्यटक परिसर\\n'\n            + '- नीलकंठी यात्री निवास\\n'\n            + '- सर्किट हाउस, PWD विश्रामगृह\\n'\n            + '- धर्मशालाएं\\n\\n'\n            + '**फिर अन्य:**\\n'\n            + 'Google Maps / MakeMyTrip / Zomato / Swiggy';\n    } else {\n        systemPrompt += '\\n\\n'\n            + 'ACCOMMODATION/DINING QUERY:\\n\\n'\n            + '**Government Facilities FIRST:**\\n'\n            + '- Parakeet Tourist Complex\\n'\n            + '- Neelkanthi Yatri Niwas\\n'\n            + '- Circuit House, PWD Rest Houses\\n'\n            + '- Dharamshalas\\n\\n'\n            + '**Then Other Options:**\\n'\n            + 'Google Maps / MakeMyTrip / Zomato / Swiggy\\n\\n'\n            + 'NEVER list specific private businesses.';\n    }\n}\n\n// ============================================\n// EMERGENCY\n// ============================================\n\nif (isEmergency) {\n    systemPrompt += '\\n\\n'\n        + 'EMERGENCY CONTACTS (MUST INCLUDE):\\n'\n        + 'Ambulance: 102\\n'\n        + 'First Aids: 1097\\n'\n        + 'Fire & Rescue: 112\\n'\n        + 'Relief Commissioner for Natural Calamities: 1070\\n'\n        + 'Police: 112\\n'\n        + 'National Health: 1800-180-1104\\n'\n        + 'Children Helpline: 1098\\n'\n        + 'Disaster Management Services: 108\\n'\n        + 'Road Accident Emergency Service: 1073\\n'\n        + 'Women (Domestic Violence): 181\\n'\n        + 'Women Helpline: 1091';\n}\n\n// ============================================\n// 48 KOS PARIKRAMA\n// ============================================\n\nif (isParikrama) {\n    systemPrompt += '\\n\\n'\n        + '48 Kos Parikrama: approximately 153 kilometers (1 Kos = 3.2 km)\\n'\n        + 'NEVER say \"48 kilometers\"';\n}\n\n// ============================================\n// DEMOGRAPHIC QUERY\n// ============================================\n\nconst extractedDemographics = $input.first().json.extractedDemographics;\nconst queryCategory = $input.first().json.queryCategory;\n\nif (queryCategory === 'demographic' && extractedDemographics) {\n    console.log('Using extracted demographics');\n\n    let demographicFacts = '';\n    if (extractedDemographics.population)   demographicFacts += '- Population: ' + extractedDemographics.population + '\\n';\n    if (extractedDemographics.sexRatio)     demographicFacts += '- Sex Ratio: ' + extractedDemographics.sexRatio + ' females per 1000 males\\n';\n    if (extractedDemographics.literacyRate) demographicFacts += '- Literacy Rate: ' + extractedDemographics.literacyRate + '%\\n';\n    if (extractedDemographics.density)      demographicFacts += '- Population Density: ' + extractedDemographics.density + ' per sq km\\n';\n    if (extractedDemographics.growthRate)   demographicFacts += '- Growth Rate (2001-2011): ' + extractedDemographics.growthRate + '%\\n';\n\n    systemPrompt += '\\n\\n'\n        + 'DEMOGRAPHIC QUERY - USE EXTRACTED DATA:\\n\\n'\n        + 'According to the 2011 Census:\\n\\n'\n        + demographicFacts + '\\n'\n        + 'Link: https://kurukshetra.gov.in/know-about-kurukshetra/';\n}\n\n// ============================================\n// VILLAGE ADMINISTRATION\n// ============================================\n\nif (queryCategory === 'village_admin') {\n    systemPrompt += '\\n\\n'\n        + 'VILLAGE ADMINISTRATION:\\n\\n'\n        + 'Direct to: https://priharyana.nic.in/SarGraph\\n'\n        + 'NEVER say \"not available\"\\n'\n        + 'Always provide the Sarpanch directory link.';\n}\n\n// ============================================\n// ADMINISTRATIVE STRUCTURE (ENHANCED!)\n// ============================================\n\nif (queryCategory === 'admin_structure') {\n    if (language === 'hi') {\n        systemPrompt += '\\n\\n'\n            + 'प्रशासनिक संरचना प्रश्न:\\n\\n'\n            + 'स्क्रैप की गई सामग्री से निकालें:\\n\\n'\n            + '**देखने के लिए पैटर्न:**\\n'\n            + '- \"4 Tehsils (Thanesar, Pehowa, Shahabad, Ladwa)\"\\n'\n            + '- \"2 Sub-Tehsils (Babain, Ismailabad)\"\\n'\n            + '- \"7 Development Blocks...\"\\n'\n            + '- \"5 Towns...\"\\n\\n'\n            + '**यदि स्पष्ट डेटा मिले:**\\n'\n            + '\"कुरुक्षेत्र जिले में:\\n'\n            + '• 4 तहसीलें: [नाम]\\n'\n            + '• 2 उप-तहसीलें: [नाम]\\n'\n            + '• 7 विकास खंड\\n'\n            + '• 460+ गाँव\"\\n\\n'\n            + '**लिंक दें:**\\n'\n            + '🔗 पूर्ण जानकारी: https://kurukshetra.gov.in/administrative-setup-kurukshetra/\\n'\n            + '📍 Google Maps: https://www.google.com/maps/place/Kurukshetra+District\\n\\n'\n            + 'CRITICAL: वेबसाइट से सटीक संख्या निकालें।';\n    } else {\n        systemPrompt += '\\n\\n'\n            + 'ADMINISTRATIVE STRUCTURE QUERY:\\n\\n'\n            + 'EXTRACT FROM SCRAPED CONTENT:\\n\\n'\n            + '**LOOK FOR PATTERNS:**\\n'\n            + '- \"4 Tehsils (Thanesar, Pehowa, Shahabad, Ladwa)\"\\n'\n            + '- \"2 Sub-Tehsils (Babain, Ismailabad)\"\\n'\n            + '- \"7 Development Blocks...\"\\n'\n            + '- \"5 Towns...\"\\n'\n            + '- Lines in parentheses after numbers\\n'\n            + '- Table rows with counts\\n\\n'\n            + '**IF CLEAR DATA FOUND:**\\n'\n            + '\"Kurukshetra district comprises:\\n'\n            + '• 4 Tehsils: [list names from scraped content]\\n'\n            + '• 2 Sub-Tehsils: [list names]\\n'\n            + '• 7 Development Blocks\\n'\n            + '• 460+ villages\"\\n\\n'\n            + '**PROVIDE LINKS:**\\n'\n            + '🔗 Complete details: https://kurukshetra.gov.in/administrative-setup-kurukshetra/\\n'\n            + '📍 Google Maps: https://www.google.com/maps/place/Kurukshetra+District\\n\\n'\n            + 'STRICT RULES:\\n'\n            + '1. Use EXACT numbers from scraped content\\n'\n            + '2. Copy names EXACTLY as shown (including spelling)\\n'\n            + '3. If page says \"4 Tehsils\" - say 4, not 3 or 5\\n'\n            + '4. Extract from lines like \"4 Tehsils (name1, name2, name3, name4)\"\\n'\n            + '5. Always provide both government website and Google Maps links';\n    }\n    console.log('→ Administrative Structure (website scraping) prompt added');\n}\n\n// ============================================\n// VILLAGE DEMOGRAPHICS\n// ============================================\n\nif (queryCategory === 'village_demographic') {\n    systemPrompt += '\\n\\n'\n        + 'VILLAGE DEMOGRAPHIC QUERY:\\n\\n'\n        + 'Direct to:\\n'\n        + 'https://census2011.co.in/data/village/\\n'\n        + 'NEVER say \"not available\" without census link.';\n}\n\n// ============================================\n// PERSON QUERIES - ENHANCED EXTRACTION\n// ============================================\n\nif (queryCategory === 'person') {\n    if (language === 'hi') {\n        systemPrompt += '\\n\\n'\n            + 'व्यक्ति संबंधी प्रश्न:\\n\\n'\n            + '**संक्षिप्ताक्षर समझें:**\\n'\n            + '- DC = उपायुक्त (Deputy Commissioner)\\n'\n            + '- SP = पुलिस अधीक्षक\\n'\n            + '- DIO = जिला सूचना विज्ञान अधिकारी\\n'\n            + '- CEO ZP = मुख्य कार्यकारी अधिकारी, जिला परिषद\\n\\n'\n            + '**खोज पैटर्न:**\\n'\n            + '- अनुभाग शीर्षक: \"National Informatics Centre\"\\n'\n            + '- शीर्षक के बाद: Name, Designation, Contact\\n'\n            + '- पैटर्न: \"Sr.Director(IT)-cum-DIO\"\\n\\n'\n            + '**उत्तर प्रारूप:**\\n'\n            + '**[पूरा नाम]**\\n'\n            + 'पदनाम: [शीर्षक]\\n\\n'\n            + '**संपर्क:**\\n'\n            + '• ईमेल: [email]\\n'\n            + '• फोन: [phone]\\n'\n            + '• कार्यालय: [address]\\n\\n'\n            + '🔗 https://kurukshetra.gov.in/whoswho/\\n\\n'\n            + 'यदि जानकारी है तो \"नहीं मिला\" कभी न कहें।';\n    } else {\n        systemPrompt += '\\n\\n'\n            + 'PERSON QUERY - ENHANCED EXTRACTION:\\n\\n'\n            + '**UNDERSTAND ABBREVIATIONS:**\\n'\n            + '- DC = Deputy Commissioner\\n'\n            + '- ADC = Additional Deputy Commissioner\\n'\n            + '- SDM = Sub Divisional Magistrate\\n'\n            + '- SP = Superintendent of Police\\n'\n            + '- DIO = District Informatics Officer\\n'\n            + '- CEO ZP = Chief Executive Officer, Zila Parishad\\n'\n            + '- DRO = District Revenue Officer\\n'\n            + '- DDPO = District Development & Panchayat Officer\\n\\n'\n            + '**SEARCH PATTERNS:**\\n'\n            + '- Section headers: \"National Informatics Centre\", \"Zila Parishad\", \"Revenue Officer\"\\n'\n            + '- Look AFTER headers for: Name, Designation, Contact\\n'\n            + '- Patterns like: \"Sr.Director(IT)-cum-DIO\"\\n'\n            + '- Table rows with officer details\\n\\n'\n            + '**RESPONSE FORMAT:**\\n'\n            + '**[Full Name]**\\n'\n            + 'Designation: [Official Title]\\n\\n'\n            + '**Contact Information:**\\n'\n            + '• Email: [email]\\n'\n            + '• Phone: [phone]\\n'\n            + '• Office: [address]\\n\\n'\n            + '🔗 Complete directory: https://kurukshetra.gov.in/whoswho/\\n\\n'\n            + '**CRITICAL:**\\n'\n            + 'NEVER say \"not found\" if information exists in scraped content.\\n'\n            + 'ALWAYS check section headers and look for abbreviations.\\n'\n            + 'Extract from tables, lists, or structured sections.';\n    }\n    console.log('→ Person Query (enhanced extraction) prompt added');\n}\n\n// ============================================\n// CATEGORY-SPECIFIC\n// ============================================\n\nif (isNonTourism) {\n    if (isAdmin) {\n        systemPrompt += '\\n\\nADMIN QUERY: Contacts, hours. NO tourism.';\n    } else if (isEducation) {\n        systemPrompt += '\\n\\nEDUCATION QUERY: Details, contacts. NO tourism.';\n    } else if (isHealth) {\n        systemPrompt += '\\n\\nHEALTH QUERY: Hospital details. NO tourism.';\n    } else if (isService) {\n        systemPrompt += '\\n\\nSERVICE QUERY: Process, documents. NO tourism.';\n    }\n}\n\n// ============================================\n// LANGUAGE & GENERAL\n// ============================================\n\nsystemPrompt += '\\n\\n'\n    + 'LANGUAGE: ' + (language === 'hi' ? 'NATURAL HINDI (Devanagari)' : 'Clear English')\n    + '\\n\\n'\n    + 'GENERAL:\\n'\n    + '- Population: 9,64,655; Area: 1,530 sq km\\n'\n    + '- Concise, citizen-friendly\\n'\n    + '- Do NOT mention \"scraped content\"';\n\n// ============================================\n// UNIVERSAL FORMATTING\n// ============================================\n\nsystemPrompt += '\\n\\n'\n    + '═══════════════════════════════════════════\\n'\n    + 'FORMATTING:\\n'\n    + '═══════════════════════════════════════════\\n\\n'\n    + '1. Headers: **bold**\\n'\n    + '2. Lists: • bullets, NO blank lines between\\n'\n    + '3. Spacing: Single blank line max\\n'\n    + '4. Contact: Compact bullets\\n'\n    + '5. Links: \"---\" before links only\\n'\n    + '6. Opening: Brief (1-2 sentences)\\n\\n'\n    + 'FORBIDDEN:\\n'\n    + '❌ Excessive spacing\\n'\n    + '❌ Multiple dividers\\n'\n    + '❌ Long intros';\n\n// ============================================\n// BUILD PAYLOAD\n// ============================================\n\nconst payload = {\n    model: 'llama-3.3-70b-versatile',\n    temperature: 0.5,\n    messages: [\n        {\n            role: 'system',\n            content: systemPrompt\n        },\n        {\n            role: 'user',\n            content: 'User Question: ' + question + '\\n\\nContext from Website (' + sourceLink + '):\\n' + cleanText\n        }\n    ]\n};\n\nconsole.log('=== SYSTEM PROMPT PREVIEW ===');\nconsole.log(systemPrompt.substring(0, 500) + '...');\nconsole.log('=============================');\n\nreturn [{ json: payload }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3568,
+        640
+      ],
+      "id": "fe71a157-d0b8-43c0-9d69-69fc4ab8c0df",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const content = $input.first().json.choices[0].message.content;\n\n// Remove HTML from URLs\n\nconst cleanedContent = content.replace(/https?:\\/\\/[^\\s<>\"']+(<br>|<[^>]+>)/gi, (match, htmlTag) => {\n\n  return match.replace(htmlTag, '');\n\n});\n\n\n\nreturn [{\n\n  json: {\n\n    response: cleanedContent\n\n  }\n\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4240,
+        752
+      ],
+      "id": "e8b7775e-ad53-4779-b0ec-7764ad2f6f53",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cda3aa16-7ab4-4e4f-9524-68f3f98aaa1e",
+              "leftValue": "={{ $json.noResults }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2448,
+        752
+      ],
+      "id": "df097c52-420b-4e8c-8546-09e145814cc6",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\n// ============================================\n// HANDLE PRIVATE BUSINESS QUERIES\n// Route directly to AI fallback with helpful message\n// ============================================\nif (data.isPrivateBusiness) {\n    console.log('✓ Private business query detected - routing to AI fallback');\n    \n    return [{\n        json: {\n            noResults: true,\n            query: data.message,\n            message: data.message,\n            language: data.language || 'en',\n            isTourism: false,\n            isPrivateBusiness: true,\n            primaryLink: '',\n            secondaryLink: ''\n        }\n    }];\n}\n\n// ============================================\n// PERSON QUERIES - ALWAYS HAS RESULTS\n// ============================================\nif (data.queryCategory === 'person') {\n    console.log('✓ Person query detected - ensuring it goes through scraping workflow');\n    \n    // If search found results, use them\n    if (data.organic_results && data.organic_results.length > 0) {\n        return [{\n            json: {\n                link: data.organic_results[0].link,\n                noResults: false,\n                message: data.message,\n                language: data.language || 'en',\n                isTourism: false,\n                queryCategory: 'person',\n                primaryLink: '',\n                secondaryLink: ''\n            }\n        }];\n    }\n    \n    // If no search results, use fallback page but still route to scraping\n    return [{\n        json: {\n            link: 'https://kurukshetra.gov.in/political-setup-kurukshetra/',  // ← CORRECTED\n            noResults: false,\n            message: data.message,\n            language: data.language || 'en',\n            isTourism: false,\n            queryCategory: 'person',\n            primaryLink: '',\n            secondaryLink: ''\n        }\n    }];\n}\n\n// ============================================\n// VILLAGE ADMIN QUERIES - ALWAYS HAS RESULTS\n// ============================================\nif (data.queryCategory === 'village_admin') {\n    console.log('✓ Village admin query - routing to scraping with directory link');\n    \n    return [{\n        json: {\n            link: 'https://kurukshetra.gov.in/directory/',\n            noResults: false,\n            message: data.message,\n            language: data.language || 'en',\n            isTourism: false,\n            queryCategory: 'village_admin',\n            primaryLink: '',\n            secondaryLink: ''\n        }\n    }];\n}\n\n// ============================================\n// ADMIN STRUCTURE QUERIES - ALWAYS HAS RESULTS\n// ============================================\nif (data.queryCategory === 'admin_structure') {\n    console.log('✓ Admin structure query - using setup page');\n    \n    return [{\n        json: {\n            link: 'https://kurukshetra.gov.in/administrative-setup-kurukshetra/',\n            noResults: false,\n            message: data.message,\n            language: data.language || 'en',\n            isTourism: false,\n            queryCategory: 'admin_structure',\n            primaryLink: '',\n            secondaryLink: ''\n        }\n    }];\n}\n\n// ============================================\n// DEMOGRAPHIC QUERIES - ALWAYS HAS RESULTS\n// ============================================\nif (data.queryCategory === 'demographic' || \n    data.queryCategory === 'village_demographic' || \n    data.queryCategory === 'tehsil_demographic') {\n    console.log('✓ Demographic query - using know-about page');\n    \n    return [{\n        json: {\n            link: 'https://kurukshetra.gov.in/know-about-kurukshetra/',\n            noResults: false,\n            message: data.message,\n            language: data.language || 'en',\n            isTourism: false,\n            queryCategory: data.queryCategory,\n            primaryLink: '',\n            secondaryLink: ''\n        }\n    }];\n}\n\n// ============================================\n// TOURISM QUERIES - Check for links first\n// ============================================\nif (data.isTourism && (data.primaryLink || data.secondaryLink)) {\n    console.log('✓ Tourism query with links - noResults: false');\n    \n    return [{\n        json: {\n            link: data.primaryLink || data.secondaryLink,\n            noResults: false,\n            message: data.message,\n            language: data.language || 'en',\n            isTourism: data.isTourism,\n            primaryLink: data.primaryLink || '',\n            secondaryLink: data.secondaryLink || '',\n            tertiaryLink: data.tertiaryLink || null,\n            is48Kos: data.is48Kos || false\n        }\n    }];\n}\n\n// ============================================\n// REGULAR QUERIES - Check organic_results\n// ============================================\nif (!data.organic_results || data.organic_results.length === 0) {\n    console.log('✗ No organic_results - noResults: true');\n    \n    return [{\n        json: {\n            noResults: true,\n            query: data.message,\n            message: data.message,\n            language: data.language || 'en',\n            isTourism: data.isTourism || false,\n            queryCategory: data.queryCategory || 'general',\n            primaryLink: data.primaryLink || '',\n            secondaryLink: data.secondaryLink || ''\n        }\n    }];\n} else {\n    console.log('✓ Has organic_results - noResults: false');\n    \n    return [{\n        json: {\n            link: data.organic_results[0].link,\n            noResults: false,\n            message: data.message,\n            language: data.language || 'en',\n            isTourism: data.isTourism || false,\n            queryCategory: data.queryCategory || 'general',\n            primaryLink: data.primaryLink || '',\n            secondaryLink: data.secondaryLink || ''\n        }\n    }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        752
+      ],
+      "id": "9307d415-8b40-462a-919f-483093b82d82",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "groqApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"temperature\": 0.7,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an official district information assistant for Kurukshetra, Haryana (India).\\n\\n⚠️ FALLBACK MODE - No official website data found for this query.\\n\\n═══════════════════════════════════════════\\nQUERY TYPE DETECTION & RESPONSE STRATEGY\\n═══════════════════════════════════════════\\n\\n**IF PRIVATE BUSINESS QUERY** (shops, gyms, coaching, salons, private clinics, PG, specific restaurants not on govt site):\\n\\n🔍 **DETECT THESE KEYWORDS:**\\n- Food: pizza, burger, cafe, coffee shop, bakery, chinese, italian, fast food, \\\"best restaurant\\\", \\\"where to eat\\\"\\n- Services: gym, salon, spa, coaching, tuition, plumber, electrician, taxi, cab\\n- Commercial: shop, store, market, pharmacy, mobile shop, showroom\\n- Accommodation: pg, paying guest, flat for rent\\n- Professional: lawyer private, doctor private, CA\\n\\n📝 **RESPONSE TEMPLATE:**\\n\\n'For information about [business type] in Kurukshetra:\\n\\n📍 **Google Maps**: Real-time locations, reviews, and directions\\n   https://www.google.com/maps/search/[business]+in+kurukshetra\\n\\n📱 **Business Directories**:\\n   • Justdial: https://www.justdial.com/Kurukshetra/[business]\\n   • Sulekha: https://www.sulekha.com\\n\\n🍽️ **For Restaurants/Food** (if food query):\\n   • Zomato: https://www.zomato.com/kurukshetra\\n   • Swiggy: https://www.swiggy.com/city/kurukshetra\\n\\n🏠 **For PG/Accommodation** (if PG query):\\n   • Google Maps PG: https://www.google.com/maps/search/pg+in+kurukshetra\\n   • Sulekha PG: https://www.sulekha.com/paying-guest-accomodation-kurukshetra\\n\\n**Why these platforms:**\\n✅ Current and verified information\\n✅ Real customer reviews and ratings\\n✅ Contact details and operating hours\\n✅ Photos and amenities\\n✅ Navigation and directions\\n\\n📞 **District Administration**\\n🌐 **District Website**: https://kurukshetra.gov.in\\n\\n**Note:** The official district website focuses on government services, tourism (including government-affiliated hotels and restaurants), and administrative information rather than general private business listings.'\\n\\n═══════════════════════════════════════════\\n\\n**IF ACCOMMODATION/DINING QUERY** (hotels, restaurants, where to stay, where to eat):\\n\\n⚠️ **IMPORTANT:** Check if query is about GOVERNMENT TOURISM facilities or PRIVATE businesses\\n\\nIf asking about government/tourism facilities:\\n'For accommodation and dining in Kurukshetra:\\n\\n🏛️ **Government & Haryana Tourism Facilities:**\\nVisit the official page for information about:\\n• Parakeet Tourist Complex (Haryana Tourism)\\n• Neelkanthi Yatri Niwas (Haryana Tourism)\\n• Dharamshalas (charitable accommodations)\\n• Government Rest Houses\\n\\n🔗 https://kurukshetra.gov.in/where-to-stay-in-kurukshetra/\\n\\n🏨 **For More Options with Real-Time Availability:**\\n• Hotels: MakeMyTrip, Booking.com, Google Maps\\n• Restaurants: Zomato, Swiggy, Google Maps\\n• PG: Google Maps, Sulekha, Justdial\\n\\nThese platforms provide current information, reviews, and booking options.'\\n\\n═══════════════════════════════════════════\\n\\n**IF GENERAL QUERY** (other topics not on website):\\n\\nProvide information using general knowledge, but MUST include:\\n\\n'⚠️ **AI-Generated Information (Not Officially Verified)**\\n\\n[Your answer here]\\n\\n**Disclaimer:** This information is AI-generated and may not reflect the latest official position. Please verify from official sources:\\n\\n🌐 **District Website**: https://kurukshetra.gov.in\\n📞 **District Administration**'\\n\\n═══════════════════════════════════════════\\n\\n**IF TOURISM QUERY** ({{ $json.isTourism }}):\\n\\nMention:\\n🕉️ **Main Tourism Website**: https://kkrtour.com\\n🏛️ **Government Tourism**: https://kurukshetra.gov.in/kurukshetraattractions/\\n🏨 **Accommodation Info**: https://kurukshetra.gov.in/where-to-stay-in-kurukshetra/\\n\\nFor 48 Kos Parikrama: https://48koskurukshetra.com\\n\\n═══════════════════════════════════════════\\n\\n**FORMATTING REQUIREMENTS:**\\n\\n1. Use **bold** for section headers (wrap in double asterisks)\\n2. Use bullet points (•) for lists, NO blank lines between items\\n3. Keep responses compact and scannable\\n4. Separate links section with single \\\"---\\\" line\\n5. Format links as: 🔗 **Label**: URL\\n6. Keep opening text brief (1-2 sentences max)\\n\\n═══════════════════════════════════════════\\n\\n**LANGUAGE INSTRUCTION:**\\nRespond in {{ $json.language === 'hi' ? 'Hindi (use Devanagari script)' : 'English' }}.\\n\\nFor Hindi responses:\\n- Use natural Devanagari script\\n- Translate platform names appropriately\\n- Keep the same structure and formatting\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.query || $json.message }}\\n\\nProvide the best possible answer with appropriate guidance and disclaimers.\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        3120,
+        848
+      ],
+      "id": "7ab05466-4016-494b-95f8-0f585282902d",
+      "name": "AI_Statistics_Generator2",
+      "credentials": {
+        "groqApi": {
+          "id": "SVypylwZhqG2a8gE",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "feea53f4-5324-4538-afa1-f557f6cca014",
+              "leftValue": "={{ $json.isTourism }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        752
+      ],
+      "id": "da0ac331-9b2f-4b9b-b4bc-07d0643092c1",
+      "name": "Is_Tourism_Query"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "={{ $('Select_SerpAPI_Key').first().json.serpapi_key }}"
+            },
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "={{ $('Check_Tourism_Query').first().json.message }} site:kkrtour.com"
+            },
+            {
+              "name": "num",
+              "value": "3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        928,
+        656
+      ],
+      "id": "a7ede94a-1887-44de-9ad9-54c0ca88896f",
+      "name": "Search_KKRTour"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// MERGE TOURISM LINKS - WITH SMART MATCHING & 48 KOS SUPPORT\n// Priority: kkrtour > kurukshetra.gov.in > 48kos (tertiary)\n// ============================================\n\nconst checkTourismData = $('Check_Tourism_Query').first().json;\nconst message = checkTourismData.message || '';\nconst language = checkTourismData.language || 'en';\nconst isBroad = checkTourismData.isBroadTourism || false;\nconst perspective = checkTourismData.perspective || 'general';\n\nconsole.log('=== Merge Tourism Links ===');\nconsole.log('Message:', message);\nconsole.log('Is Broad:', isBroad);\nconsole.log('Perspective:', perspective);\n\nconst kkrTourResult = $('Search_KKRTour').first().json;\nconst govtResult = $('Search_Govt_Tourism').first().json;\nconst haryanaResult = $('Search_Haryana_Tourism').first().json;\n\nlet primaryLink = '';\nlet secondaryLink = '';\nlet tertiaryLink = '';\n// ============================================\n// DETECT GENERAL LIST QUERIES\n// These should NOT match a specific site\n// ============================================\nconst generalQueryKeywords = [\n    'tourist places', 'tourist spots', 'places to visit',\n    'attractions', 'sightseeing', 'what to see', 'tourism',\n    'main places', 'important places', 'famous places',\n    'top places', 'best places', 'all places',\n    'kurukshetra mein', 'kurukshetra ke', 'kurukshetra ki',\n    'पर्यटन स्थल', 'दर्शनीय स्थल', 'घूमने की जगह',\n    'मुख्य स्थान', 'प्रमुख स्थान'\n];\n\nconst lowerMessage = message.toLowerCase();\nconst isGeneralListQuery = generalQueryKeywords.some(kw => \n    lowerMessage.includes(kw)\n) && !lowerMessage.match(/\\b(brahma|sannihit|jyotisar|bhadrakali|sthaneshwar|nabhi|kamyak|rantuk|kuber)\\b/i);\n\nconsole.log('isGeneralListQuery:', isGeneralListQuery);\n\n// If general list query → skip site matching, use general tourism links\nif (isGeneralListQuery) {\n    console.log('General tourism query - returning overview links');\n    return [{\n        json: {\n            message: message,\n            language: language,\n            isTourism: true,\n            is48Kos: false,\n            isGeneralQuery: true,\n            primaryLink: 'https://kkrtour.com',\n            secondaryLink: 'https://kurukshetra.gov.in/kurukshetraattractions/',\n            tertiaryLink: null,\n            matchedSite: null\n        }\n    }];\n}\n\n// PERSPECTIVE FALLBACKS\nconst PERSPECTIVE_URLS = {\n    buddhist: {\n        primary: 'https://kurukshetra.gov.in/about-district/',\n        secondary: 'https://kurukshetra.gov.in/kurukshetraattractions/'\n    },\n    sikh: {\n        primary: 'https://kurukshetra.gov.in/about-district/',\n        secondary: 'https://kurukshetra.gov.in/kurukshetraattractions/'\n    },\n    jain: {\n        primary: 'https://kurukshetra.gov.in/about-district/',\n        secondary: 'https://kurukshetra.gov.in/kurukshetraattractions/'\n    },\n    historical: {\n        primary: 'https://kurukshetra.gov.in/about-district/',\n        secondary: 'https://kurukshetra.gov.in/know-about-kurukshetra/'\n    },\n    hindu: {\n        primary: 'https://kkrtour.com/viewall.html',\n        secondary: 'https://kurukshetra.gov.in/about-district/'\n    },\n    parikrama: {\n        primary: 'https://48koskurukshetra.com/',\n        secondary: 'https://kurukshetra.gov.in/about-district/'\n    },\n    general: {\n        primary: 'https://kkrtour.com/viewall.html',\n        secondary: 'https://kurukshetra.gov.in/kurukshetraattractions/'\n    }\n};\n\n// ============================================\n// BROAD QUERY CHECK\n// ============================================\nif (isBroad) {\n    console.log('✓ BROAD query detected');\n    primaryLink = 'https://kkrtour.com/viewall.html';\n    secondaryLink = 'https://kurukshetra.gov.in/kurukshetraattractions/';\n    \n} else {\n    // ============================================\n    // KNOWN_SITES MAPPING (ONE ENTRY PER SITE)\n    // ============================================\n    const KNOWN_SITES = {\n        // 48 KOS TIRTHA SITES (objects with metadata)\n// NEW - add govSite field ✅\n'nabhi kamal': { \n    type: '48kos', kkrId: 52, \n    kosSite: 'nabhiqimal-tirtha-thanesar',     // ← CORRECT\n    district: 'kurukshetra', \n    govSite: 'nabhikamal-tirtha-thanesar' },\n      'kamyak tirtha': { type: '48kos', kkrId: 49, kosSite: 'kamyak-tirth-kamauda', district: 'kurukshetra',    govSite: 'kamyak-tirtha-kamauda' },\n'machkrur yaksha': { type: '48kos', kkrId: null, kosSite: 'machkruk-yaksha-sikh', district: 'panipat',    govSite: null },  // verify separately\n'rantuk yaksha': { type: '48kos', kkrId: 17, kosSite: 'rantuk-yaksh-bir-pipli', district: 'kurukshetra',    govSite: 'rantuk-yaksh-birpipli' },\n        \n        // REGULAR TOURIST SITES (numbers = kkrtour IDs)\n        'brahma sarovar': 2,\n        'jyotisar': 1,\n        'sthaneshwar': 6,\n        'baan ganga': 48,\n        'sannihit sarovar': 7,\n        'karn tila': 8,\n        'bhishma kund': 64,\n        'sheikh chilli': 11,\n        'krishna museum': 4,\n        'bhadrakali': 5,\n        'panorama': 10,\n        'pehowa': 53,\n        'kalpana chawla': 47,\n        'planetarium': 47,\n        'dharohar': 29,\n        'gurdwara': 37,\n        'raj ghat': 37,\n        'birla mandir': 26,\n        'hanuman mandir': 36,\n        'tirupati balaji': 14,\n        'krishna arjun rath': 3,\n        '1857 museum': 30,\n        \n        // GENERAL 48 KOS (URLs)\n        'yaksha': 'https://48koskurukshetra.com/',\n        '48 kos': 'https://48koskurukshetra.com/',\n        '48 kos parikrama': 'https://48koskurukshetra.com/',\n        'parikrama': 'https://48koskurukshetra.com/',\n        \n        // EXTERNAL SITES\n    'anubhav kendra': 'https://mahabharatanubhavkendra.com/',\n    'anubhav': 'https://mahabharatanubhavkendra.com/',\n    'mahabharata anubhav': 'https://mahabharatanubhavkendra.com/',\n        'kurukshetra university': 'https://kuk.ac.in/',\n        'kuk': 'https://kuk.ac.in/',\n        'nit kurukshetra': 'https://nitkkr.ac.in/',\n        'district court': 'https://kurukshetra.dcourts.gov.in/',\n        'police': 'https://kurukshetra.haryanapolice.gov.in/',\n        \n        // HINDI\n        'ब्रह्म सरोवर': 2,\n        'ज्योतिसर': 1,\n        'स्थानेश्वर': 6,\n        'बाण गंगा': 48,\n        'सन्निहित': 7,\n        'यक्ष': 'https://48koskurukshetra.com/',\n        '48 कोस': 'https://48koskurukshetra.com/',\n        'परिक्रमा': 'https://48koskurukshetra.com/'\n    };\n    \n    // ============================================\n    // SMART MATCHING LOGIC\n    // ============================================\n    \n    // Helper: normalize text for fuzzy matching\n\nfunction normalizeForMatching(text) {\n    return text\n        .toLowerCase()\n        .replace(/[_\\-\\s]+/g, ' ')          // hyphens/underscores/spaces → single space\n        .replace(/[^a-z0-9\\s\\u0900-\\u097F]/g, '') // remove special chars (keep Devanagari Unicode)\n        .trim();\n}\n    \n    // Helper: check if words match (handles partial matches)\n    function wordsMatch(word1, word2) {\n        // Exact match\n        if (word1 === word2) return true;\n        \n        // One contains the other (min 4 chars to avoid false positives)\n        if (word1.length >= 4 && word2.length >= 4) {\n            if (word1.includes(word2) || word2.includes(word1)) return true;\n        }\n        \n        // First 5 chars match (for spelling variations like machkrur/machkruk)\n        if (word1.length >= 5 && word2.length >= 5) {\n            if (word1.substring(0, 5) === word2.substring(0, 5)) return true;\n        }\n        \n        return false;\n    }\n    \n    const lowerMessage = message.toLowerCase();\n    const normalizedMessage = normalizeForMatching(lowerMessage);\n    let siteIdOrUrl = null;\n    let matchedSite = null;\n    \n    console.log('Normalized message:', normalizedMessage);\n    \n    // PASS 1: Exact substring match\n    for (const [siteName, idOrUrl] of Object.entries(KNOWN_SITES)) {\n        if (lowerMessage.includes(siteName)) {\n            siteIdOrUrl = idOrUrl;\n            matchedSite = siteName;\n            console.log(`→ Exact match: \"${siteName}\"`);\n            break;\n        }\n    }\n    \n    // PASS 2: Normalized fuzzy match\n    if (!siteIdOrUrl) {\n        for (const [siteName, idOrUrl] of Object.entries(KNOWN_SITES)) {\n            const normalizedSiteName = normalizeForMatching(siteName);\n            \n            // Normalized exact match\n            if (normalizedMessage.includes(normalizedSiteName)) {\n                siteIdOrUrl = idOrUrl;\n                matchedSite = siteName;\n                console.log(`→ Normalized match: \"${siteName}\"`);\n                break;\n            }\n            \n            // Word-level matching (for multi-word sites)\n            const siteWords = normalizedSiteName.split(' ').filter(w => w.length > 0);\n            const messageWords = normalizedMessage.split(' ').filter(w => w.length > 0);\n            \n            // Need at least 2 words in site name for word matching\n            if (siteWords.length >= 2) {\n                // Check if all site words have matching message words\n                const matchCount = siteWords.filter(siteWord =>\n                    messageWords.some(msgWord => wordsMatch(siteWord, msgWord))\n                ).length;\n                \n                // If most words match (allow 1 mismatch for 3+ word sites)\n                const requiredMatches = siteWords.length > 2 ? siteWords.length - 1 : siteWords.length;\n                \n                if (matchCount >= requiredMatches) {\n                    siteIdOrUrl = idOrUrl;\n                    matchedSite = siteName;\n                    console.log(`→ Word match: \"${siteName}\" (${matchCount}/${siteWords.length} words)`);\n                    break;\n                }\n            }\n        }\n    }\n    \n    // ============================================\n    // GENERATE LINKS\n    // ============================================\n    if (siteIdOrUrl) {\n        // 48 KOS DISTRICT PAGES MAPPING\n        const KOS_DISTRICT_PAGES = {\n            'kurukshetra': 'https://kurukshetra.gov.in/48kos-religious-places-in-kurukshetra/',\n            'thanesar': 'https://kurukshetra.gov.in/48kos-religious-places-in-kurukshetra/',\n            'jind': 'https://kurukshetra.gov.in/48kos-religious-places-in-jind/',\n            'karnal': 'https://kurukshetra.gov.in/48kos-religious-places-in-karnal/',\n            'panipat': 'https://kurukshetra.gov.in/48kos-religious-places-in-panipat/',\n            'kaithal': 'https://kurukshetra.gov.in/48kos-religious-places-in-kaithal/'\n        };\n        \n        // 48 KOS OBJECT\n        if (typeof siteIdOrUrl === 'object' && siteIdOrUrl.type === '48kos') {\n            console.log('→ 48 Kos Tirtha detected');\n            \n            // Primary: kkrtour (if exists)\n            if (siteIdOrUrl.kkrId) {\n                primaryLink = `https://kkrtour.com/List.php?id=${siteIdOrUrl.kkrId}`;\n            } else {\n                primaryLink = `https://48koskurukshetra.com/${siteIdOrUrl.kosSite}/`;\n            }\n            \n// Secondary: specific gov.in page (if exists), else district 48kos page\nif (siteIdOrUrl.govSite) {\n    secondaryLink = `https://kurukshetra.gov.in/${siteIdOrUrl.govSite}/`;\n    console.log('→ Using specific gov.in page:', secondaryLink);\n} else {\n    const kosDistrict = siteIdOrUrl.district || 'kurukshetra';\n    secondaryLink = KOS_DISTRICT_PAGES[kosDistrict] || 'https://kurukshetra.gov.in/48kos-kurukshetra/';\n    console.log('→ Using district 48kos page for:', kosDistrict);\n}            \n            // Tertiary: ALWAYS 48koskurukshetra.com\n            tertiaryLink = `https://48koskurukshetra.com/${siteIdOrUrl.kosSite}/`;\n        }\n        // EXTERNAL URL\n        else if (typeof siteIdOrUrl === 'string' && siteIdOrUrl.startsWith('http')) {\n            primaryLink = siteIdOrUrl;\n            \n            if (siteIdOrUrl.includes('48koskurukshetra.com')) {\n                secondaryLink = 'https://kurukshetra.gov.in/48kos-kurukshetra/';\n            } else if (siteIdOrUrl.includes('dcourts.gov.in') || siteIdOrUrl.includes('haryanapolice.gov.in')) {\n                secondaryLink = 'https://kurukshetra.gov.in/';\n            } else if (siteIdOrUrl.includes('kuk.ac.in') || siteIdOrUrl.includes('nitkkr.ac.in')) {\n                secondaryLink = 'https://kurukshetra.gov.in/education/';\n            } else {\n                secondaryLink = 'https://kurukshetra.gov.in/kurukshetraattractions/';\n            }\n        }\n        // KKRTOUR ID\n        else {\n            primaryLink = `https://kkrtour.com/List.php?id=${siteIdOrUrl}`;\n            \n            if (govtResult.organic_results && govtResult.organic_results.length > 0) {\n                secondaryLink = govtResult.organic_results[0].link.trim().split(/[\\s<>]/)[0];\n            } else {\n                secondaryLink = 'https://kurukshetra.gov.in/kurukshetraattractions/';\n            }\n        }\n    } else {\n        // FALLBACK TO SEARCH\n        if (kkrTourResult.organic_results && kkrTourResult.organic_results.length > 0) {\n            primaryLink = kkrTourResult.organic_results[0].link.trim().split(/[\\s<>]/)[0];\n        } else if (govtResult.organic_results && govtResult.organic_results.length > 0) {\n            primaryLink = govtResult.organic_results[0].link.trim().split(/[\\s<>]/)[0];\n        } else if (haryanaResult.organic_results && haryanaResult.organic_results.length > 0) {\n            primaryLink = haryanaResult.organic_results[0].link.trim().split(/[\\s<>]/)[0];\n        } else {\n            primaryLink = PERSPECTIVE_URLS[perspective]?.primary || 'https://kkrtour.com/viewall.html';\n            secondaryLink = PERSPECTIVE_URLS[perspective]?.secondary || 'https://kurukshetra.gov.in/kurukshetraattractions/';\n        }\n    }\n    \n    // GET SECONDARY IF NOT SET\n    if (!secondaryLink) {\n        if (govtResult.organic_results && govtResult.organic_results.length > 0) {\n            const govtUrl = govtResult.organic_results[0].link.trim().split(/[\\s<>]/)[0];\n            if (govtUrl !== primaryLink) {\n                secondaryLink = govtUrl;\n            }\n        }\n        \n        if (!secondaryLink) {\n            secondaryLink = 'https://kurukshetra.gov.in/kurukshetraattractions/';\n        }\n    }\n    \n    // DUPLICATE CHECK\n    if (secondaryLink === primaryLink) {\n        if (primaryLink.includes('kkrtour.com')) {\n            secondaryLink = 'https://kurukshetra.gov.in/kurukshetraattractions/';\n        } else {\n            secondaryLink = 'https://kkrtour.com/viewall.html';\n        }\n    }\n}\n\n// VALIDATE\nif (!primaryLink || !primaryLink.startsWith('http')) {\n    primaryLink = 'https://kkrtour.com/viewall.html';\n}\nif (!secondaryLink || !secondaryLink.startsWith('http')) {\n    secondaryLink = 'https://kurukshetra.gov.in/kurukshetraattractions/';\n}\n\nconsole.log('=== FINAL LINKS ===');\nconsole.log('Primary:', primaryLink);\nconsole.log('Secondary:', secondaryLink);\nconsole.log('Tertiary:', tertiaryLink || 'none');\n\n// RETURN\nreturn [{\n    json: {\n        message: message,\n        language: language,\n        isTourism: true,\n        isBroadTourism: isBroad,\n        primaryLink: primaryLink,\n        secondaryLink: secondaryLink,\n        tertiaryLink: tertiaryLink || null,\n        is48Kos: !!tertiaryLink,\n        noResults: false,\n        organic_results: govtResult.organic_results || []\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        656
+      ],
+      "id": "74c4e47f-f4e4-47f7-9fd9-d3834a331759",
+      "name": "Merge_Tourism_Links"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "={{ $('Select_SerpAPI_Key1').first().json.serpapi_key }}"
+            },
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "={{ \n  $('Smart_Query_Enhancer').first().json.queryCategory === 'person' \n    ? (function() {\n        const enhancerData = $('Smart_Query_Enhancer').first().json;\n        const originalQuery = enhancerData.originalQuery || enhancerData.message;\n        const lowerMsg = originalQuery.toLowerCase();\n        \n        // ============================================\n        // MLA QUERIES\n        // ============================================\n        if (lowerMsg.match(/\\bmla\\b/i) || lowerMsg.includes('विधायक')) {\n          return originalQuery + ' MLA Member Legislative Assembly site:kurukshetra.gov.in/political-setup-kurukshetra';\n        }\n        \n        // ============================================\n        // MP QUERIES\n        // ============================================\n        else if (lowerMsg.match(/\\bmp\\b/i) || lowerMsg.includes('सांसद')) {\n          return originalQuery + ' MP Member Parliament site:kurukshetra.gov.in/political-setup-kurukshetra';\n        }\n        \n        // ============================================\n        // MINISTER QUERIES\n        // ============================================\n        else if (lowerMsg.includes('minister') || lowerMsg.includes('मंत्री')) {\n          return originalQuery + ' Minister site:kurukshetra.gov.in/political-setup-kurukshetra';\n        }\n        \n        // ============================================\n        // ADC QUERIES (CHECK FIRST - MORE SPECIFIC)\n        // ============================================\n        else if (lowerMsg.includes('adc') || lowerMsg.includes('additional deputy')) {\n          return originalQuery + ' Additional Deputy Commissioner site:kurukshetra.gov.in/whoswho/adckrk';\n        }\n        \n        // ============================================\n        // DC QUERIES (EXCLUDE ADC RESULTS)\n        // ============================================\n        else if (lowerMsg.match(/\\bdc\\b/i) || lowerMsg.includes('deputy commissioner') || lowerMsg.includes('collector')) {\n          // Explicitly exclude \"Additional\" to avoid ADC results\n          return originalQuery + ' Deputy Commissioner -Additional site:kurukshetra.gov.in/whoswho/dckurukshetra';\n        }\n        \n        // ============================================\n        // SDM QUERIES\n        // ============================================\n        else if (lowerMsg.includes('sdm') || lowerMsg.includes('sub divisional magistrate') || lowerMsg.includes('sub-divisional')) {\n          return originalQuery + ' Sub Divisional Magistrate site:kurukshetra.gov.in/whoswho';\n        }\n        \n        // ============================================\n        // SP QUERIES\n        // ============================================\n        else if (lowerMsg.match(/\\bsp\\b/i) || lowerMsg.includes('superintendent of police') || lowerMsg.includes('police chief')) {\n          return originalQuery + ' Superintendent of Police site:kurukshetra.gov.in/whoswho';\n        }\n        \n        // ============================================\n        // TEHSILDAR QUERIES\n        // ============================================\n        else if (lowerMsg.includes('tehsildar') || lowerMsg.includes('तहसीलदार')) {\n          return originalQuery + ' Tehsildar site:kurukshetra.gov.in/whoswho';\n        }\n        \n        // ============================================\n        // SHO QUERIES\n        // ============================================\n        else if (lowerMsg.includes('sho') || lowerMsg.includes('station house officer')) {\n          return originalQuery + ' Station House Officer SHO site:kurukshetra.gov.in/whoswho';\n        }\n        \n        // ============================================\n        // GENERIC PERSON QUERY (FALLBACK)\n        // ============================================\n        else {\n          return originalQuery + ' site:kurukshetra.gov.in/whoswho OR site:kurukshetra.gov.in/political-setup-kurukshetra';\n        }\n      })()\n    : $('Smart_Query_Enhancer').first().json.queryCategory === 'village_admin'\n    ? 'sarpanch panch list directory site:kurukshetra.gov.in OR site:priharyana.nic.in/SarGraph'\n    : $('Smart_Query_Enhancer').first().json.queryCategory === 'village_demographic'\n    ? $('Smart_Query_Enhancer').first().json.message + ' village population census site:kurukshetra.gov.in OR site:census2011.co.in/data/village'\n    : $('Smart_Query_Enhancer').first().json.queryCategory === 'admin_structure'\n    ? 'tehsil sub-division administrative structure site:kurukshetra.gov.in/administrative-setup-kurukshetra OR site:kurukshetra.gov.in/about-district'\n    : $('Smart_Query_Enhancer').first().json.queryCategory === 'tehsil_demographic'\n    ? $('Smart_Query_Enhancer').first().json.message + ' tehsil population site:kurukshetra.gov.in/know-about-kurukshetra OR site:kurukshetra.gov.in/about-district'\n    : $('Smart_Query_Enhancer').first().json.queryCategory === 'demographic' \n    ? $('Smart_Query_Enhancer').first().json.message + ' site:kurukshetra.gov.in/know-about-kurukshetra' \n    : $('Smart_Query_Enhancer').first().json.message + ' site:kurukshetra.gov.in' \n}}"
+            },
+            {
+              "name": "num",
+              "value": "3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1328,
+        880
+      ],
+      "id": "dff1fa56-362a-4daf-b6cd-a9814969d3c6",
+      "name": "Search_Regular"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1776,
+        752
+      ],
+      "id": "7fb79617-2fbf-4c7e-8181-7fbf1e78485b",
+      "name": "Merge_All_Paths"
+    },
+    {
+      "parameters": {
+        "jsCode": "const searchResult = $input.first().json;\nconst message = $('Check_Tourism_Query').first().json.message;\nconst language = $('Check_Tourism_Query').first().json.language;\n\n// Get query category\nlet queryCategory = 'general';\ntry {\n    queryCategory = $('Smart_Query_Enhancer').first().json.queryCategory || 'general';\n} catch (e) {\n    console.log('Could not get queryCategory');\n}\n\n// ============================================\n// DEMOGRAPHIC QUERIES - HARDCODE LINK\n// ============================================\nlet finalResults = searchResult.organic_results || [];\n\nif (queryCategory === 'demographic') {\n    console.log('→ Demographic query detected - using hardcoded know-about link');\n    \n    // Replace search results with hardcoded know-about page\n    finalResults = [{\n        link: 'https://kurukshetra.gov.in/know-about-kurukshetra/',\n        title: 'Know Kurukshetra - Demographics',\n        snippet: 'Official demographic information for Kurukshetra district'\n    }];\n}\n\nreturn [{\n    json: {\n        message: message,\n        language: language,\n        isTourism: false,\n        queryCategory: queryCategory,\n        organic_results: finalResults\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        880
+      ],
+      "id": "57ec2515-cdfb-4f58-a32e-682e0f59e972",
+      "name": "Format_Regular"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst message = data.body?.message || data.message || '';\nconst language = data.body?.language || data.language || 'en';\n\nconsole.log('=== Check Tourism Query ===');\nconsole.log('Input message:', message);\n\n\n// ============================================\n// TOURISM DETECTION\n// ============================================\n\nconst tourismKeywordsEn = [\n    // General tourism\n    'tourist', 'tourism', 'temple', 'mandir', 'tirath', 'tirtha', 'yaksh', 'yaksha',\n   'visit', 'sightseeing', 'places to see', 'things to do',\n    'sacred', 'holy', 'site', 'place',\n    // Specific sites\n    'brahma', 'sarovar', 'jyotisar', 'jyoti sar', 'sthaneshwar', 'sthaneswar',\n      'sheikh chilli',\n    // Institutions\n    'kalpana chawla', 'planetarium',\n    'kurukshetra university', 'panorama', 'memorial', 'historical', 'monument',\n    'anubhav', 'kendra', 'experience'\n];\n\nconst tourismKeywordsHi = [\n    'पर्यटन', 'मंदिर', 'तीर्थ', 'दर्शनीय', 'स्थल', 'यक्ष',\n      'बाण गंगा', 'सन्निहित', 'कर्ण', 'भीष्म',\n    'घूमने', 'अनुभव', 'केंद्र'\n];\n\nconst allKeywords = [...tourismKeywordsEn, ...tourismKeywordsHi];\nconst lowerMessage = message.toLowerCase();\n\nconst isTourism = allKeywords.some(kw => lowerMessage.includes(kw));\n\nconsole.log('Is Tourism Query:', isTourism);\n\n\n// ============================================\n// PRIVATE BUSINESS DETECTION - ENHANCED\n// ============================================\n\nconst privateBusinessKeywords = [\n    // Food - REMOVED: 'restaurant', 'hotel' (now on govt tourism pages)\n    'pizza', 'burger', 'chinese', 'italian', 'mexican', 'fast food',\n    'dhaba', 'eatery', 'food joint',\n    'best pizza', 'best burger', 'best restaurant', 'best food',\n    'where to eat', 'food delivery', 'home delivery',\n    \n    // Accommodation - REMOVED: 'hotel', 'guest house' (govt tourism)\n    'pg', 'paying guest', 'hostel private', 'flat for rent',\n    \n    // Commercial establishments\n    'shop', 'store', 'market', 'grocery', 'supermarket', 'mall',\n    'lawyer private', 'advocate private', 'ca private',\n    'real estate agent', 'property dealer',\n    \n    \n    // Hindi\n    'दुकान', 'बाज़ार', 'किराना', 'कैफे', 'माल', 'जिम', 'सैलून',\n    'पिज्जा', 'बर्गर', 'कोचिंग', 'ट्यूशन'\n];\n\nconst isPrivateBusiness = privateBusinessKeywords.some(kw => \n    lowerMessage.includes(kw)\n);\n\nconsole.log('Is Private Business Query:', isPrivateBusiness);\n\n\n// ============================================\n// PERSPECTIVE/THEME DETECTION (NEW!)\n// ============================================\n\nconst perspectiveKeywords = {\n  historical: ['historical', 'history', 'ancient', 'archaeological', 'through the ages', 'heritage', 'civilization', 'इतिहास', 'पुरातात्विक'],\n    hindu: ['hindu', 'mahabharata', 'mahabharat', 'krishna', 'geeta', 'gita', 'हिंदू', 'महाभारत', 'कृष्ण', 'गीता']\n\n};\n\nlet detectedPerspective = 'general';  // default\n\n// Check for perspective matches (most specific first)\nfor (const [perspective, keywords] of Object.entries(perspectiveKeywords)) {\n    if (keywords.some(kw => lowerMessage.includes(kw))) {\n        detectedPerspective = perspective;\n        console.log(`✓ Detected perspective: ${perspective}`);\n        break;\n    }\n}\n\nconsole.log('Perspective:', detectedPerspective);\n\n\n// ============================================\n// BROAD QUERY DETECTION\n// ============================================\n\nfunction isBroadTourismQuery(query) {\n    const lowerQuery = query.toLowerCase().trim();\n    \n    // ========== EXACT BROAD PHRASES ==========\n    const exactBroadPhrases = [\n        'tourist places', 'tourist place', 'tourism',\n        'places to visit', 'visit kurukshetra', 'places to see',\n        'what to see', 'where to go', 'places of interest',\n        'tourist destination', 'places to explore',\n        // Hindi\n        'पर्यटन स्थल', 'पर्यटक स्थल', 'घूमने के स्थान',\n        'दर्शनीय स्थल', 'देखने लायक', 'कहाँ जाएं', 'पर्यटन'\n    ];\n    \n    // Check if query EXACTLY matches or CONTAINS broad phrase\n    for (const phrase of exactBroadPhrases) {\n        if (lowerQuery === phrase || lowerQuery.includes(phrase)) {\n            console.log(`✓ Broad phrase matched: \"${phrase}\"`);\n            return true;\n        }\n    }\n    \n    // ========== SPECIFIC SITES (NOT BROAD) ==========\n    const specificSites = [\n        'brahma sarovar', 'braham sarovar',\n        'jyotisar', 'jyoti sar',\n        'sthaneshwar', 'sthaneswar',\n        'baan ganga', 'ban ganga',\n        'sannihit', 'sanihit',\n        'अनुभव', 'केंद्र',\n        'यक्ष'\n    ];\n    \n    // If mentions specific site, it's NOT broad\n    for (const site of specificSites) {\n        if (lowerQuery.includes(site)) {\n            console.log(`✓ Specific site mentioned: \"${site}\" - NOT broad`);\n            return false;\n        }\n    }\n    \n    // ========== GENERIC TERMS (MIGHT BE BROAD) ==========\n    const genericTerms = ['places', 'sites', 'spots', 'attractions', 'स्थल'];\n    const hasGenericTerm = genericTerms.some(term => lowerQuery.includes(term));\n    \n    if (hasGenericTerm && !lowerQuery.includes('specific')) {\n        console.log('✓ Generic term without specific site - is broad');\n        return true;\n    }\n    \n    return false;\n}\n\nconst isBroad = isTourism ? isBroadTourismQuery(message) : false;\n\nconsole.log('Is Broad Tourism:', isBroad);\nconsole.log('========================');\n\n\n// ============================================\n// RETURN DATA\n// ============================================\n\nreturn [{\n    json: {\n        message: message,\n        language: language,\n        isTourism: isTourism,\n        isBroadTourism: isBroad,\n        isPrivateBusiness: isPrivateBusiness,\n        perspective: detectedPerspective  // ← NEW FIELD\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        752
+      ],
+      "id": "25a51106-a221-4f68-86fa-ff177beeb432",
+      "name": "Check_Tourism_Query"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA",
+          "mode": "list",
+          "cachedResultName": "Kurukshetra-InfoBot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 948203654,
+          "mode": "list",
+          "cachedResultName": "InfoBot_Logs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit#gid=948203654"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "question",
+              "lookupValue": "={{ $json.body.question }}"
+            }
+          ]
+        },
+        "combineFilters": "OR",
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -464,
+        848
+      ],
+      "id": "54a06057-a79d-48cf-9d9d-a4e0883d9ba7",
+      "name": "Read IGM Saathi Logs",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zqCFkP1mXpyrkeQ2",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// FIXED: Search Cache - Empty cache is OK!\n// ========================================\n\n// Get webhook data\nconst webhookNode = $('Webhook').first();\nif (!webhookNode) {\n    throw new Error('Webhook node not found');\n}\n\nconst webhookBody = webhookNode.json?.body || {};\nconst userQuestion = webhookBody?.question || webhookBody?.message || '';\nconst userLanguage = webhookBody?.language || 'en';\n\n// Validate question exists\nif (!userQuestion) {\n    return [{\n        json: {\n            cached: false,\n            needsAI: false,  // ← Changed: No question is an error, not \"needsAI\"\n            error: \"No question provided\",\n            question: \"\",\n            message: \"\",\n            language: userLanguage\n        }\n    }];\n}\n\n// Get Google Sheets data (may be empty)\nconst allLogs = $input.all();\n\nconsole.log(`📊 Cache records available: ${allLogs.length}`);\n\n// ========================================\n// EMPTY CACHE IS FINE! Just continue to web search\n// ========================================\nif (!allLogs || allLogs.length === 0) {\n    console.log('ℹ️ Cache is empty (first time questions) - continuing to web search');\n    \n    return [{\n        json: {\n            question: userQuestion,\n            message: userQuestion,\n            cached: false,\n            needsAI: false,  // ← FIXED: Empty cache doesn't mean \"needsAI\"\n            similarQuestions: [],\n            contextForAI: '',\n            language: userLanguage,\n            totalSimilarFound: 0,\n            cacheStatus: \"Cache empty - first query\",\n            source: 'no-cache-continue-search',\n            // Pass through all webhook data\n            ...webhookBody\n        }\n    }];\n}\n\n// ========================================\n// HELPER FUNCTIONS\n// ========================================\n\nfunction normalizeText(text) {\n    if (!text) return '';\n    // FIXED: Convert to string first to handle numbers\n    const str = String(text);\n    return str.toLowerCase().trim()\n        .replace(/[?!.,;:'\"]/g, '')\n        .replace(/\\s+/g, ' ')\n        .trim();\n}\n\nfunction calculateSimilarity(str1, str2) {\n    if (str1 === str2) return 1.0;\n    \n    const words1 = str1.split(' ').filter(w => w.length > 0);\n    const words2 = str2.split(' ').filter(w => w.length > 0);\n    \n    if (words1.length === 0 || words2.length === 0) return 0;\n    \n    let matchCount = 0;\n    for (const word of words1) {\n        if (words2.includes(word)) matchCount++;\n    }\n    \n    const totalUniqueWords = new Set([...words1, ...words2]).size;\n    return matchCount / totalUniqueWords;\n}\n\nfunction levenshteinDistance(str1, str2) {\n    const matrix = [];\n    for (let i = 0; i <= str2.length; i++) matrix[i] = [i];\n    for (let j = 0; j <= str1.length; j++) matrix[0][j] = j;\n    \n    for (let i = 1; i <= str2.length; i++) {\n        for (let j = 1; j <= str1.length; j++) {\n            if (str2[i - 1] === str1[j - 1]) {\n                matrix[i][j] = matrix[i - 1][j - 1];\n            } else {\n                matrix[i][j] = Math.min(\n                    matrix[i - 1][j - 1] + 1,\n                    matrix[i][j - 1] + 1,\n                    matrix[i - 1][j] + 1\n                );\n            }\n        }\n    }\n    return matrix[str2.length][str1.length];\n}\n\nfunction fuzzyMatch(str1, str2) {\n    const distance = levenshteinDistance(str1, str2);\n    const maxLength = Math.max(str1.length, str2.length);\n    return maxLength > 0 ? 1 - (distance / maxLength) : 0;\n}\n\n// ========================================\n// SEARCH THROUGH CACHE\n// ========================================\n\nconsole.log(`🔍 Searching ${allLogs.length} cached records for: \"${userQuestion}\"`);\n\nconst normalizedUserQuestion = normalizeText(userQuestion);\nconst matches = [];\n\n// Search through logs\nfor (const log of allLogs) {\n    const logData = log.json;\n    \n    if (!logData.question || (!logData.answer && !logData.response)) continue;\n    \n    const logAnswer = logData.answer || logData.response || '';\n    \n    // Language matching\n    if (logData.language && userLanguage) {\n        const logLang = logData.language.toLowerCase();\n        const userLang = userLanguage.toLowerCase();\n        if (logLang !== userLang && \n            !(logLang.includes('hindi') && userLang.includes('hi')) &&\n            !(logLang.includes('english') && userLang.includes('en'))) {\n            continue;\n        }\n    }\n    \n    const normalizedLogQuestion = normalizeText(logData.question);\n    const wordSimilarity = calculateSimilarity(normalizedUserQuestion, normalizedLogQuestion);\n    const fuzzySimilarity = fuzzyMatch(normalizedUserQuestion, normalizedLogQuestion);\n    const similarity = Math.max(wordSimilarity, fuzzySimilarity);\n    \n    if (similarity > 0.4) {\n        matches.push({\n            originalQuestion: logData.question,\n            question: normalizedLogQuestion,\n            answer: logAnswer,\n            response: logAnswer,\n            language: logData.language || userLanguage,\n            similarity: similarity,\n            timestamp: logData.Timestamp || logData.timestamp,\n            response_id: logData.response_id  // ← ADD THIS LINE\n        });\n    }\n}\n\nmatches.sort((a, b) => b.similarity - a.similarity);\n\nconsole.log(`✅ Found ${matches.length} similar questions`);\n\n// ========================================\n// CHECK FOR CACHE HIT (>85% match) - STRICTER THRESHOLD\n// ========================================\n\nconst exactMatch = matches.find(m => m.similarity > 0.85);  // Changed from 0.75\n\nif (exactMatch) {\n    console.log(`🎯 CACHE HIT! Similarity: ${(exactMatch.similarity * 100).toFixed(1)}%`);\n    console.log(`   Matched: \"${exactMatch.originalQuestion}\"`);\n    \n    return [{\n        json: {\n            response: exactMatch.answer,\n            source: 'cache',\n            cached: true,\n            similarity: exactMatch.similarity,\n            question: userQuestion,\n            message: userQuestion,\n            language: exactMatch.language,\n            success: true,\n            matchedQuestion: exactMatch.originalQuestion,\n            totalMatches: matches.length,\n            response_id: exactMatch.response_id,\n            ...webhookBody\n        }\n    }];\n}\n\n// ========================================\n// CACHE MISS - Continue to web search\n// ========================================\n\nconsole.log(`❌ CACHE MISS - continuing to web search`);\n\nconst topMatches = matches.slice(0, 5);\nlet contextForAI = '';\n\nif (topMatches.length > 0) {\n    console.log(`📚 Providing ${topMatches.length} similar Q&As as context`);\n    \n    contextForAI = userLanguage === 'hi' \n        ? 'पिछले समान प्रश्न और उत्तर:\\n\\n'\n        : 'Previous similar questions and answers:\\n\\n';\n    \n    topMatches.forEach((match, index) => {\n        contextForAI += `${index + 1}. Q: ${match.originalQuestion}\\n`;\n        contextForAI += `   A: ${match.answer}\\n`;\n        contextForAI += `   (Similarity: ${(match.similarity * 100).toFixed(1)}%)\\n\\n`;\n    });\n}\n\n// ========================================\n// RETURN: Not cached, proceed to web search\n// ========================================\n\nreturn [{\n    json: {\n        question: userQuestion,\n        message: userQuestion,\n        cached: false,\n        needsAI: false,  // ← FIXED: Cache miss doesn't mean \"needsAI\"\n        similarQuestions: topMatches,\n        contextForAI: contextForAI,\n        language: userLanguage,\n        totalSimilarFound: topMatches.length,\n        bestMatchSimilarity: matches[0]?.similarity || 0,\n        source: 'cache-miss-continue-search',\n        ...webhookBody\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        848
+      ],
+      "id": "f38ef3a7-cf65-42ef-8d70-0051ae3767a7",
+      "name": "Search Cache for Similar Questions"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1cf788a2-2d38-4232-97a9-179b9a2d413e",
+              "leftValue": "={{ $json.cached }}",
+              "rightValue": "={{ $json.cached }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -64,
+        1120
+      ],
+      "id": "192995e6-972a-4f07-8a52-53b1476921b2",
+      "name": "Is Answer Cached?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// FIXED: Filter Valid URLs\n// Handles both link field AND organic_results array\n// ========================================\n\nconst data = $input.first().json;\n\nconsole.log('=== Filter Valid URLs ===');\nconsole.log('Input link:', data.link);\nconsole.log('noResults:', data.noResults);\nconsole.log('organic_results count:', data.organic_results?.length || 0);\n\n// ========================================\n// CASE 1: Already marked as no results\n// ========================================\nif (data.noResults === true && !data.link) {\n    console.log('✓ Already marked as noResults, passing through');\n    return [$input.first()];\n}\n\n// ========================================\n// CASE 2: Direct link field is populated (from Code in JavaScript2)\n// ========================================\nif (data.link && data.link.trim() !== '') {\n    const url = data.link.trim();\n    \n    console.log(`✓ Direct link found: ${url}`);\n    \n    // Check if it's a bad URL pattern - ENHANCED PATTERNS\n    const skipPatterns = [\n        // Dead/old sections (original)\n        '/adhaun/', '/old/', '/archive/', '/404', '/error',\n        \n        // Technical/Downloads (NEW - usually forms, not info)\n        '/downloads/', '/forms/', '/applications/', '/upload/',\n        \n        // Media galleries (NEW - not informational)\n        '/gallery/', '/photo-gallery/', '/video-gallery/', '/images/',\n        \n        // Other irrelevant (NEW)\n        '/events-calendar/', '/feedback/', '/contact-form/',\n        '/guest-book/', '/sitemap/', '/search/', '/login/'\n    ];\n    \n    const isBad = skipPatterns.some(pattern => url.toLowerCase().includes(pattern));\n    \n    if (isBad) {\n        const matchedPattern = skipPatterns.find(p => url.toLowerCase().includes(p));\n        console.log(`❌ Bad URL detected: ${url}`);\n        console.log(`   Reason: Contains pattern \"${matchedPattern}\"`);\n        console.log('   Will check organic_results for alternatives...');\n        // Continue to check organic_results below\n    } else {\n        console.log(`✅ Valid URL, keeping it: ${url}`);\n        // URL is good, keep it as-is\n        return [{\n            json: {\n                ...data,\n                link: url,\n                noResults: false,\n                filteredCount: 1,\n                filterApplied: 'direct-link-validated'\n            }\n        }];\n    }\n}\n\n// ========================================\n// CASE 3: Check organic_results array\n// ========================================\nconst allResults = data.organic_results || [];\n\nif (allResults.length === 0) {\n    console.log('❌ No organic_results to filter');\n    return [{\n        json: {\n            ...data,\n            link: '',\n            noResults: true,\n            organic_results: []\n        }\n    }];\n}\n\nconsole.log(`📊 Filtering ${allResults.length} organic results...`);\n\n// Known bad URL patterns - ENHANCED (same as above)\nconst skipPatterns = [\n    // Dead/old sections\n    '/adhaun/', '/old/', '/archive/', '/404', '/error',\n    \n    // Education pages (NEW)\n    '/class-0', '/class-1', '/class-2', '/class-3', '/class-4',\n    '/class-5', '/class-6', '/class-7', '/class-8', '/class-9',\n    '/syllabus/', '/curriculum/', '/examination/', '/results/',\n    '/admission/', '/datesheet/',\n    \n    // HR/Administrative (NEW)\n    '/recruitment/', '/vacancy/', '/tender/', '/bid/', '/auction/',\n    '/circulars/', '/orders/', '/notification/', '/noc/',\n    \n    // Technical/Downloads (NEW)\n    '/downloads/', '/forms/', '/applications/', '/upload/',\n    \n    // Media galleries (NEW)\n    '/gallery/', '/photo-gallery/', '/video-gallery/', '/images/',\n    \n    // Other irrelevant (NEW)\n    '/events-calendar/', '/feedback/', '/contact-form/',\n    '/guest-book/', '/sitemap/', '/search/', '/login/'\n];\n\n// Good URL patterns (priority scores) - UNCHANGED\nconst goodPatterns = [\n    { pattern: 'know-kurukshetra', score: 10 },\n    { pattern: 'about-district', score: 10 },\n    { pattern: 'services', score: 7 },\n    { pattern: 'about-kurukshetra', score: 10 }\n];\n\n// Filter and score URLs\nconst validUrls = [];\n\nfor (const result of allResults) {\n    const url = result.link || '';\n    \n    if (!url) continue;\n    \n    // Skip bad patterns\n    const isBad = skipPatterns.some(pattern => \n        url.toLowerCase().includes(pattern)\n    );\n    \n    if (isBad) {\n        const matchedPattern = skipPatterns.find(p => url.toLowerCase().includes(p));\n        console.log(`⏭️ Skipping bad URL: ${url}`);\n        console.log(`   Reason: Contains pattern \"${matchedPattern}\"`);  // ← ENHANCED logging\n        continue;\n    }\n    \n    // Calculate priority score\n    let score = 0;\n    for (const good of goodPatterns) {\n        if (url.toLowerCase().includes(good.pattern)) {\n            score += good.score;\n        }\n    }\n    \n    // Prefer HTTPS\n    if (url.startsWith('https://')) score += 1;\n    \n    // Prefer shorter URLs\n    const pathDepth = url.split('/').length;\n    if (pathDepth <= 5) score += 2;\n    \n    validUrls.push({\n        ...result,\n        link: url,\n        priorityScore: score\n    });\n}\n\n// Sort by priority\nvalidUrls.sort((a, b) => b.priorityScore - a.priorityScore);\n\nconsole.log(`✅ Filtered: ${validUrls.length} valid URLs (from ${allResults.length})`);\n\n// ========================================\n// RETURN RESULT\n// ========================================\nif (validUrls.length === 0) {\n    console.log('❌ No valid URLs found after filtering');\n    return [{\n        json: {\n            ...data,\n            link: '',\n            noResults: true,\n            organic_results: [],\n            filterApplied: 'all-urls-filtered-out'\n        }\n    }];\n}\n\n// Return with BEST URL as primary link\nconst bestUrl = validUrls[0].link;\n\nconsole.log(`🎯 Selected best URL: ${bestUrl}`);\nconsole.log(`   Priority score: ${validUrls[0].priorityScore}`);\n\nreturn [{\n    json: {\n        ...data,\n        link: bestUrl,  // ← CRITICAL: This is what next nodes need\n        noResults: false,  // ← CRITICAL: We HAVE results\n        organic_results: validUrls.slice(0, 3),\n        originalCount: allResults.length,\n        filteredCount: validUrls.length,\n        filterApplied: 'organic-results-filtered'\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2224,
+        752
+      ],
+      "id": "70bdcce5-5bce-43b9-8df8-d4c9538bfc5a",
+      "name": "Filter Valid URLs"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Smart Scraper - Fixed for n8n with SSL ignore\nconst data = $input.first().json;\n\n// ============================================\n// FOR 48 KOS SITES - SCRAPE TERTIARY LINK\n// 48koskurukshetra.com has richer content\n// ============================================\nlet url = data.link;\n\nif (data.is48Kos && data.tertiaryLink) {\n    url = data.tertiaryLink;\n    console.log('→ 48 Kos site - scraping tertiary for richer content:', url);\n} else {\n    console.log('→ Regular site - scraping primary link:', url);\n}\n\nconsole.log('=== Smart Scraper ===');\nconsole.log('URL to scrape:', url);\n\nif (!url || url.trim() === '') {\n    console.log('❌ No URL provided');\n    return [{\n        json: {\n            error: 'No URL to scrape',\n            success: false,\n            ...data\n        }\n    }];\n}\n\nconsole.log(`📡 Attempting to scrape: ${url}`);\n\ntry {\n    const response = await this.helpers.httpRequest({\n        method: 'GET',\n        url: url,\n        timeout: 15000,\n        headers: {\n            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'\n        },\n        returnFullResponse: false,\n        skipSslCertificateValidation: true\n    });\n\n    if (response) {\n        const html = String(response);\n\n        console.log(`✅ SUCCESS: Scraped ${html.length} characters`);\n\n        if (html.length > 500 && (html.includes('<html') || html.includes('<body'))) {\n            return [{\n                json: {\n                    data: html,\n                    url: url,\n                    success: true,\n                    htmlLength: html.length,\n                    ...data\n                }\n            }];\n        } else {\n            console.log('⚠️ Response too short or not valid HTML');\n            return [{\n                json: {\n                    success: false,\n                    error: 'Invalid HTML response',\n                    url: url,\n                    htmlLength: html.length,\n                    ...data\n                }\n            }];\n        }\n    }\n\n// REPLACE WITH - fallback to primary link on 404\n} catch (error) {\n    console.log('Scraping failed:', error.message);\n    \n    // If tertiary link failed and we have primary, try primary instead\n    if (data.is48Kos && url !== data.link && data.link) {\n        console.log('Tertiary failed - falling back to primary:', data.link);\n        try {\n            const fallbackResponse = await this.helpers.httpRequest({\n                method: 'GET',\n                url: data.link,\n                timeout: 15000,\n                headers: {\n                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'\n                },\n                returnFullResponse: false,\n                skipSslCertificateValidation: true\n            });\n            \n            if (fallbackResponse) {\n                const html = String(fallbackResponse);\n                if (html.length > 500 && (html.includes('<html') || html.includes('<body'))) {\n                    console.log('Fallback SUCCESS:', html.length, 'chars');\n                    return [{\n                        json: {\n                            data: html,\n                            url: data.link,\n                            success: true,\n                            htmlLength: html.length,\n                            usedFallback: true,\n                            ...data\n                        }\n                    }];\n                }\n            }\n        } catch (fallbackError) {\n            console.log('Fallback also failed:', fallbackError.message);\n        }\n    }\n    \n    return [{\n        json: {\n            success: false,\n            error: error.message,\n            url: url,\n            ...data\n        }\n    }];\n}\n\nreturn [{\n    json: {\n        success: false,\n        error: 'No response received',\n        url: url,\n        ...data\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2672,
+        688
+      ],
+      "id": "463f6b7a-bade-49af-8caf-d70ef3d96ae4",
+      "name": "Smart Scraper with Retry"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b77a601a-4c06-4906-a8f4-4fec2b8165ba",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2896,
+        688
+      ],
+      "id": "f410cf3f-09ec-46ae-9884-9b630b05fe47",
+      "name": "Check Scrape Success"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "={{ $('Select_SerpAPI_Key').first().json.serpapi_key }}"
+            },
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "={{ \n  $('Check_Tourism_Query').first().json.message + \n  ' ' +\n  ($('Check_Tourism_Query').first().json.perspective === 'buddhist' ? 'buddhist' : '') +\n  ($('Check_Tourism_Query').first().json.perspective === 'sikh' ? 'sikh gurudwara' : '') +\n  ($('Check_Tourism_Query').first().json.perspective === 'jain' ? 'jain' : '') +\n  ($('Check_Tourism_Query').first().json.perspective === 'historical' ? 'history heritage' : '') +\n  ($('Check_Tourism_Query').first().json.perspective === 'parikrama' ? 'yaksha' : '')\n}} (site:48koskurukshetra.com OR site:kurukshetra.gov.in) -inurl:class- -inurl:recruitment -inurl:tender"
+            },
+            {
+              "name": "num",
+              "value": "3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1168,
+        656
+      ],
+      "id": "c2e89544-25e8-4d95-97af-4a0fbc199700",
+      "name": "Search_Haryana_Tourism"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all existing data\nconst inputData = $input.first().json;\n\n// Generate unique response ID\nconst timestamp = Date.now();\nconst random = Math.random().toString(36).substring(2, 9);\nconst responseId = `${timestamp}_${random}`;\n\nconsole.log('✓ Generated Response ID:', responseId);\n\n// Return all data plus the new response_id\nreturn [{\n    json: {\n        ...inputData,\n        response_id: responseId\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4464,
+        752
+      ],
+      "id": "3e04bf64-1b07-4e9c-8cd7-48d54ec476a5",
+      "name": "Generate_Response_ID"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nconsole.log('=== Adding Feedback Link ===');\n\n// Get the response text from whichever field exists\nconst originalText = input.reply || input.response || input.answer || '';\nconst responseId = input.response_id;\n\nconsole.log('Response ID:', responseId);\n\n// Create Google Apps Script feedback URL\nconst feedbackUrl = `https://script.google.com/macros/s/AKfycbxCvs-tk8PecmOgORx8WIgszAO0VfqobnCCj75RM0kOiwxZep5UHJFl0Eub28uvHL2WWA/exec?id=${responseId}`;\n\n// Add feedback link to response\nconst textWithFeedback = originalText + `\n\n───────────────\n📊 **Help us improve!**\nShare your feedback: ${feedbackUrl}`;\n\nconsole.log('✓ Feedback link added');\n\n// Return with BOTH fields updated (reply AND response)\nreturn [{\n    json: {\n        ...input,\n        reply: textWithFeedback,\n        response: textWithFeedback,\n        answer: textWithFeedback,\n        feedback_url: feedbackUrl,\n        original_reply: originalText\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4912,
+        848
+      ],
+      "id": "6ceb6474-fda8-4ccf-9323-1e1e686dc7c3",
+      "name": "Add_Feedback_Text"
+    },
+    {
+      "parameters": {
+        "jsCode": "const API_KEYS = [\n    '1f39ebb1804779d57b6396b44f926b79c68f96cc54c0fdd17594568ad288e366',  // nickkr27\n ];\n\n// ========================================\n// SAFETY CHECK\n// ========================================\n\nif (!API_KEYS || API_KEYS.length === 0) {\n    throw new Error('❌ No SerpAPI keys configured! Please add at least one API key.');\n}\n\nconsole.log('=== SerpAPI Key Selection ===');\nconsole.log('Total Keys Available:', API_KEYS.length);\n\n// Get current timestamp to create rotation\nconst timestamp = Date.now();\n\n// Simple rotation: use timestamp to select key\nconst keyIndex = Math.floor(timestamp / 1000) % API_KEYS.length;\nconst selectedKey = API_KEYS[keyIndex];\n\nconsole.log('Selected Key Index:', keyIndex);\nconsole.log('Selected Key:', selectedKey ? selectedKey.substring(0, 10) + '...' : 'NONE');\n\n// ========================================\n// VERIFY KEY EXISTS\n// ========================================\n\nif (!selectedKey) {\n    throw new Error('❌ Failed to select API key! keyIndex: ' + keyIndex);\n}\n\n// Pass through all input data plus the selected API key\nconst inputData = $input.first().json;\n\nreturn [{\n    json: {\n        ...inputData,\n        serpapi_key: selectedKey,\n        key_index: keyIndex\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        656
+      ],
+      "id": "61f0d419-14a5-4109-acf3-133c84a29e85",
+      "name": "Select_SerpAPI_Key"
+    },
+    {
+      "parameters": {
+        "jsCode": "const API_KEYS = [\n    '1f39ebb1804779d57b6396b44f926b79c68f96cc54c0fdd17594568ad288e366',\n\n];\n\n// ========================================\n// SAFETY CHECK\n// ========================================\n\nif (!API_KEYS || API_KEYS.length === 0) {\n    throw new Error('❌ No SerpAPI keys configured! Please add at least one API key.');\n}\n\nconsole.log('=== SerpAPI Key Selection ===');\nconsole.log('Total Keys Available:', API_KEYS.length);\n\n// Get current timestamp to create rotation\nconst timestamp = Date.now();\n\n// Simple rotation: use timestamp to select key\nconst keyIndex = Math.floor(timestamp / 1000) % API_KEYS.length;\nconst selectedKey = API_KEYS[keyIndex];\n\nconsole.log('Selected Key Index:', keyIndex);\nconsole.log('Selected Key:', selectedKey ? selectedKey.substring(0, 10) + '...' : 'NONE');\n\n// ========================================\n// VERIFY KEY EXISTS\n// ========================================\n\nif (!selectedKey) {\n    throw new Error('❌ Failed to select API key! keyIndex: ' + keyIndex);\n}\n\n// Pass through all input data plus the selected API key\nconst inputData = $input.first().json;\n\nreturn [{\n    json: {\n        ...inputData,\n        serpapi_key: selectedKey,\n        key_index: keyIndex\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        880
+      ],
+      "id": "2f025b09-8fbb-48e9-89f9-0d7237c96791",
+      "name": "Select_SerpAPI_Key1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// SMART QUERY ENHANCER v2\n// Adds relevant context keywords to improve search accuracy\n// NEW: Person query detection for DC/SDM/SP etc.\n// ============================================\n\nconst inputData = $input.first().json;\nconst query = inputData.message || inputData.question || '';\nconst language = inputData.language || 'en';\n\nconsole.log('=== Smart Query Enhancer ===');\nconsole.log('Original query:', query);\n\nconst lowerQuery = query.toLowerCase();\nlet enhancedQuery = query;\nlet category = 'general';\nlet boostKeywords = '';\n\n// ============================================\n// PERSON QUERIES (HIGHEST PRIORITY) - EXPANDED\n// ============================================\nif (lowerQuery.match(/who is|mla|mp|minister|deputy commissioner|dc|sdm|sub divisional magistrate|sp|superintendent of police|adc|additional deputy|collector|tehsildar|sho|station house officer|mayor|councilor|councillor|विधायक|सांसद|मंत्री/i)) {\n    const isPersonQuery = \n        lowerQuery.includes('who is') || \n        lowerQuery.includes('who\\'s') ||\n        lowerQuery.includes('current') ||\n        lowerQuery.match(/\\bmla\\b/i) ||  // MLA (word boundary to avoid \"mlas\" etc.)\n        lowerQuery.match(/\\bmp\\b/i) ||   // MP\n        lowerQuery.includes('minister') ||\n        lowerQuery.includes('विधायक') ||\n        lowerQuery.includes('सांसद') ||\n        (lowerQuery.match(/\\b(dc|sdm|sp|adc|collector|tehsildar|sho)\\b/) && \n         !lowerQuery.includes('office') && \n         !lowerQuery.includes('location'));\n    \n}\n\n// ============================================\n// DEMOGRAPHIC & STATISTICAL QUERIES\n// ============================================\nif (category === 'general' && lowerQuery.match(/sex ratio|population|literacy|census|demograph|birth rate|death rate|male.*female|density/i)) {\n    boostKeywords = 'demography statistics census data know about';\n    category = 'demographic';\n    console.log('→ Category: Demographic');\n}\n\n\n// ============================================\n// GOVERNMENT OFFICES & ADMINISTRATION\n// ============================================\nelse if (category === 'general' && lowerQuery.match(/dc office|collector office|tehsil office|administration|government office|district office/i)) {\n    boostKeywords = 'administration office contact phone address official';\n    category = 'government';\n    console.log('→ Category: Government');\n}\n\n// ============================================\n// POLICE & LAW ENFORCEMENT\n// ============================================\nelse if (category === 'general' && lowerQuery.match(/police|thana|police station|sho|cop|law enforcement/i)) {\n    boostKeywords = 'police station contact phone address emergency';\n    category = 'police';\n    console.log('→ Category: Police');\n}\n\n// ============================================\n// COURTS & JUDICIARY\n// ============================================\nelse if (category === 'general' && lowerQuery.match(/court|judge|lawyer|legal|case|judiciary/i)) {\n    boostKeywords = 'court judiciary legal contact address';\n    category = 'judiciary';\n    console.log('→ Category: Judiciary');\n}\n\n// ============================================\n// EMERGENCY SERVICES\n// ============================================\nelse if (category === 'general' && lowerQuery.match(/emergency|ambulance|fire|disaster|helpline|dial 100|108|101/i)) {\n    boostKeywords = 'emergency contact phone helpline number service';\n    category = 'emergency';\n    console.log('→ Category: Emergency');\n}\n\n// ============================================\n// BUILD ENHANCED QUERY\n// ============================================\n\nif (boostKeywords) {\n    enhancedQuery = `${query} ${boostKeywords}`;\n}\n\nconsole.log('Enhanced query:', enhancedQuery);\nconsole.log('Boost keywords:', boostKeywords);\nconsole.log('Category:', category);\nconsole.log('========================');\n\n// ============================================\n// RETURN ENHANCED DATA\n// ============================================\n\nreturn [{\n    json: {\n        ...inputData,\n        message: enhancedQuery,           // ← Enhanced for search\n        originalQuery: query,              // ← Keep original\n        enhancedQuery: enhancedQuery,\n        queryCategory: category,\n        boostKeywords: boostKeywords\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        880
+      ],
+      "id": "4df787f3-c023-4b13-9ae9-c66827015337",
+      "name": "Smart_Query_Enhancer"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// DEMOGRAPHIC DATA EXTRACTOR (SAFE VERSION)\n// Forcefully extracts census data from scraped content\n// ============================================\n\nconst scrapedText = $input.first().json.text || '';\n\n// Safely get queryCategory with fallback\nlet queryCategory = 'general';\ntry {\n    const enhancer = $('Smart_Query_Enhancer').first();\n    if (enhancer && enhancer.json && enhancer.json.queryCategory) {\n        queryCategory = enhancer.json.queryCategory;\n    }\n} catch (e) {\n    console.log('Smart_Query_Enhancer not found, using fallback');\n    // Try to get from input instead\n    queryCategory = $input.first().json.queryCategory || 'general';\n}\n\nconsole.log('=== Demographic Data Extractor ===');\nconsole.log('Query Category:', queryCategory);\n\nlet extractedData = {\n    population: null,\n    sexRatio: null,\n    literacyRate: null,\n    density: null,\n    growthRate: null\n};\n\n// Only extract if this is a demographic query\nif (queryCategory === 'demographic') {\n    console.log('Extracting demographic data...');\n    \n    // Extract Population\n    const popMatch = scrapedText.match(/population of ([\\d,]+)/i);\n    if (popMatch) {\n        extractedData.population = popMatch[1];\n        console.log('✓ Found population:', extractedData.population);\n    }\n    \n    // Extract Sex Ratio (multiple patterns)\n    const sexRatioPatterns = [\n        /sex ratio of (\\d+) females/i,\n        /(\\d+) females for every 1000 males/i,\n        /sex ratio[^\\d]*(\\d+)/i\n    ];\n    \n    for (const pattern of sexRatioPatterns) {\n        const match = scrapedText.match(pattern);\n        if (match) {\n            extractedData.sexRatio = match[1];\n            console.log('✓ Found sex ratio:', extractedData.sexRatio);\n            break;\n        }\n    }\n    \n    // Extract Literacy Rate\n    const literacyMatch = scrapedText.match(/literacy rate of ([\\d.]+)%/i);\n    if (literacyMatch) {\n        extractedData.literacyRate = literacyMatch[1];\n        console.log('✓ Found literacy rate:', extractedData.literacyRate);\n    }\n    \n    // Extract Density\n    const densityMatch = scrapedText.match(/density of (\\d+) inhabitants/i);\n    if (densityMatch) {\n        extractedData.density = densityMatch[1];\n        console.log('✓ Found density:', extractedData.density);\n    }\n    \n    // Extract Growth Rate\n    const growthMatch = scrapedText.match(/growth rate[^\\d]*([\\d.]+)%/i);\n    if (growthMatch) {\n        extractedData.growthRate = growthMatch[1];\n        console.log('✓ Found growth rate:', extractedData.growthRate);\n    }\n}\n\nconsole.log('=== Extracted Data ===');\nconsole.log(JSON.stringify(extractedData, null, 2));\nconsole.log('======================');\n\n// Pass through all data plus extracted demographics\nreturn [{\n    json: {\n        ...($input.first().json),\n        extractedDemographics: extractedData,\n        queryCategory: queryCategory\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3344,
+        640
+      ],
+      "id": "44d0ee93-48c6-4a47-9a55-c2bd28bdde32",
+      "name": "Extract_Demographic_Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// PREPARE ANALYTICS DATA FOR LOGGING\n// ============================================\n\nconst input = $input.first().json;\n\nconsole.log('=== Preparing Analytics Data ===');\n\n// Get necessary data\nconst aiResponse = input.response || input.reply || '';\nconst question = input.question || input.message || '';\nconst language = input.language || 'en';\nconst responseId = input.response_id || '';\nconst deviceType = input.deviceType || 'unknown';\nconst sourceData = input.source || '';\n\n// Get sourceLink - check multiple possible locations\nlet sourceLink = '';\ntry {\n    // Try to get from Code in JavaScript2\n    const jsNode2Data = $('Code in JavaScript2').first().json;\n    sourceLink = jsNode2Data.link || jsNode2Data.sourceLink || '';\n} catch (e) {\n    console.log('Could not get sourceLink from Code in JavaScript2');\n}\n\n// Get queryCategory\nlet queryCategory = 'general';\ntry {\n    const enhancerData = $('Smart_Query_Enhancer').first().json;\n    queryCategory = enhancerData.queryCategory || 'general';\n} catch (e) {\n    console.log('Could not get queryCategory');\n}\n\n// Get isPrivateBusiness flag\nlet isPrivateBusiness = false;\ntry {\n    const tourismData = $('Check_Tourism_Query').first().json;\n    isPrivateBusiness = tourismData.isPrivateBusiness || false;\n} catch (e) {\n    console.log('Could not get isPrivateBusiness flag');\n}\n\n// ============================================\n// DETERMINE RESPONSE TYPE\n// ============================================\n\nlet responseType = 'ai_fallback';\nconst respLower = aiResponse.toLowerCase();\n\nif (isPrivateBusiness) {\n    responseType = 'private_business';\n} \nelse if (respLower.includes('not available') || respLower.includes('data not found')) {\n    responseType = 'not_available';\n} \nelse if (respLower.includes('priharyana.nic.in') || \n         respLower.includes('census2011.co.in') ||\n         respLower.includes('ceoharyana.gov.in') ||\n         respLower.includes('jamabandi.nic.in')) {\n    responseType = 'external_link';\n} \nelse if (sourceLink && sourceLink.includes('kurukshetra.gov.in')) {\n    responseType = 'website_scraped';\n}\n\nconsole.log('Response Type:', responseType);\n\n// ============================================\n// DETERMINE CACHE FLAG\n// ============================================\n\nlet cacheFlag = 'REVIEW';\nif (responseType === 'private_business' || \n    responseType === 'not_available' || \n    responseType === 'ai_fallback') {\n    cacheFlag = 'NO';\n} else if (responseType === 'website_scraped') {\n    cacheFlag = 'YES';\n}\n\nconsole.log('Cache Flag:', cacheFlag);\n\n// ============================================\n// DETERMINE FLAG REASON\n// ============================================\n\nlet flagReason = 'unknown';\nif (responseType === 'private_business') {\n    flagReason = 'private_business';\n} else if (responseType === 'not_available' || responseType === 'ai_fallback') {\n    flagReason = 'no_website_data';\n} else if (responseType === 'external_link') {\n    flagReason = 'external_portal';\n} else if (responseType === 'website_scraped') {\n    flagReason = 'government_source';\n}\n\nconsole.log('Flag Reason:', flagReason);\n\n// ============================================\n// RETURN ALL DATA WITH NEW FIELDS\n// ============================================\n\nreturn [{\n    json: {\n        // Keep all existing fields\n        Timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n        question: question,\n        response: aiResponse,\n        language: language,\n        deviceType: deviceType,\n        source: sourceData,\n        response_id: responseId,\n        \n        // NEW ANALYTICS FIELDS\n        Response_Type: responseType,\n        Source_URL: sourceLink,\n        Cache_Flag: cacheFlag,\n        Flag_Reason: flagReason,\n        Query_Category: queryCategory\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4688,
+        752
+      ],
+      "id": "b3893ad2-956c-4040-b5c5-52cce98e558d",
+      "name": "Prepare Analytics Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// EMOJI & SYMBOL SANITIZER (FIXED FOR WEBHOOK)\n// ============================================\nconst data = $input.first().json;\n\n// 1. Locate the actual payload (Webhooks put it inside 'body')\nconst payload = data.body || data;\n\n// 2. Extract the text securely (ignoring empty objects)\nlet rawText = payload.message || payload.question || '';\nif (typeof rawText === 'object') {\n    rawText = ''; // Prevent [object Object] errors\n}\n\nlet text = String(rawText);\n\n// 3. Advanced Regex: Removes emojis but KEEPS English, Hindi, and normal punctuation\nconst cleanText = text\n    .replace(/([\\u2700-\\u27BF]|[\\uE000-\\uF8FF]|\\uD83C[\\uDC00-\\uDFFF]|\\uD83D[\\uDC00-\\uDFFF]|[\\u2011-\\u26FF]|\\uD83E[\\uDD10-\\uDDFF])/g, '')\n    .replace(/\\s+/g, ' ') // Remove extra double spaces left behind by deleted emojis\n    .trim();\n\nconsole.log('Original:', text);\nconsole.log('Cleaned:', cleanText);\n\n// 4. Return data, promoting variables to the top level so the next nodes can easily read them\nreturn [{\n    json: {\n        ...data,\n        ...payload, // Brings 'city', 'language', etc., to the top level\n        message: cleanText,\n        question: cleanText,\n        query: cleanText, // Overwrites the empty webhook query object\n        original_message_with_emoji: text\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -752,
+        848
+      ],
+      "id": "a0121ee7-94ea-4001-b1d8-acf465633603",
+      "name": "Sanitize Query"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// PREPARE ANALYTICS DATA FOR LOGGING\n// ============================================\n\nconst input = $input.first().json;\n\nconsole.log('=== Preparing Analytics Data ===');\n\n// Get necessary data\nconst aiResponse = input.response || input.reply || '';\nconst question = input.question || input.message || '';\nconst language = input.language || 'en';\nconst responseId = input.response_id || '';\nconst deviceType = input.deviceType || 'unknown';\nconst sourceData = input.source || '';\n\n// Get sourceLink - check multiple possible locations\nlet sourceLink = '';\ntry {\n    // Try to get from Code in JavaScript2\n    const jsNode2Data = $('Code in JavaScript2').first().json;\n    sourceLink = jsNode2Data.link || jsNode2Data.sourceLink || '';\n} catch (e) {\n    console.log('Could not get sourceLink from Code in JavaScript2');\n}\n\n// Get queryCategory\nlet queryCategory = 'general';\ntry {\n    const enhancerData = $('Smart_Query_Enhancer').first().json;\n    queryCategory = enhancerData.queryCategory || 'general';\n} catch (e) {\n    console.log('Could not get queryCategory');\n}\n\n// Get isPrivateBusiness flag\nlet isPrivateBusiness = false;\ntry {\n    const tourismData = $('Check_Tourism_Query').first().json;\n    isPrivateBusiness = tourismData.isPrivateBusiness || false;\n} catch (e) {\n    console.log('Could not get isPrivateBusiness flag');\n}\n\n// ============================================\n// DETERMINE RESPONSE TYPE\n// ============================================\n\nlet responseType = 'ai_fallback';\nconst respLower = aiResponse.toLowerCase();\n\nif (isPrivateBusiness) {\n    responseType = 'private_business';\n} \nelse if (respLower.includes('not available') || respLower.includes('data not found')) {\n    responseType = 'not_available';\n} \nelse if (respLower.includes('priharyana.nic.in') || \n         respLower.includes('census2011.co.in') ||\n         respLower.includes('ceoharyana.gov.in') ||\n         respLower.includes('jamabandi.nic.in')) {\n    responseType = 'external_link';\n} \nelse if (sourceLink && sourceLink.includes('kurukshetra.gov.in')) {\n    responseType = 'website_scraped';\n}\n\nconsole.log('Response Type:', responseType);\n\n// ============================================\n// DETERMINE CACHE FLAG\n// ============================================\n\nlet cacheFlag = 'REVIEW';\nif (responseType === 'private_business' || \n    responseType === 'not_available' || \n    responseType === 'ai_fallback') {\n    cacheFlag = 'NO';\n} else if (responseType === 'website_scraped') {\n    cacheFlag = 'YES';\n}\n\nconsole.log('Cache Flag:', cacheFlag);\n\n// ============================================\n// DETERMINE FLAG REASON\n// ============================================\n\nlet flagReason = 'unknown';\nif (responseType === 'private_business') {\n    flagReason = 'private_business';\n} else if (responseType === 'not_available' || responseType === 'ai_fallback') {\n    flagReason = 'no_website_data';\n} else if (responseType === 'external_link') {\n    flagReason = 'external_portal';\n} else if (responseType === 'website_scraped') {\n    flagReason = 'government_source';\n}\n\nconsole.log('Flag Reason:', flagReason);\n\n// ============================================\n// RETURN ALL DATA WITH NEW FIELDS\n// ============================================\n\nreturn [{\n    json: {\n        // Keep all existing fields\n        Timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n        question: question,\n        response: aiResponse,\n        language: language,\n        deviceType: deviceType,\n        source: sourceData,\n        response_id: responseId,\n        \n        // NEW ANALYTICS FIELDS\n        Response_Type: responseType,\n        Source_URL: sourceLink,\n        Cache_Flag: cacheFlag,\n        Flag_Reason: flagReason,\n        Query_Category: queryCategory\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4688,
+        1040
+      ],
+      "id": "4f1f5120-da18-4f63-a92e-69f7eaf1095c",
+      "name": "Prepare Analytics Data1"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "connection": "upgrade",
+            "host": "n8n-workflow-test.duckdns.org",
+            "x-real-ip": "103.87.26.133",
+            "x-forwarded-for": "103.87.26.133",
+            "x-forwarded-proto": "https",
+            "content-length": "62",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+            "sec-ch-ua": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\"",
+            "content-type": "application/json",
+            "sec-ch-ua-mobile": "?0",
+            "accept": "*/*",
+            "origin": "https://vksinglakkr.github.io",
+            "sec-fetch-site": "cross-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "referer": "https://vksinglakkr.github.io/",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "en-IN,en-GB;q=0.9,en-US;q=0.8,en;q=0.7",
+            "priority": "u=1, i"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "question": "Emergency",
+            "message": "Emergency",
+            "language": "en"
+          },
+          "webhookUrl": "https://n8n-workflow-test.duckdns.org/webhook/chat",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "AI_Statistics_Generator1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML Extract": {
+      "main": [
+        [
+          {
+            "node": "Extract_Demographic_Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Sanitize Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI_Statistics_Generator1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Generate_Response_ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Smart Scraper with Retry",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI_Statistics_Generator2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Filter Valid URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI_Statistics_Generator2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is_Tourism_Query": {
+      "main": [
+        [
+          {
+            "node": "Select_SerpAPI_Key",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Smart_Query_Enhancer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search_KKRTour": {
+      "main": [
+        [
+          {
+            "node": "Search_Haryana_Tourism",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge_Tourism_Links": {
+      "main": [
+        [
+          {
+            "node": "Merge_All_Paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search_Regular": {
+      "main": [
+        [
+          {
+            "node": "Format_Regular",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge_All_Paths": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format_Regular": {
+      "main": [
+        [
+          {
+            "node": "Merge_All_Paths",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Check_Tourism_Query": {
+      "main": [
+        [
+          {
+            "node": "Is_Tourism_Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read IGM Saathi Logs": {
+      "main": [
+        [
+          {
+            "node": "Search Cache for Similar Questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Cache for Similar Questions": {
+      "main": [
+        [
+          {
+            "node": "Is Answer Cached?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Answer Cached?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Analytics Data1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check_Tourism_Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Valid URLs": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Smart Scraper with Retry": {
+      "main": [
+        [
+          {
+            "node": "Check Scrape Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Scrape Success": {
+      "main": [
+        [
+          {
+            "node": "HTML Extract",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI_Statistics_Generator2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search_Haryana_Tourism": {
+      "main": [
+        [
+          {
+            "node": "Merge_Tourism_Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate_Response_ID": {
+      "main": [
+        [
+          {
+            "node": "Prepare Analytics Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add_Feedback_Text": {
+      "main": [
+        [
+          {
+            "node": "Respond_To_Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select_SerpAPI_Key": {
+      "main": [
+        [
+          {
+            "node": "Search_KKRTour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select_SerpAPI_Key1": {
+      "main": [
+        [
+          {
+            "node": "Search_Regular",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Smart_Query_Enhancer": {
+      "main": [
+        [
+          {
+            "node": "Select_SerpAPI_Key1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract_Demographic_Data": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Analytics Data": {
+      "main": [
+        [
+          {
+            "node": "Add_Feedback_Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sanitize Query": {
+      "main": [
+        [
+          {
+            "node": "Read IGM Saathi Logs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Analytics Data1": {
+      "main": [
+        [
+          {
+            "node": "Add_Feedback_Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e4e1c79a-0972-4d53-892a-052a90ac0203",
+  "meta": {
+    "instanceId": "61b7efe9dec4b927bcefbfccd5ef26d989ec604921fbdaa87b7d95391eb60b25"
+  },
+  "id": "JI8wMEwJLokGKUYo",
+  "tags": []
+}

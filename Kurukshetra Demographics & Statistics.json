@@ -1,0 +1,793 @@
+{
+  "name": "Kurukshetra Demographics & Statistics",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "kurukshetra-demographics11",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1344,
+        -480
+      ],
+      "id": "deae02e6-5e46-432d-9112-a370cf86efe8",
+      "name": "Webhook_Demographics",
+      "webhookId": "demographics-kurukshetra"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract question from webhook\nconst input = $input.first().json;\nconst question = input.body?.question || input.question || \"\";\nconst queryType = input.body?.queryType || input.queryType || \"\";\n\n// Safety check\nif (!question) {\n  return [{\n    json: {\n      originalQuestion: \"\",\n      normalizedQuestion: \"\",\n      queryType: queryType,\n      category: \"general\",\n      dataType: \"text\",\n      error: \"No question provided\"\n    }\n  }];\n}\n\n// Normalize question\nconst normalizedQuestion = question.toLowerCase().trim();\n\n// Detect category based on keywords\nlet category = \"general\";\nlet dataType = \"text\";\n\nif (normalizedQuestion.includes(\"population\") || normalizedQuestion.includes(\"people\")) {\n  category = \"population\";\n  dataType = \"numeric\";\n} else if (normalizedQuestion.includes(\"area\") || normalizedQuestion.includes(\"km\") || normalizedQuestion.includes(\"square\")) {\n  category = \"geographic\";\n  dataType = \"numeric\";\n} else if (normalizedQuestion.includes(\"literacy\") || normalizedQuestion.includes(\"education\") || normalizedQuestion.includes(\"school\")) {\n  category = \"education\";\n  dataType = \"percentage\";\n} else if (normalizedQuestion.includes(\"hospital\") || normalizedQuestion.includes(\"health\") || normalizedQuestion.includes(\"medical\")) {\n  category = \"health\";\n  dataType = \"numeric\";\n} else if (normalizedQuestion.includes(\"income\") || normalizedQuestion.includes(\"economic\") || normalizedQuestion.includes(\"employment\") || normalizedQuestion.includes(\"agriculture\") || normalizedQuestion.includes(\"industry\")) {\n  category = \"economic\";\n  dataType = \"mixed\";\n} else if (normalizedQuestion.includes(\"urban\") || normalizedQuestion.includes(\"household\") || normalizedQuestion.includes(\"infrastructure\")) {\n  category = \"urbanization\";\n  dataType = \"percentage\";\n}\n\nreturn [{\n  json: {\n    originalQuestion: question,\n    normalizedQuestion,\n    queryType,\n    category,\n    dataType\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1120,
+        -480
+      ],
+      "id": "13a84540-6fad-49c5-a3c2-74ba1c18fed3",
+      "name": "Question_Analyzer"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all merged items\nconst items = $input.all();\n\nconsole.log('Total merged items:', items.length);\n\n// First item should have query data\nconst queryData = items[0].json;\n\nif (!queryData || !queryData.normalizedQuestion) {\n  return [{\n    json: {\n      matched: false,\n      error: \"No query data\"\n    }\n  }];\n}\n\nconst normalizedQuestion = queryData.normalizedQuestion.toLowerCase();\nconst category = queryData.category.toLowerCase();\n\nconsole.log('Looking for:', normalizedQuestion);\nconsole.log('In category:', category);\n\n// Search through ALL items for best match\nlet bestMatch = null;\nlet bestScore = 0;\n\nfor (const item of items) {\n  const data = item.json;\n  \n  // Skip if no database data\n  if (!data.Statistic_Name) continue;\n  \n  let score = 0;\n  \n  // Category match (5 points)\n  if (data.Category && data.Category.toLowerCase() === category) {\n    score += 5;\n  }\n  \n  // Keywords match (3 points each)\n  if (data.Keywords) {\n    const keywords = data.Keywords.toLowerCase().split(',').map(k => k.trim());\n    for (const keyword of keywords) {\n      if (normalizedQuestion.includes(keyword)) {\n        score += 3;\n      }\n    }\n  }\n  \n  // Question match (10 points)\n  if (data.Question && normalizedQuestion.includes(data.Question.toLowerCase())) {\n    score += 10;\n  }\n  \n  // Statistic name match (8 points)\n  if (data.Statistic_Name && normalizedQuestion.includes(data.Statistic_Name.toLowerCase())) {\n    score += 8;\n  }\n  \n  console.log(`Score for ${data.Statistic_Name}: ${score}`);\n  \n  if (score > bestScore) {\n    bestScore = score;\n    bestMatch = data;\n  }\n}\n\nconsole.log('Best match:', bestMatch?.Statistic_Name, 'Score:', bestScore);\n\n// Return result\nif (bestMatch && bestScore > 3) {\n  return [{\n    json: {\n      ...queryData,\n      ...bestMatch,\n      matched: true,\n      matchScore: bestScore\n    }\n  }];\n}\n\n// No match\nreturn [{\n  json: {\n    ...queryData,\n    matched: false,\n    matchScore: 0\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        -480
+      ],
+      "id": "30d65df8-6fe9-4dbf-9a16-8d9bc19e1574",
+      "name": "Data_Matcher"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.matched}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        -480
+      ],
+      "id": "ddf22233-6e82-4eaa-a128-f5daa979ddd0",
+      "name": "Check_Data_Match"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format database answer with HTML\nconst data = $json;\n\nconsole.log('Formatting data:', data);\n\n// Build formatted answer with HTML\nlet formattedAnswer = `<b>${data.statisticName || data.Statistic_Name}:</b> ${data.value || data.Value}`;\n\n// Add unit if exists\nif (data.unit || data.Unit) {\n  formattedAnswer += ` ${data.unit || data.Unit}`;\n}\n\nformattedAnswer += `<br><br>`;\n\n// Add additional info if exists\nif (data.additionalInfo || data.Additional_Info) {\n  formattedAnswer += `<b>Details:</b><br>${data.additionalInfo || data.Additional_Info}<br><br>`;\n}\n\n// Add source and year\nif (data.source || data.Source) {\n  formattedAnswer += `<b>Source:</b> ${data.source || data.Source}`;\n  if (data.year || data.Year) {\n    formattedAnswer += ` (${data.year || data.Year})`;\n  }\n  formattedAnswer += `<br>`;\n}\n\n// Add category if exists\nif (data.category || data.Category) {\n  formattedAnswer += `<b>Category:</b> ${data.category || data.Category}`;\n}\n\nconsole.log('Formatted answer:', formattedAnswer);\n\nreturn [{\n  json: {\n    question: data.originalQuestion,\n    formattedAnswer: formattedAnswer,\n    responseType: \"DB_VALIDATED\",\n    category: data.category || data.Category,\n    source: data.source || data.Source,\n    year: data.year || data.Year\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -576
+      ],
+      "id": "b472a360-2c70-4a59-9acc-a570854c3098",
+      "name": "Format_DB_Answer"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "groqApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"temperature\": 0.3,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a demographics expert for Kurukshetra district. Provide accurate statistics based on Census 2011, government reports, and official data. Always cite sources. If exact data is unavailable, provide approximate values with disclaimers. Format response with HTML tags: <b>bold</b> for headings, <br> for line breaks.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Question: {{$json.originalQuestion}}\\n\\nProvide statistical data for Kurukshetra district. Include specific numbers, percentages, or values. Format with HTML: <b>Statistic Name:</b> Value<br><br><b>Source:</b> Census/Govt Report\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        0,
+        -384
+      ],
+      "id": "a801a2c4-c86b-47e6-863c-a869f7519593",
+      "name": "AI_Statistics_Generator",
+      "credentials": {
+        "groqApi": {
+          "id": "SVypylwZhqG2a8gE",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format AI response\nconst data = $json;\n\n// Extract AI response\nlet aiResponse = \"\";\nif (data.choices && data.choices[0] && data.choices[0].message) {\n  aiResponse = data.choices[0].message.content;\n}\n\nreturn [{\n  json: {\n    question: data.originalQuestion || \"\",\n    formattedAnswer: aiResponse,\n    responseType: \"AI_GENERATED\",\n    disclaimer: \"Data generated by AI. Please verify from official Census or government sources.\"\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -384
+      ],
+      "id": "018ea407-f143-40bb-a6e9-34374dba4bd3",
+      "name": "Format_AI_Answer"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -480
+      ],
+      "id": "7b8cd0e0-8409-415e-91f6-54f42547b2db",
+      "name": "Respond_To_Webhook"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1W_mc_Xt9EWgVrIGeeEXy93u8xomkK0g8ZM_qj2VQ2lI",
+          "mode": "list",
+          "cachedResultName": "Kurukshetra_Heritage_Research_DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1W_mc_Xt9EWgVrIGeeEXy93u8xomkK0g8ZM_qj2VQ2lI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1211139409,
+          "mode": "list",
+          "cachedResultName": "Demographic",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1W_mc_Xt9EWgVrIGeeEXy93u8xomkK0g8ZM_qj2VQ2lI/edit#gid=1211139409"
+        },
+        "combineFilters": "OR",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -896,
+        -416
+      ],
+      "id": "d7fa1e22-5ab2-42ab-90c4-a6eedc21fafd",
+      "name": "Demographics_Database",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zqCFkP1mXpyrkeQ2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -672,
+        -480
+      ],
+      "id": "5a0b8865-d4e4-40a7-8d1a-97231aa6dc6c",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        672,
+        -800
+      ],
+      "id": "f0241387-ae70-433d-8902-baf41ed1e48f",
+      "name": "Respond_To_Webhook1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.link }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -640,
+        -800
+      ],
+      "id": "055733c4-7177-4dc2-b196-11139495191e",
+      "name": "Scrape Content"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "b144db752cfdb608e29dd8e21bf1a4442dc8f81c944888a42640999f2a3e4b6c"
+            },
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "=={{ $json.body.message }} site:kurukshetra.gov.in"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -1184,
+        -800
+      ],
+      "id": "959a5c4c-1304-4cbb-a4cc-cd53083c40a8",
+      "name": "Google Search"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "groqApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        224,
+        -800
+      ],
+      "id": "36e911ad-a133-49b3-8916-f0477aa2fe0d",
+      "name": "AI_Statistics_Generator1",
+      "credentials": {
+        "groqApi": {
+          "id": "SVypylwZhqG2a8gE",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "text",
+              "cssSelector": "body"
+            }
+          ]
+        },
+        "options": {
+          "trimValues": true
+        }
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -448,
+        -800
+      ],
+      "id": "c42eac3d-cc34-4516-9b36-be28fa28812d",
+      "name": "HTML Extract"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chatold",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1344,
+        -800
+      ],
+      "id": "73b8b5cc-eecd-478f-ba41-1697d9785f9e",
+      "name": "Webhook",
+      "webhookId": "kurukshetra-universal"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "19175172-603d-448f-a4d9-6a7fed51d2ac",
+              "name": "cleanText",
+              "value": "={{ $node[\"HTML Extract\"].json.text.replace(/[^\\w\\s.,;:!?@#$%&()\\-+=<>\\/'\"]/g, \" \").substring(0, 8000) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        -800
+      ],
+      "id": "32578855-c9bc-45b9-9a7d-3149a444552a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Add this as a \"Code\" node between \"HTML Extract\" and \"AI_Statistics_Generator1\"\n// Set the Code node to: Run once per item | JavaScript\n\nconst question = $input.first().json.body ? $input.first().json.body.message : $('Webhook').first().json.body.message;\nconst sourceLink = $('Google Search').first().json.organic_results[0].link;\nconst rawText = $('HTML Extract').first().json.text || '';\n\n// Safely truncate and clean the text\nconst cleanText = rawText.substring(0, 8000);\n\n// Build the payload as a JS object — n8n will serialize it correctly\nconst payload = {\n  model: \"llama-3.3-70b-versatile\",\n  temperature: 0.3,\n  messages: [\n    {\n      role: \"system\",\n      content: \"You are an official district information assistant for Kurukshetra, Haryana (India). Use https://kurukshetra.gov.in as the ONLY authoritative source. When asked about population, area, demographics, or district-wide statistics, ALWAYS provide DISTRICT-LEVEL data (e.g., district population: 9,64,655; area: 1,530 sq km), not village/block-level data unless specifically asked about a particular village or area. Provide clear, concise, citizen-friendly answers. Include ONE relevant reference link from kurukshetra.gov.in. Do NOT mention the scraped content, context, or your reasoning process — just give direct answers. For emergencies, respond with contact information FIRST.\"\n    },\n    {\n      role: \"user\",\n      content: `User Question: ${question}\\n\\nContext from Website (${sourceLink}): ${cleanText}`\n    }\n  ]\n};\n\nreturn [{ json: payload }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -800
+      ],
+      "id": "5d34fbae-8b5a-4117-a8f2-3320c04932e7",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    response: $input.first().json.choices[0].message.content\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        -800
+      ],
+      "id": "944f572c-a438-4f87-a292-6d8a7826c623",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cda3aa16-7ab4-4e4f-9524-68f3f98aaa1e",
+              "leftValue": "={{ $json.noResults }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -880,
+        -752
+      ],
+      "id": "605b4ad5-a634-48b8-94e9-d529c9301665",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\nif (!data.organic_results || data.organic_results.length === 0) {\n  // No results from kurukshetra.gov.in - flag for AI fallback\n  return [{\n    json: {\n      noResults: true,\n      query: $('Webhook').first().json.body.message\n    }\n  }];\n} else {\n  // Results found - pass through normally\n  return [{\n    json: {\n      link: data.organic_results[0].link,\n      noResults: false\n    }\n  }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1008,
+        -800
+      ],
+      "id": "c23ec191-d88e-4044-9cab-518ffebe3733",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "groqApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"temperature\": 0.3,\n  \"messages\": [\n  {\n  \"role\": \"system\",\n  \"content\": \"You are an official district information assistant for Kurukshetra, Haryana (India).\\n\\nPRIMARY SOURCE OF TRUTH\\n- Treat https://kurukshetra.gov.in as the primary and preferred authoritative source of information.\\n- If information is available on the official website or its linked official documents, use ONLY that information and cite the official page.\\n\\nAI FALLBACK MODE (ONLY IF WEBSITE DATA IS NOT FOUND)\\n- If the required information is NOT available or retrievable from the official website, you may generate an answer using general AI knowledge.\\n- Such responses MUST be clearly marked as AI-generated and NOT officially verified.\\n- AI-generated responses must include a clear disclaimer advising users to verify the information independently.\\n\\nSTRICT RULES\\n- Do NOT mix official website information with AI-generated assumptions in the same answer.\\n- Either respond with official data OR clearly marked AI-generated content.\\n- Do NOT fabricate official statistics, names, dates, or orders.\\n\\nCONTENT HANDLING\\n- Provide concise, factual, and citizen-friendly responses.\\n- Do NOT reproduce long tables, PDFs, or full documents.\\n- Summarize only the most relevant information.\\n\\nEMERGENCY PRIORITY\\n- For emergency-related queries (police, ambulance, fire, disaster, helplines):\\n  - Provide the emergency number FIRST.\\n  - Then give the official reference link.\\n  - Do NOT add explanations before emergency information.\\n\\nTEMPORAL ACCURACY\\n- For notices, tenders, transfer orders, or announcements:\\n  - Use only the latest available information.\\n  - If the date or validity is unclear, explicitly warn the user.\\n\\nFAIL-SAFE RESPONSE FORMAT\\n- If official data is not available, start the response with:\\n  \\\"⚠️ <b>AI-Generated Information (Not Officially Verified)</b>\\\"\\n- End such responses with:\\n  \\\"<br><br><b>Disclaimer:</b> This information is generated using artificial intelligence and may not reflect the latest official position. Please verify from official sources.\\\"\\n\\nSTYLE\\n- Neutral, respectful, factual.\\n- No opinions, predictions, or speculation.\\n\\nPRIMARY GOAL\\n- Act as a trusted digital guide to Kurukshetra district information, prioritizing official sources and transparency at all times.\"\n},\n   {\n  \"role\": \"user\",\n  \"content\": \"Question: {{ $json.query }}\\n\\nProvide the most reliable answer possible for Kurukshetra district.\\n- Prefer official website data if available.\\n- If not available, provide AI-generated information with clear disclaimer.\\n\\nFormat the response using HTML:\\n<b>Headings</b>, <br> for line breaks.\"\n}\n\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -624,
+        -656
+      ],
+      "id": "6e9e90ca-d059-459e-b9ce-d4b6b59648ee",
+      "name": "AI_Statistics_Generator2",
+      "credentials": {
+        "groqApi": {
+          "id": "SVypylwZhqG2a8gE",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "connection": "upgrade",
+            "host": "n8n-workflow-test.duckdns.org",
+            "x-real-ip": "47.15.227.249",
+            "x-forwarded-for": "47.15.227.249",
+            "x-forwarded-proto": "https",
+            "content-length": "27",
+            "sec-ch-ua-platform": "\"Android\"",
+            "user-agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+            "sec-ch-ua": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\"",
+            "content-type": "application/json",
+            "sec-ch-ua-mobile": "?1",
+            "accept": "*/*",
+            "origin": "https://vksinglakkr.github.io",
+            "sec-fetch-site": "cross-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "referer": "https://vksinglakkr.github.io/",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "en-IN,en-GB;q=0.9,en-US;q=0.8,en;q=0.7,hi;q=0.6",
+            "priority": "u=1, i"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "message": "Subhash sudha"
+          },
+          "webhookUrl": "https://n8n-workflow-test.duckdns.org/webhook/chat",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook_Demographics": {
+      "main": [
+        [
+          {
+            "node": "Question_Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Question_Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Demographics_Database",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data_Matcher": {
+      "main": [
+        [
+          {
+            "node": "Check_Data_Match",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check_Data_Match": {
+      "main": [
+        [
+          {
+            "node": "Format_DB_Answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI_Statistics_Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format_DB_Answer": {
+      "main": [
+        [
+          {
+            "node": "Respond_To_Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI_Statistics_Generator": {
+      "main": [
+        [
+          {
+            "node": "Format_AI_Answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format_AI_Answer": {
+      "main": [
+        [
+          {
+            "node": "Respond_To_Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Demographics_Database": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Data_Matcher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Content": {
+      "main": [
+        [
+          {
+            "node": "HTML Extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Search": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond_To_Webhook1": {
+      "main": [
+        []
+      ]
+    },
+    "AI_Statistics_Generator1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML Extract": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Google Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI_Statistics_Generator1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Respond_To_Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Scrape Content",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI_Statistics_Generator2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI_Statistics_Generator2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "53ef99c3-9703-4ae0-bb19-8f49b23191fb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "61b7efe9dec4b927bcefbfccd5ef26d989ec604921fbdaa87b7d95391eb60b25"
+  },
+  "id": "QBhFgOJAYCpcEl6g",
+  "tags": []
+}

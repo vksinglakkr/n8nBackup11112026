@@ -1,0 +1,550 @@
+{
+  "name": "WhatsApp_Connection_Test",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "whatsapp-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        144
+      ],
+      "id": "93f7bed0-6a45-40bd-98a0-d23d5cb1eeed",
+      "name": "Webhook (GET - Verification)",
+      "webhookId": "24ef1fb9-655f-4c76-902a-be0d1e02a943"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Meta Verification Challenge\nconst query = $input.all()[0].json.query;\nconst verify_token = 'kurukshetra_secure'; // CHANGE THIS if you want\n\nif (query['hub.mode'] == 'subscribe' && query['hub.verify_token'] == verify_token) {\n  return [{ json: { body: parseInt(query['hub.challenge']) } }];\n}\n\nreturn [{ json: { error: 'Invalid token' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -288,
+        144
+      ],
+      "id": "c1d16f5c-eac8-4e91-8bc7-d7b891f9ffe7",
+      "name": "Handle Verification"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        144
+      ],
+      "id": "b60cf50b-be7c-4d50-943f-c8c85f637ac8",
+      "name": "Respond Challenge"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/1761364021238991/subscribed_apps",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -512,
+        -448
+      ],
+      "id": "f3050106-fefa-4537-a8c8-55a1ff0ed49c",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "6akwmmLAWqPq1UJF",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/849628844903257/register",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"messaging_product\": \"whatsapp\", \"pin\": \"123456\" }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -272,
+        -448
+      ],
+      "id": "70bae4b3-80b9-4ff0-b178-5b703d15e27c",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "6akwmmLAWqPq1UJF",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        400
+      ],
+      "id": "d6bf101d-14fe-403d-b3eb-cfe07f867eb4",
+      "name": "Webhook POST (Messages)",
+      "webhookId": "whatsapp-post-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const userMessage = $json.userMessage.toLowerCase();\n\nconst gitaKeywords = [\n  'gita', 'geeta', 'गीता',\n  'krishna', 'कृष्ण',\n  'arjun', 'अर्जुन',\n  'dharma', 'धर्म',\n  'karma', 'कर्म',\n  'bhagavad', 'भगवद',\n  'chapter', 'shlok', 'श्लोक',\n  'verse', 'mahabharat', 'महाभारत',\n  'spiritual', 'philosophy',\n  'moksha', 'मोक्ष',\n  'yoga', 'योग',\n  'atma', 'आत्मा'\n];\n\nconst isGitaQuestion = gitaKeywords.some(keyword => userMessage.includes(keyword));\n\nreturn [{\n  json: {\n    userMessage: $json.userMessage,\n    from: $json.from,\n    isGitaQuestion: isGitaQuestion,\n    route: isGitaQuestion ? 'gita' : 'tourism'\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        496
+      ],
+      "id": "9dfe5fa5-d4de-474e-9ca7-f2bc885c5db2",
+      "name": "Detect Intent"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.isGitaQuestion }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        496
+      ],
+      "id": "2480ac44-a850-464a-b6f7-8d4df0506fad",
+      "name": "Is Gita Question?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n-workflow-test.duckdns.org/webhook/InfoBot_AskGita",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"question\": \"{{ $json.userMessage }}\" }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1280,
+        400
+      ],
+      "id": "fb72e49b-3682-4b59-92ad-6a7ec86e7b40",
+      "name": "Call Gita Bot"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n-workflow-test.duckdns.org/webhook/chat",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"question\": \"{{ $json.userMessage }}\" }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1280,
+        592
+      ],
+      "id": "789ea387-4b53-4a37-8938-dc45c0852215",
+      "name": "Call Tourism Admin Bot"
+    },
+    {
+      "parameters": {
+        "jsCode": "let answer = '';\n\nif ($json.answer) {\n  answer = $json.answer;\n} else if ($json.response) {\n  answer = $json.response;\n} else if ($json.text) {\n  answer = $json.text;\n} else if ($json.message) {\n  answer = $json.message;\n} else if ($json.body && $json.body.answer) {\n  answer = $json.body.answer;\n} else {\n  answer = JSON.stringify($json).substring(0, 4000);\n}\n\nanswer = String(answer).replace(/<[^>]*>/g, '').replace(/\\n\\n\\n+/g, '\\n\\n').substring(0, 4000);\n\nconst from = $('Detect Intent').item.json.from;\n\nreturn [{\n  json: {\n    answer: answer,\n    from: from\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1504,
+        496
+      ],
+      "id": "f91f34d9-d77b-4c5e-993e-32d29f449def",
+      "name": "Format Response"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "OK",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        400
+      ],
+      "id": "e67141cc-6cd8-435f-87e1-0eb1b984dcfb",
+      "name": "Respond OK1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/849628844903257/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer EAAMVuXdiNAABQZCPaLAZBZC9cm9KLFej9lGS0SmAuPZBSvbv7aQdtv3rMJAput5Vb0seeEZCOU1vrjmOxwpOqoLg7hcdOoZANu2xX2nfRZAaPqSwfdMNg8Cs9HGpZAKtIUSZBOBIb9B7i0hLIPkSztRQTw35pbjQWr2SlBzKAv6jCukobMJrlZCipZC1fPCzifj7gZDZD"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"{{ $json.from }}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": {{ JSON.stringify($json.answer) }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1728,
+        400
+      ],
+      "id": "5c592afa-dc70-4f0c-b5b7-100a81146c2d",
+      "name": "Send WhatsApp Reply1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.item.json.body;\n\n// Check if this is a valid entry\nif (!data.entry || !data.entry[0].changes) {\n  return [{ json: { skip: true } }];\n}\n\nconst change = data.entry[0].changes[0].value;\n\n// FILTER OUT STATUS UPDATES (read, delivered, sent)\nif (change.statuses) {\n  console.log('⏭️ Skipping status update');\n  return [{ json: { skip: true } }];\n}\n\n// FILTER OUT non-message webhooks\nif (!change.messages || !change.messages[0]) {\n  console.log('⏭️ No messages in webhook');\n  return [{ json: { skip: true } }];\n}\n\nconst message = change.messages[0];\n\n// Only process text messages\nif (!message.text || !message.text.body) {\n  console.log('⏭️ Not a text message');\n  return [{ json: { skip: true } }];\n}\n\nconst userText = message.text.body;\nconst from = message.from;\n\nconsole.log('✅ Processing message:', userText);\n\nreturn [{\n  json: {\n    userMessage: userText,\n    from: from,\n    skip: false\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        400
+      ],
+      "id": "7e660a60-9a2a-4ce4-a993-f3053fc1ee25",
+      "name": "Extract Message"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Safely get user message\nconst userMessage = ($json.userMessage || '').toLowerCase().trim();\n\n// Handle empty or missing messages\nif (!userMessage) {\n  return [{\n    json: {\n      userMessage: '',\n      from: $json.from,\n      isWelcome: false,\n      skip: true\n    }\n  }];\n}\n\n// Detect welcome keywords\nconst welcomeKeywords = [\n  'hi', 'hello', 'hey', 'start', \n  'नमस्ते', 'namaste', 'namaskar',\n  'help', 'menu', 'info'\n];\n\nconst isWelcome = welcomeKeywords.some(keyword => userMessage === keyword);\n\nreturn [{\n  json: {\n    userMessage: $json.userMessage,\n    from: $json.from,\n    isWelcome: isWelcome,\n    skip: false\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        400
+      ],
+      "id": "c548b5d9-498b-48c8-8d6b-9faf96994905",
+      "name": "Check for Welcome"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d60cf713-3d72-4997-8423-fcf4f6f36ba3",
+              "leftValue": "={{ $json.isWelcome }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        400
+      ],
+      "id": "0d318273-ab0f-4f8a-8426-d3c3232fc926",
+      "name": "Is Welcome Message?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Create welcome message\nconst welcomeMessage = `🙏 *नमस्ते! Kurukshetra InfoBot*\nYour intelligent guide to the Land of Dharma!\n💬 *Ask me anything in Hindi or English:*\n  🏛️ *Tourism & Heritage*\n    - \"Tell me about Brahma Sarovar\"\n    - \"Tourist places in Kurukshetra\"\n    - \"Jyotisar timing?\"\n  👔 *Administration & Services*\n    - \"Who is DC?\"\n    - \"Emergency numbers\"\n    - \"How to get birth certificate?\"\n  📖 *Bhagavad Gita Wisdom*\n    - \"What does Gita say about karma?\"\n    - \"Krishna's teaching on dharma\"\n✨ Just type your question naturally!\n_District Administration, Kurukshetra_`;\n\nreturn [{\n  json: {\n    answer: welcomeMessage,\n    from: $json.from\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1504,
+        224
+      ],
+      "id": "252b602f-d3ed-4308-b939-26dc37ad7e50",
+      "name": "Send Welcome"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "abef17b1-dd8f-4b1f-85e7-02776bb337b3",
+              "leftValue": "={{ $json.skip }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        400
+      ],
+      "id": "82ea5971-ee83-44fb-8a76-673640f7311a",
+      "name": "Should Process?"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook (GET - Verification)": {
+      "main": [
+        [
+          {
+            "node": "Handle Verification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Verification": {
+      "main": [
+        [
+          {
+            "node": "Respond Challenge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook POST (Messages)": {
+      "main": [
+        [
+          {
+            "node": "Respond OK1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Intent": {
+      "main": [
+        [
+          {
+            "node": "Is Gita Question?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Gita Question?": {
+      "main": [
+        [
+          {
+            "node": "Call Gita Bot",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call Tourism Admin Bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Gita Bot": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Tourism Admin Bot": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Reply1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond OK1": {
+      "main": [
+        [
+          {
+            "node": "Extract Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Message": {
+      "main": [
+        [
+          {
+            "node": "Check for Welcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Welcome": {
+      "main": [
+        [
+          {
+            "node": "Should Process?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Welcome Message?": {
+      "main": [
+        [
+          {
+            "node": "Send Welcome",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Detect Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Welcome": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Reply1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Process?": {
+      "main": [
+        [
+          {
+            "node": "Is Welcome Message?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "695d4483-04a1-4439-beb3-3b93dc34a625",
+  "meta": {
+    "instanceId": "61b7efe9dec4b927bcefbfccd5ef26d989ec604921fbdaa87b7d95391eb60b25"
+  },
+  "id": "5PqK1yIoMRiSMx4f",
+  "tags": []
+}

@@ -1,0 +1,238 @@
+{
+  "name": "Village Name Locator",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://maps.googleapis.com/maps/api/geocode/json?latlng={{ $json[\"body\"][\"Latitude\"] }},{{ $json[\"body\"][\"Longitude\"] }}&key=AIzaSyDYB2RmESw2i01sBfJ85lkBzgfqYwolD4s",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "aacbc50e-e189-4196-969d-f30ee78d7aea",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1lWihhd0VQ5yr969qOs0s6YY2zN8hGsjbDy63apj4jhw",
+          "mode": "list",
+          "cachedResultName": "Village_Locations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lWihhd0VQ5yr969qOs0s6YY2zN8hGsjbDy63apj4jhw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 679757808,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lWihhd0VQ5yr969qOs0s6YY2zN8hGsjbDy63apj4jhw/edit#gid=679757808"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Latitude": "={{$json[\"Latitude\"] || $json[\"body.Latitude\"]}}",
+            "Longitude": "={{$json[\"Longitude\"] || $json[\"body.Longitude\"]}}",
+            "Village_Name": "={{$json[\"Village_Name\"]}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email address",
+              "displayName": "Email address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Latitude",
+              "displayName": "Latitude",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Longitude",
+              "displayName": "Longitude",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Village_Name",
+              "displayName": "Village_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        0
+      ],
+      "id": "7b2ec434-c9a2-48e8-8a44-933f5ef653d2",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zqCFkP1mXpyrkeQ2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "village-finder",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5d991b1a-e734-4f9a-9c98-82926293c67c",
+      "name": "Webhook",
+      "webhookId": "9b47ccd0-5a9a-42a4-8663-a08264b10fe9"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Village Result</title>\n  <style>\n    body {\n      font-family: Arial, sans-serif;\n      background: #f0f4f8;\n      text-align: center;\n      padding: 60px 20px;\n    }\n    .card {\n      background: #fff;\n      padding: 40px 30px;\n      border-radius: 12px;\n      display: inline-block;\n      box-shadow: 0 10px 25px rgba(0,0,0,0.15);\n      min-width: 300px;\n    }\n    .card h2 {\n      margin-bottom: 25px;\n      color: #333;\n    }\n    .card p {\n      margin: 12px 0;\n      font-size: 16px;\n      line-height: 1.5;\n    }\n    .btn {\n      display: inline-block;\n      margin: 15px 10px 0 10px;\n      padding: 12px 25px;\n      background: #3A8DFF;\n      color: #fff;\n      text-decoration: none;\n      border-radius: 6px;\n      font-weight: bold;\n      transition: background 0.3s;\n    }\n    .btn:hover {\n      background: #0056cc;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"card\">\n    <h2>Village Details</h2>\n    <p><strong>Village Name:</strong> {{$json[\"Village_Name\"]}}</p>\n    <p><strong>Latitude:</strong> {{$json[\"Latitude\"]}}</p>\n    <p><strong>Longitude:</strong> {{$json[\"Longitude\"]}}</p>\n    <div>\n      <a class=\"btn\" href=\"https://vksinglakkr.github.io/Village_Name_Finder/\">Search Another Village</a>\n      \n    </div>\n  </div>\n</body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        896,
+        0
+      ],
+      "id": "5801adf3-d1be-43a6-b4b6-c86fac8bdda5",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "608d0814-2c3f-43f0-8ee0-f62606e6ee90",
+              "name": "=Latitude",
+              "value": "={{$json[\"results\"]?.[0]?.geometry?.location?.lat || 0}}",
+              "type": "string"
+            },
+            {
+              "id": "ca5d1fdb-1596-4cde-abb1-7b6335782270",
+              "name": "=Longitude",
+              "value": "={{$json[\"results\"]?.[0]?.geometry?.location?.lng || 0}}",
+              "type": "string"
+            },
+            {
+              "id": "5122b255-315e-4d93-80ba-53e4a215632c",
+              "name": "=Village_Name",
+              "value": "={{$json[\"results\"][0][\"formatted_address\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        0
+      ],
+      "id": "3580fb75-dd4a-4036-950d-7433b9d4d09c",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "c51a187e-3d49-40bb-83ac-37c053c70171",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "61b7efe9dec4b927bcefbfccd5ef26d989ec604921fbdaa87b7d95391eb60b25"
+  },
+  "id": "PNstr2jzngPTNJFs",
+  "tags": []
+}

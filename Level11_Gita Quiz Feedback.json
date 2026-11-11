@@ -1,0 +1,182 @@
+{
+  "name": "Level11_Gita Quiz Feedback",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "2bd26553-f895-45a6-89ab-9525435a8a8e",
+        "formTitle": "Gita Quiz Feedback Form",
+        "formDescription": "International Gita Mahotsav 2025 - Submit your quiz answer to receive AI-powered feedback",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "name",
+              "placeholder": "Enter your full name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "email",
+              "fieldType": "email",
+              "placeholder": "Enter your email address",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "chapter",
+              "fieldType": "number",
+              "placeholder": "Gita chapter number (1-18)"
+            },
+            {
+              "fieldLabel": "question",
+              "placeholder": "Type the quiz question here",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "answer",
+              "fieldType": "textarea",
+              "placeholder": "Write your answer here...",
+              "requiredField": true
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "b5ea0ac3-3fd3-449a-a961-61315e813f22",
+      "name": "Gita Quiz Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2,
+      "position": [
+        -352,
+        -96
+      ],
+      "webhookId": "2bd26553-f895-45a6-89ab-9525435a8a8e"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ new Date().toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'}) }}",
+            "Name": "={{ $json.name }}",
+            "Email": "={{ $json.email }}",
+            "Chapter": "={{ $json.chapter }}",
+            "Question": "={{ $json.question }}",
+            "Answer": "={{ $json.answer }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "6e1107e3-4acc-4782-aa78-1b5e3006b609",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        -128,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama3-8b-8192\",\n  \"max_tokens\": 300,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a knowledgeable and encouraging Bhagavad Gita teacher. Give warm, constructive feedback on student quiz answers. Keep it to 3-4 lines. Mention one thing they got right and one thing to improve. End with a relevant Gita verse reference if possible.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Student Name: {{ $('Gita Quiz Form').item.json.name }}\\nChapter: {{ $('Gita Quiz Form').item.json.chapter }}\\nQuestion: {{ $('Gita Quiz Form').item.json.question }}\\nStudent Answer: {{ $('Gita Quiz Form').item.json.answer }}\\n\\nPlease provide brief, encouraging feedback on this answer.\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "e5ff4aac-afc6-487e-a166-9d9b2627d615",
+      "name": "Groq AI Feedback",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        96,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gita Quiz Form').item.json.email }}",
+        "subject": "=Your Gita Quiz Feedback - Chapter {{ $('Gita Quiz Form').item.json.chapter }} | IGM 2025",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n  <div style=\"background: #ff8c00; padding: 20px; border-radius: 8px 8px 0 0;\">\n    <h2 style=\"color: white; margin: 0;\">International Gita Mahotsav 2025</h2>\n    <p style=\"color: #ffe0b2; margin: 4px 0 0;\">Gita Quiz - AI Feedback</p>\n  </div>\n  <div style=\"background: #fffaf0; padding: 24px; border: 1px solid #ffe0b2;\">\n    <p>Namaste <strong>{{ $('Gita Quiz Form').item.json.name }}</strong>,</p>\n    <p>Thank you for participating in the Gita Quiz. Here is your feedback:</p>\n    <div style=\"background: white; border-left: 4px solid #ff8c00; padding: 16px; margin: 16px 0; border-radius: 0 8px 8px 0;\">\n      <strong>Your Question:</strong><br/>\n      <em>{{ $('Gita Quiz Form').item.json.question }}</em>\n    </div>\n    <div style=\"background: white; border-left: 4px solid #4caf50; padding: 16px; margin: 16px 0; border-radius: 0 8px 8px 0;\">\n      <strong>AI Feedback:</strong><br/>\n      {{ $json.choices[0].message.content }}\n    </div>\n    <p style=\"color: #666; font-size: 13px;\">Keep studying the Gita! Every chapter brings new wisdom.</p>\n  </div>\n  <div style=\"background: #f5f5f5; padding: 12px; text-align: center; border-radius: 0 0 8px 8px;\">\n    <p style=\"color: #999; font-size: 12px; margin: 0;\">District Administration Kurukshetra | International Gita Mahotsav 2025</p>\n  </div>\n</div>",
+        "options": {}
+      },
+      "id": "ed114cf5-d23c-4cea-b218-da10d1ef2c07",
+      "name": "Send Feedback Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -96
+      ],
+      "webhookId": "1981ed4b-66b5-466b-aac0-227c9cfa9843"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gita Quiz Form": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Groq AI Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq AI Feedback": {
+      "main": [
+        [
+          {
+            "node": "Send Feedback Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a496f12e-e1e4-4310-ad93-7c73a06e0a07",
+  "meta": {
+    "instanceId": "61b7efe9dec4b927bcefbfccd5ef26d989ec604921fbdaa87b7d95391eb60b25"
+  },
+  "id": "wcHuiwCx1YfOUy8k",
+  "tags": []
+}

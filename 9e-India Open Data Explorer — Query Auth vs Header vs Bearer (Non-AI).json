@@ -1,0 +1,1078 @@
+{
+  "name": "9e-India Open Data Explorer — Query Auth vs Header vs Bearer (Non-AI)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🇮🇳 India Open Data Explorer — Auth Mechanisms, Not AI\n\nSame webhook-and-Switch skeleton as the Gita Oracle project, but this time the lesson is different: **data.gov.in only accepts its key one way — as a URL query parameter.** Three of these seven branches deliberately use the *wrong* mechanism so you can see the failure yourself, not just read about it.\n\n| # | method | Result |\n|---|---|---|\n| 1 | `hardcoded` | ✅ works, but insecure (anti-pattern) |\n| 2 | `query_auth` | ✅ correct, hidden |\n| 3 | `header_auth` | ❌ fails — server ignores it |\n| 4 | `bearer_auth` | ❌ fails — server ignores it |\n| 5 | `code_query` | ✅ correct, built in JS |\n| 6 | `config_abstraction` | ✅ correct, config-driven |\n| 7 | `static_query` | ✅ correct, key typed in at request-time (no saved credential) |\n| 7 | `static_query` |      |\n\n**Before running:** replace `YOUR_RESOURCE_ID` in every HTTP node with a real dataset ID from data.gov.in's catalog (search \"population\" or \"census\" on data.gov.in, open any dataset's API page, copy the ID from the sample URL).",
+        "height": 500,
+        "width": 620,
+        "color": 5
+      },
+      "id": "2aa3615a-55e3-4b75-bfd6-7eab369b2a99",
+      "name": "📖 Project Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1296,
+        -304
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "census-lookup",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "3a090a74-1568-4af8-bde1-276d58a2851b",
+      "name": "Census Query",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        512
+      ],
+      "webhookId": "ece734e9-7c84-4494-ac5d-87c5ed4225dd"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cond1",
+              "leftValue": "={{ [\"hardcoded\",\"query_auth\",\"header_auth\",\"bearer_auth\",\"code_query\",\"config_abstraction\",\"static_query\"].includes($json.body.method) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f26e6e4f-9f1a-4d6d-9981-f84b0650317e",
+      "name": "Validate Method",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -416,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.data.gov.in/resource/352b3616-9d3d-42e5-80af-7d21a2a53fab?api-key=579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b&format=json&limit=10&filters[state]={{ $json.body.state }}",
+        "options": {}
+      },
+      "id": "7137eae5-9f03-4397-b828-28f32c5a8e7c",
+      "name": "Data.gov.in — Hardcoded Key (⚠️ anti-pattern)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        96,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "records",
+              "value": "={{ $json.records }}",
+              "type": "array"
+            },
+            {
+              "id": "a2",
+              "name": "method",
+              "value": "hardcoded",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "18dd0c75-c0db-4672-a210-fa2735109b23",
+      "name": "Shape Hardcoded Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        336,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"records\": $json.records, \"method\": $json.method, \"warning\": \"Key was typed directly into the node URL — visible in any export. Never do this in real workflows.\" } }}",
+        "options": {}
+      },
+      "id": "a9a2dd4d-601a-4d36-8c76-6bb381b44110",
+      "name": "Respond – Hardcoded",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.data.gov.in/resource/352b3616-9d3d-42e5-80af-7d21a2a53fab?format=json&limit=10&filters[state]={{ $json.body.state }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "options": {}
+      },
+      "id": "40cb6e24-7e83-4089-bbe5-2ce9922f90ad",
+      "name": "Data.gov.in — Query Auth (correct)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        96,
+        64
+      ],
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "LQGHmaGuSqWdY4JC",
+          "name": "Query Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1",
+              "name": "records",
+              "value": "={{ $json.records }}",
+              "type": "array"
+            },
+            {
+              "id": "b2",
+              "name": "method",
+              "value": "query_auth",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "143de3a5-a29c-403d-a05e-87d0df9cd231",
+      "name": "Shape Query Auth Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        336,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"records\": $json.records, \"method\": $json.method } }}",
+        "options": {}
+      },
+      "id": "563c6c92-7a71-41f8-b443-f120e28d90e7",
+      "name": "Respond – Query Auth",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.data.gov.in/resource/352b3616-9d3d-42e5-80af-7d21a2a53fab?format=json&limit=10&filters[state]={{ $json.body.state }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "449f4cde-46ef-47c0-ab55-13df5dedea9f",
+      "name": "Data.gov.in — Header Auth (fails)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        96,
+        240
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "KPHEWlDfrDJ3w8uh",
+          "name": "Header Auth account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1",
+              "name": "records",
+              "value": "={{ $json.records || $json.error || \"No records — API rejected the header-based key\" }}",
+              "type": "string"
+            },
+            {
+              "id": "c2",
+              "name": "method",
+              "value": "header_auth",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "43b07223-e42c-433c-bef2-e9865092cdc2",
+      "name": "Shape Header Auth Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        336,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"result\": $json.records, \"method\": $json.method, \"lesson\": \"data.gov.in ignores custom headers entirely — the key must be a query parameter. This branch exists to prove that.\" } }}",
+        "options": {}
+      },
+      "id": "0b985a03-1720-4025-b99b-211a96559f53",
+      "name": "Respond – Header Auth",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.data.gov.in/resource/352b3616-9d3d-42e5-80af-7d21a2a53fab?format=json&limit=10&filters[state]={{ $json.body.state }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "id": "8a966c79-3d16-4fe0-8639-3023ca160c55",
+      "name": "Data.gov.in — Bearer Auth (fails)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        96,
+        432
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "6akwmmLAWqPq1UJF",
+          "name": "Bearer Auth account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d1",
+              "name": "records",
+              "value": "={{ $json.records || $json.error || \"No records — API rejected the Bearer token\" }}",
+              "type": "string"
+            },
+            {
+              "id": "d2",
+              "name": "method",
+              "value": "bearer_auth",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6297edf2-9f37-4beb-83aa-b801ac56922e",
+      "name": "Shape Bearer Auth Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        336,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"result\": $json.records, \"method\": $json.method, \"lesson\": \"Authorization: Bearer works for Groq/OpenAI but data.gov.in never reads it — auth mechanisms are not universal, always confirm from the provider's own docs.\" } }}",
+        "options": {}
+      },
+      "id": "0e369ad2-fa83-4948-a8a6-1b58d73d251f",
+      "name": "Respond – Bearer Auth",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Case 5 — build the filtered query string in code.\n// Demonstrates: sanitizing user input, encoding it safely,\n// and assembling the filter object before the HTTP node ever runs.\n\nconst rawState = ($json.body.state || '').trim();\nconst safeState = rawState\n  .replace(/[^a-zA-Z\\s]/g, '')      // strip anything that isn't a letter or space\n  .split(' ')\n  .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())\n  .join(' ');\n\nconst resourceId = '352b3616-9d3d-42e5-80af-7d21a2a53fab';\nconst limit = 10;\n\nconst queryString =\n  `format=json&limit=${limit}&filters[state]=${encodeURIComponent(safeState)}`;\n\nreturn [{\n  json: {\n    ...$json,\n    resourceId,\n    safeState,\n    queryString,\n    fullUrlPath: `https://api.data.gov.in/resource/${resourceId}?${queryString}`\n  }\n}];"
+      },
+      "id": "74296b61-a8a2-4f21-a0ad-fd2d569b5f51",
+      "name": "Build Query (Code)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        96,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.fullUrlPath }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "options": {}
+      },
+      "id": "e322b9ab-46f2-44f0-a8af-9c8e8091477c",
+      "name": "Data.gov.in — Code-Built Query",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        336,
+        608
+      ],
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "LQGHmaGuSqWdY4JC",
+          "name": "Query Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1",
+              "name": "records",
+              "value": "={{ $json.records }}",
+              "type": "array"
+            },
+            {
+              "id": "e2",
+              "name": "method",
+              "value": "code_query",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "afd916a1-754b-4fe6-ad45-7c300e4239fa",
+      "name": "Shape Code Query Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"records\": $json.records, \"method\": $json.method } }}",
+        "options": {}
+      },
+      "id": "9d190aa7-5907-40f3-9a38-eba7aed02803",
+      "name": "Respond – Code Query",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "resourceId",
+              "value": "352b3616-9d3d-42e5-80af-7d21a2a53fab",
+              "type": "string"
+            },
+            {
+              "id": "f2",
+              "name": "limit",
+              "value": 10,
+              "type": "number"
+            },
+            {
+              "id": "f3",
+              "name": "datasetLabel",
+              "value": "State-wise Population Dataset",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d77b3f76-6a2b-47cc-aa25-9dbbeaf7e9ab",
+      "name": "Dataset Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        96,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.data.gov.in/resource/{{ $json.resourceId }}?format=json&limit={{ $json.limit }}&filters[state]={{ $('Census Query').item.json.body.state }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "options": {}
+      },
+      "id": "80af1eb4-fe11-4bb2-8693-9ea5b71262ca",
+      "name": "Data.gov.in — Config-Driven",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        336,
+        784
+      ],
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "LQGHmaGuSqWdY4JC",
+          "name": "Query Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "g1",
+              "name": "records",
+              "value": "={{ $json.records }}",
+              "type": "array"
+            },
+            {
+              "id": "g2",
+              "name": "method",
+              "value": "config_abstraction",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a347b8b1-ede8-46f2-985a-a04e79fb1212",
+      "name": "Shape Config Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"records\": $json.records, \"method\": $json.method } }}",
+        "options": {}
+      },
+      "id": "5d930f01-8d5a-4163-a757-85d2c628a7c8",
+      "name": "Respond – Config-Driven",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"error\": \"Unknown method: \" + ($json.body.method || \"missing\"), \"validMethods\": [\"hardcoded\",\"query_auth\",\"header_auth\",\"bearer_auth\",\"code_query\",\"config_abstraction\",\"static_query\"] } }}",
+        "options": {}
+      },
+      "id": "1d4b2275-3ed5-49e6-9d97-f730417f4c8a",
+      "name": "Respond – Unknown Method",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -416,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.method }}",
+                    "rightValue": "hardcoded",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "ea2486cb-c842-455a-aa11-8bebaebcdf30"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "dbdbbc2f-85f4-4f5f-a4f6-097df2562621",
+                    "leftValue": "={{ $json.body.method }}",
+                    "rightValue": "query_auth",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "4f4458fe-f33e-4a1c-b1cc-702231244108",
+                    "leftValue": "={{ $json.body.method }}",
+                    "rightValue": "header_auth",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9429967f-2ec4-45bc-b22b-495f2ba616a7",
+                    "leftValue": "={{ $json.body.method }}",
+                    "rightValue": "bearer_auth",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ab62a89a-e219-4b2c-b5b4-a98d72e80969",
+                    "leftValue": "={{ $json.body.method }}",
+                    "rightValue": "code_query",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1be13868-c00a-4ea4-9ee5-b442b3500e09",
+                    "leftValue": "={{ $json.body.method }}",
+                    "rightValue": "config_abstraction",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "fadccd13-78ed-4fec-81e4-9f902d406dbc",
+                    "leftValue": "={{ $json.body.method }}",
+                    "rightValue": "static_query",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -192,
+        432
+      ],
+      "id": "1b64c8a2-a424-4752-b91b-6f1945beb765",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "h1",
+              "name": "apiKey",
+              "value": "={{ ($json.apiKey || $json.body.apiKey || '').trim() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d70175fb-497f-4152-9a7e-3a418e1a38cf",
+      "name": "Read Static Key From Request",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        96,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.data.gov.in/resource/352b3616-9d3d-42e5-80af-7d21a2a53fab?api-key={{ $json.apiKey }}&format=json&limit=10&filters[state]={{ $('Census Query').item.json.state || $('Census Query').item.json.body.state }}",
+        "options": {}
+      },
+      "id": "4bd7ebc7-e50b-4f77-974f-8a6ab829efb3",
+      "name": "Data.gov.in — Static Key (typed at request-time)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        336,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "i1",
+              "name": "records",
+              "value": "={{ $json.records }}",
+              "type": "array"
+            },
+            {
+              "id": "i2",
+              "name": "method",
+              "value": "static_query",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c08e10a1-90cc-43b9-befb-4572f8828ec9",
+      "name": "Shape Static Key Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"records\": $json.records, \"method\": $json.method, \"note\": \"Key was still sent as a query parameter, the only mechanism data.gov.in accepts, but it came from the request body at run-time instead of a saved n8n credential.\" } }}",
+        "options": {}
+      },
+      "id": "4f048a10-abf1-439f-a570-80de15b17298",
+      "name": "Respond – Static Key",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        960
+      ]
+    }
+  ],
+  "pinData": {
+    "Census Query": [
+      {
+        "json": {
+          "state": "Maharashtra",
+          "method": "query_auth",
+          "ts": "2026-07-22T09:00:00.000Z"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Census Query": {
+      "main": [
+        [
+          {
+            "node": "Validate Method",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Method": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond – Unknown Method",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data.gov.in — Hardcoded Key (⚠️ anti-pattern)": {
+      "main": [
+        [
+          {
+            "node": "Shape Hardcoded Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Hardcoded Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond – Hardcoded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data.gov.in — Query Auth (correct)": {
+      "main": [
+        [
+          {
+            "node": "Shape Query Auth Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Query Auth Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond – Query Auth",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data.gov.in — Header Auth (fails)": {
+      "main": [
+        [
+          {
+            "node": "Shape Header Auth Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Header Auth Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond – Header Auth",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data.gov.in — Bearer Auth (fails)": {
+      "main": [
+        [
+          {
+            "node": "Shape Bearer Auth Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Bearer Auth Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond – Bearer Auth",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Query (Code)": {
+      "main": [
+        [
+          {
+            "node": "Data.gov.in — Code-Built Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data.gov.in — Code-Built Query": {
+      "main": [
+        [
+          {
+            "node": "Shape Code Query Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Code Query Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond – Code Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dataset Config": {
+      "main": [
+        [
+          {
+            "node": "Data.gov.in — Config-Driven",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data.gov.in — Config-Driven": {
+      "main": [
+        [
+          {
+            "node": "Shape Config Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Config Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond – Config-Driven",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Data.gov.in — Hardcoded Key (⚠️ anti-pattern)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Data.gov.in — Query Auth (correct)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Data.gov.in — Header Auth (fails)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Data.gov.in — Bearer Auth (fails)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Query (Code)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dataset Config",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read Static Key From Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Static Key From Request": {
+      "main": [
+        [
+          {
+            "node": "Data.gov.in — Static Key (typed at request-time)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data.gov.in — Static Key (typed at request-time)": {
+      "main": [
+        [
+          {
+            "node": "Shape Static Key Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Static Key Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond – Static Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8ce72c7e-ee86-4b0b-8861-e9f66238dd4d",
+  "meta": {
+    "instanceId": "61b7efe9dec4b927bcefbfccd5ef26d989ec604921fbdaa87b7d95391eb60b25"
+  },
+  "id": "GXfgZW4NWvw6XJqc",
+  "tags": []
+}

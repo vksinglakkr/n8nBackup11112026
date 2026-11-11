@@ -1,0 +1,252 @@
+{
+  "name": "9a-github-audit-placement-portal",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
+          "mode": "list",
+          "cachedResultName": "T&P_Placement_Drive_2026"
+        },
+        "sheetName": "Sheet1",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Student_Name": "={{ $json.body.student_name }}",
+            "Student_Email": "={{ $json.body.student_email }}",
+            "Mobile_Number": "={{ $json.body.student_phone }}",
+            "College_Name": "={{ $json.body.student_college }}",
+            "GitHub_Username": "={{ $json.body.github_username }}",
+            "Registration_Date": "={{ $now.format('yyyy-MM-dd') }}",
+            "Audit_Status": "Pending"
+          },
+          "matchingColumns": []
+        },
+        "options": {}
+      },
+      "id": "91888b88-4e31-40ae-8045-7a84ba4b7e06",
+      "name": "Append to Database",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.1,
+      "position": [
+        512,
+        -288
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "submit-placement-app",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "3c312871-8e18-49ca-ad1c-02681df7e5c3",
+      "name": "Webhook Ingestion",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        -288
+      ],
+      "webhookId": "911a3a6d-0083-4d24-ba6d-02080d674fc5"
+    },
+    {
+      "parameters": {},
+      "id": "f811643e-a364-4ce5-a516-29c05d186347",
+      "name": "Admin Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        256,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
+          "mode": "list"
+        },
+        "sheetName": "Sheet1",
+        "options": {}
+      },
+      "id": "d9a08dff-798b-4080-8be8-df3046dbbe15",
+      "name": "Get Pending Applicants",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.1,
+      "position": [
+        480,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/users/{{ $json.GitHub_Username }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "n8n-Campus-Auditor"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "15357d37-356c-4aa3-abbf-c6a458973f7f",
+      "name": "Audit GitHub Server",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        704,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "55bc49d8-6a98-4ea1-ba35-bb37d4cabe8a",
+      "name": "Evaluate Scores",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        928,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
+          "mode": "list"
+        },
+        "sheetName": "Sheet1",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Audit_Status": "Audited",
+            "Total_Repos": "={{ $('Evaluate Scores').item.json.repos_count }}",
+            "Profile_Pic": "={{ $('Evaluate Scores').item.json.avatar }}",
+            "Evaluation_Score": "={{ $('Evaluate Scores').item.json.score }}"
+          },
+          "matchingColumns": [
+            "GitHub_Username"
+          ]
+        },
+        "options": {}
+      },
+      "id": "06a70774-afe4-4077-b95b-3b161da2420e",
+      "name": "Update Database Rows",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.1,
+      "position": [
+        1136,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get Pending Applicants').item.json.Student_Email }}",
+        "subject": "🎯 T&P Placement Drive: Your GitHub Audit Result!",
+        "options": {}
+      },
+      "id": "48396c7a-73e4-43ee-b7f1-7accb33d45f4",
+      "name": "Notify Student",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1360,
+        -96
+      ],
+      "webhookId": "8e987aa7-0984-4347-af5e-365baf00cd67"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Ingestion": {
+      "main": [
+        [
+          {
+            "node": "Append to Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Admin Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Pending Applicants",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pending Applicants": {
+      "main": [
+        [
+          {
+            "node": "Audit GitHub Server",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audit GitHub Server": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Scores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Scores": {
+      "main": [
+        [
+          {
+            "node": "Update Database Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Database Rows": {
+      "main": [
+        [
+          {
+            "node": "Notify Student",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "75990ca8-f309-4a5c-8aae-dff1e35924bf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "61b7efe9dec4b927bcefbfccd5ef26d989ec604921fbdaa87b7d95391eb60b25"
+  },
+  "id": "5cSbSbuDIZIz15m1",
+  "tags": []
+}

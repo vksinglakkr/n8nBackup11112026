@@ -1,0 +1,109 @@
+{
+  "name": "10-bulk-email-broadcast",
+  "nodes": [
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "Good Morning from Us!",
+        "message": "=Hi {{ $json.Name }},<br><br>Good Morning! Wishing you a productive and peaceful day ahead. 🌞<br><br>Regards,<br>Team",
+        "options": {}
+      },
+      "id": "a4ebe7f0-bc71-453e-8647-bce8010881c3",
+      "name": "Send Email (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        320,
+        -80
+      ],
+      "webhookId": "gmail-send-webhook-1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ip49xU63tpHqFlOg",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1T1D3gRbkmhb4NOhVKce1ktt6NwxyppED2mfBQm1MDRA",
+          "mode": "list",
+          "cachedResultName": "GoodMorning",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T1D3gRbkmhb4NOhVKce1ktt6NwxyppED2mfBQm1MDRA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 306422147,
+          "mode": "list",
+          "cachedResultName": "Sheet4",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T1D3gRbkmhb4NOhVKce1ktt6NwxyppED2mfBQm1MDRA/edit#gid=306422147"
+        },
+        "options": {}
+      },
+      "id": "9a302e22-7b6c-4099-9b11-17567f7f44fd",
+      "name": "Get 100 Users",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        96,
+        -80
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zqCFkP1mXpyrkeQ2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "5820babd-0fa7-4140-a2ba-aa73007b076c",
+      "name": "Manual Trigger (Run when needed)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        -80
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get 100 Users": {
+      "main": [
+        [
+          {
+            "node": "Send Email (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger (Run when needed)": {
+      "main": [
+        [
+          {
+            "node": "Get 100 Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8e472dea-1aed-4c50-ab2a-ea2f987104dc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "61b7efe9dec4b927bcefbfccd5ef26d989ec604921fbdaa87b7d95391eb60b25"
+  },
+  "id": "4eJMp1Nq0zmmq71p",
+  "tags": []
+}

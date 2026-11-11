@@ -1,0 +1,586 @@
+{
+  "name": "NyayaMitra",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://maps.googleapis.com/maps/api/geocode/json?latlng={{ $json[\"body\"][\"Latitude\"] }},{{ $json[\"body\"][\"Longitude\"] }}&key=AIzaSyDYB2RmESw2i01sBfJ85lkBzgfqYwolD4s",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        112,
+        0
+      ],
+      "id": "7e18cd7b-480c-405d-8e52-e72f61dbd529",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "Exhibition",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -112,
+        0
+      ],
+      "id": "174c4782-ee93-46de-96f4-3eba70c8cb33",
+      "name": "Webhook",
+      "webhookId": "9b47ccd0-5a9a-42a4-8663-a08264b10fe9"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Exhibition Feedback</title>\n<style>\n  body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }\n  .container { background: #fff; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }\n  button { padding: 10px 20px; margin-top: 20px; cursor: pointer; }\n  #responseMsg { margin-top: 20px; font-weight: bold; color: green; }\n</style>\n</head>\n<body>\n\n<div class=\"container\">\n  <h2>Exhibition Feedback</h2>\n\n  <form id=\"feedbackForm\">\n    <input type=\"text\" name=\"name\" placeholder=\"Name / नाम\" required><br><br>\n    <input type=\"text\" name=\"mobile\" placeholder=\"Mobile / मोबाइल\" required><br><br>\n    <button type=\"submit\">Submit / जमा करें</button>\n  </form>\n\n  <div id=\"responseMsg\"></div>\n</div>\n\n<script>\ndocument.getElementById('feedbackForm').addEventListener('submit', async function(e) {\n  e.preventDefault();\n  const form = e.target;\n  const data = {\n    name: form.name.value,\n    mobile: form.mobile.value,\n    timestamp: new Date().toISOString()\n  };\n\n  try {\n    const response = await fetch('https://vinodnic.app.n8n.cloud/webhook/Exhibition', {\n      method: 'POST',\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify(data)\n    });\n    const result = await response.json();\n    document.getElementById('responseMsg').innerText = result.message || \"Feedback submitted successfully! / फीडबैक सफलतापूर्वक जमा।\";\n    form.reset();\n  } catch (err) {\n    document.getElementById('responseMsg').innerText = \"Error submitting feedback. / प्रतिक्रिया जमा करने में त्रुटि।\";\n  }\n});\n</script>\n\n</body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        784,
+        0
+      ],
+      "id": "64e3155c-11a3-4669-beb4-d0db39cfc17c",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "108b3420-c30c-424a-a59a-02a86f8b08a1",
+              "name": "=Timestamp",
+              "value": "={{$now}}",
+              "type": "string"
+            },
+            {
+              "id": "bb286248-eeec-4f58-b4fc-6343c86c7143",
+              "name": "Name",
+              "value": "={{$node[\"Webhook\"].json[\"body\"][\"Name\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "2db976e0-1817-4674-af5f-81f16bb0a910",
+              "name": "Mobile",
+              "value": "={{$node[\"Webhook\"].json[\"body\"][\"Mobile\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "cd59afc8-93aa-4287-8811-9b69706c76cf",
+              "name": "=Category",
+              "value": "={{$node[\"Webhook\"].json[\"body\"][\"Category\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "f137c905-8833-4402-adfc-2e03edd99819",
+              "name": "=Rating",
+              "value": "={{$node[\"Webhook\"].json[\"body\"][\"Rating\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "63ba1a53-7725-48d9-9349-222db2258f19",
+              "name": "=Comments",
+              "value": "={{$node[\"Webhook\"].json[\"body\"][\"Comments\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "5bcd9150-31bd-44f1-bc82-76be402be7ab",
+              "name": "=Latitude",
+              "value": "={{$json[\"results\"]?.[0]?.geometry?.location?.lat",
+              "type": "string"
+            },
+            {
+              "id": "d8aba1a1-5450-4a6b-8f4e-5d5d05f542bf",
+              "name": "=Longitude",
+              "value": "={{$json[\"results\"]?.[0]?.geometry?.location?.lng",
+              "type": "string"
+            },
+            {
+              "id": "b74edffb-ffb0-42e2-a766-5c8c38d7f4ce",
+              "name": "=District",
+              "value": "={{$json[\"results\"][0][\"formatted_address\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "0b918efe-04be-4219-b311-f58c263a1c6c",
+              "name": "=State",
+              "value": "={{$json[\"results\"]?.[0]?.address_components?.find(c => c.types.includes(\"administrative_area_level_1\"))?.long_name",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        336,
+        0
+      ],
+      "id": "80084d5e-8142-4824-bd2f-7b53de7b9656",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chatbot",
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -112,
+        416
+      ],
+      "id": "746d4bb1-e798-4469-842d-a4e8124bd9dc",
+      "name": "Webhook1",
+      "webhookId": "9b47ccd0-5a9a-42a4-8663-a08264b10fe9"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "groqApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "body": "={{\n  JSON.stringify({\n    \"model\": \"llama-3.3-70b-versatile\",\n    \"messages\": [\n      {\n        \"role\": \"system\",\n        \"content\": $json.systemPrompt\n      },\n      {\n        \"role\": \"user\",\n        \"content\": $json.userPrompt\n      }\n    ],\n    \"temperature\": 0.7,\n    \"max_tokens\": 2000\n  })\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        560,
+        224
+      ],
+      "id": "5bf2f845-f69e-414f-94bc-3ac2b954afbd",
+      "name": "Groq (Llama 3)",
+      "credentials": {
+        "groqApi": {
+          "id": "SVypylwZhqG2a8gE",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// n8n Function Node: Build Enhanced Prompt\n// VERSION 7.2 – PRODUCTION FINAL\n// Government Resources Only | Adaptive Mode\n// ============================================\n\nconst inputData = $input.first().json;\n\n// ============================================\n// EXTRACT QUESTION\n// ============================================\n\nconst rawQuestion =\n  inputData.body?.originalQuestion ||\n  inputData.originalQuestion ||\n  inputData.body?.question ||\n  inputData.question ||\n  'Please provide a question';\n\nconst cleanQuestion = rawQuestion.trim();\n\n// ============================================\n// CORE CONTROLS\n// ============================================\n\nconst userType = inputData.body?.userType || inputData.userType || 'citizen';\nconst answerDepth = inputData.body?.answerDepth || inputData.answerDepth || 'standard';\nconst language = inputData.body?.language || inputData.language || 'english';\n\n// ============================================\n// LANGUAGE INSTRUCTIONS\n// ============================================\n\nconst LANGUAGE_INSTRUCTIONS = {\n  english: 'Respond in English.',\n  hindi: 'Respond in Hindi (Devanagari script – हिंदी में). Use simple, clear Hindi.',\n  punjabi: 'Respond in Punjabi (Gurmukhi script – ਪੰਜਾਬੀ ਵਿੱਚ). Use clear Punjabi.'\n};\n\nconst languageInstruction =\n  LANGUAGE_INSTRUCTIONS[language] || LANGUAGE_INSTRUCTIONS.english;\n\n// ============================================\n// CORE PERSONALITY\n// ============================================\n\nconst CORE_PERSONALITY = `\nYou are NyayaMitra (न्यायमित्र), a calm, confident, and reliable legal assistant\ndesigned to explain India's criminal justice process under the new criminal laws\n(Bharatiya Nyaya Sanhita, Bharatiya Nagarik Suraksha Sanhita, Bharatiya Sakshya Adhiniyam).\n\nYour goal is to HELP the user clearly understand the law and navigate legal procedures.\n\nPERSONALITY PRINCIPLES:\n• Always provide a meaningful, complete answer (never stay silent or give empty responses)\n• Be composed, helpful, and professional\n• Explain like a knowledgeable senior guiding a junior\n• Prefer clarity over complexity for all users\n• Adapt your explanation style to the user's level (citizen, police, student, or advocate)\n• Be practical and solution-oriented\n• Avoid alarmist or threatening language\n• Maintain dignity and respect for all users\n`;\n\n// ============================================\n// ROLE-SPECIFIC CONTEXT\n// ============================================\n\nconst ROLE_CONTEXT = {\n  citizen:\n    'The user is a general citizen with no legal background. Use simple, everyday language. Avoid legal jargon. Focus on practical understanding, rights, and clear next steps. Think: \"What would my family member need to know?\"',\n  \n  police:\n    'The user is a police officer performing official duties. Focus on lawful procedures, investigation protocols, duties, safeguards, timelines, and compliance requirements. Provide step-by-step operational guidance.',\n  \n  legal:\n    'The user is a practicing advocate with legal training and court experience. Assume professional understanding. Provide deeper statutory analysis, procedural strategy, case law references, and practical court perspectives. Include technical details they can use professionally.',\n  \n  student:\n    'The user is a law student or legal researcher seeking to learn. Focus on conceptual understanding and legal principles. Explain the \"why\" behind the law, not just the \"what\". Use academic clarity. Help them understand concepts, not memorize sections.'\n};\n\n// ============================================\n// ANSWER DEPTH CONTROL\n// ============================================\n\nconst DEPTH_CONTEXT = {\n  brief:\n    'Keep the answer short and focused. Cover only the most essential points in 2-3 paragraphs. Be direct.',\n  \n  standard:\n    'Provide a balanced, complete explanation with clarity and practical guidance. This should be thorough but not exhaustive.',\n  \n  detailed:\n    'Provide an in-depth, comprehensive explanation covering process, reasoning, implications, exceptions, and practical considerations. Be thorough and exhaustive.'\n};\n\n// ============================================\n// EDUCATIONAL STRUCTURE (Citizens/Police/Students)\n// ============================================\n\nconst EDUCATIONAL_STRUCTURE = `\nMANDATORY RESPONSE STRUCTURE (Follow this order exactly):\n\n📌 KEY GUIDANCE\nGive a direct, clear answer to the question in 2-3 sentences.\nThis should immediately answer \"what\" or \"how\" they asked.\n\n📖 DETAILED EXPLANATION\nExplain how the legal process or principle works.\nFocus on concepts, principles, and underlying reasoning.\nClarify roles, stages, rights, safeguards, and procedures.\nUse clear paragraphs that help understanding.\nFor students: Explain the \"why\" and \"purpose\" of the law.\n\n💡 PRACTICAL GUIDANCE\nExplain what can be done next in practice.\nProvide step-by-step guidance where applicable.\nFocus on actionable information.\n\n📚 HELPFUL RESOURCES\nProvide relevant official government resources:\n• https://www.indiacode.nic.in – Official law text (Government of India)\n• https://districts.ecourts.gov.in – eCourts services\n• https://doj.gov.in – Department of Justice\n• Other relevant government portals\n\n❓ RELATED QUESTIONS\nSuggest exactly 3 relevant follow-up questions the user might want to ask next.\n\n⚠️ DISCLAIMER\n[Standard disclaimer will be added automatically]\n\nIMPORTANT FOR EDUCATIONAL MODE:\n• Focus on principles and concepts, NOT section numbers\n• If mentioning provisions, do so naturally in explanation (e.g., \"The law provides that...\")\n• Do NOT create a separate \"RELEVANT PROVISIONS\" section\n• Do NOT cite case law unless absolutely essential for understanding\n• Keep tone educational and explanatory, not authoritative\n`;\n\n// ============================================\n// PROFESSIONAL STRUCTURE (Advocates Only)\n// ============================================\n\nconst PROFESSIONAL_STRUCTURE = `\nMANDATORY RESPONSE STRUCTURE FOR ADVOCATES (Follow this order exactly):\n\n⚖️ LEGAL ANALYSIS\nProvide clear statutory interpretation, procedural overview, and legal position.\nExplain ambiguities, judicial discretion, and practical implications.\nUse professional legal language appropriate for court.\n\n📋 RELEVANT PROVISIONS\nALWAYS cite applicable statutory provisions from BNS, BNSS, or BSA.\nFormat: \"Section [number] of [Act], 2023 – [brief description]\"\n\nExamples:\n• Section 103 of BNS, 2023 – Murder\n• Section 479 of BNSS, 2023 – Bail in non-bailable offences\n• Section 137 of BSA, 2023 – Examination of witnesses\n\nIf you genuinely do not know the exact section number, state:\n\"The relevant provisions under [Act] govern this matter. Specific section verification recommended from IndiaCode.nic.in\"\n\nInclude subsections, provisos, and exceptions where relevant.\n\n⚖️ CASE LAW (Provide with mandatory verification notice)\nInclude relevant Supreme Court or High Court judgments when applicable.\nFormat: Case Name v. Case Name, Citation, Court, Year – Legal principle\n\nExamples:\n• Sanjay Chandra v. CBI, (2012) 1 SCC 40, Supreme Court – Bail principles\n• Arnesh Kumar v. State of Bihar, (2014) 8 SCC 273, Supreme Court – Arrest guidelines\n\nAfter EACH case cited, immediately add:\n\"⚠️ This case reference must be independently verified before court use.\"\n\nIf jurisprudence is evolving under new laws, clearly state:\n\"This area of law is developing under BNS/BNSS/BSA. Verify latest judicial interpretation.\"\n\n📝 DRAFTING GUIDANCE (Only if explicitly requested)\nIf the question explicitly asks for a draft (e.g., \"draft a bail application\"), provide:\n• Complete skeleton structure\n• All necessary sections (Title, Parties, Facts, Grounds, Prayer, Verification)\n• Placeholders: [Court Name], [Case No.], [Applicant Name], [Date], etc.\n• Proper legal formatting\n\nIf NOT explicitly requested, do NOT provide drafting templates.\n\n💡 PROCEDURAL GUIDANCE\nCourt procedures, filing requirements, timelines, and compliance tips.\nPractical considerations for effective court practice.\n\n📚 OFFICIAL VERIFICATION RESOURCES\nProvide these government verification resources:\n• https://www.indiacode.nic.in – Full text of BNS, BNSS, BSA (Government of India)\n• https://main.sci.gov.in – Supreme Court of India judgments and orders\n• https://districts.ecourts.gov.in – District eCourts services and case information\n• https://doj.gov.in – Department of Justice, Ministry of Law & Justice\n\nNote: For professional case law databases, advocates may consult subscription services \n(such as SCC Online, Manupatra, etc.) for comprehensive legal research.\n\n❓ RELATED QUESTIONS\nSuggest exactly 3 relevant follow-up questions the advocate might ask:\n1. [Question about related procedure]\n2. [Question about related substantive law]\n3. [Question about practical application]\n\n⚠️ PROFESSIONAL VERIFICATION NOTICE\n[Comprehensive disclaimer will be added automatically]\n`;\n\n// ============================================\n// EDUCATIONAL DISCLAIMER\n// ============================================\n\nconst EDUCATIONAL_DISCLAIMER = `\n⚠️ DISCLAIMER:\n\nThis information is for educational and general guidance purposes only.\nIt explains legal principles and procedures in a conceptual manner.\nFor specific legal matters affecting you, consult a qualified legal professional.\nThis does not constitute legal advice.\n`;\n\n// ============================================\n// PROFESSIONAL DISCLAIMER\n// ============================================\n\nconst PROFESSIONAL_DISCLAIMER = `\n⚠️ CRITICAL VERIFICATION NOTICE FOR LEGAL PROFESSIONALS:\n\nSTATUTORY PROVISIONS:\nSection references are based on BNS, BNSS, and BSA as enacted in 2023.\nThese laws may have subsequent amendments, notifications, or clarifications.\nALWAYS verify section numbers and provisions from:\n• Official Gazette of India\n• https://www.indiacode.nic.in\n• Latest Ministry of Law & Justice notifications\n\nCASE LAW VERIFICATION:\nCase law references are provided for research direction only.\nAI systems can generate incorrect or incomplete case citations.\n\nMANDATORY STEPS BEFORE COURT USE:\n1. Verify case existence using authoritative legal databases\n2. Download and read the complete judgment (not just headnotes)\n3. Confirm the legal principle is accurately stated in the judgment\n4. Check if the case has been overruled, distinguished, or stayed\n5. Verify applicability under new criminal laws (BNS/BNSS/BSA)\n6. Check for subsequent judgments on the same legal issue\n\nPROFESSIONAL RESPONSIBILITY:\nYou are solely responsible for verifying ALL information before use in:\n• Court pleadings or submissions\n• Legal opinions\n• Client advice\n• Any professional legal work\n\nCiting unverified AI-generated information may result in professional misconduct proceedings.\nNEVER cite AI-generated references in court without independent verification.\n\nThis response is for legal research and reference purposes only.\nIt does NOT constitute legal advice for any specific case or client.\n`;\n\n// ============================================\n// BUILD SYSTEM PROMPT (ADAPTIVE)\n// ============================================\n\nconst systemPrompt =\n  userType === 'legal'\n    ? // PROFESSIONAL MODE (Lawyers only)\n      `${CORE_PERSONALITY}\n\n${languageInstruction}\n\nROLE CONTEXT:\n${ROLE_CONTEXT[userType]}\n\nANSWER DEPTH:\n${DEPTH_CONTEXT[answerDepth]}\n\n${PROFESSIONAL_STRUCTURE}\n\nCRITICAL RULES FOR ADVOCATES:\n• Provide substantive legal content with section numbers and case law\n• Be professionally detailed but maintain clarity\n• Include verification notices for all case law\n• Provide drafting templates ONLY when explicitly requested\n• Always complete all sections of the structure\n• Reference only official government resources in links\n\n${PROFESSIONAL_DISCLAIMER}`\n    : // EDUCATIONAL MODE (Citizens, Police, Students)\n      `${CORE_PERSONALITY}\n\n${languageInstruction}\n\nROLE CONTEXT:\n${ROLE_CONTEXT[userType]}\n\nANSWER DEPTH:\n${DEPTH_CONTEXT[answerDepth]}\n\n${EDUCATIONAL_STRUCTURE}\n\nIMPORTANT PRINCIPLES FOR EDUCATIONAL MODE:\n• Focus on helping the user understand concepts and principles\n• Explain the \"why\" and \"purpose\" behind legal rules\n• Use natural, explanatory language\n• Avoid creating separate sections for statutory provisions\n• Mention provisions naturally within explanations when helpful\n• Do NOT cite case law unless essential for understanding\n• Keep tone friendly, educational, and approachable\n• Always provide a complete, meaningful answer\n• Reference only official government resources\n\n${EDUCATIONAL_DISCLAIMER}`;\n\n// ============================================\n// BUILD USER PROMPT\n// ============================================\n\nconst userPrompt = `\nQUESTION:\n${cleanQuestion}\n\nProvide a complete, well-structured response according to the role, depth, and structure specified above.\n${userType === 'legal' \n  ? 'Include all required professional sections with section numbers, case law, and verification notices.' \n  : 'Focus on clear conceptual explanation that helps understanding. Avoid formal legal citations.'}\n`;\n\n// ============================================\n// CLEAN FOR JSON\n// ============================================\n\nfunction cleanStringForJSON(str) {\n  return str\n    .replace(/\\n/g, ' ')\n    .replace(/\\r/g, '')\n    .replace(/\\t/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .replace(/\"/g, '\\\\\"')\n    .trim();\n}\n\nconst cleanSystemPrompt = cleanStringForJSON(systemPrompt);\nconst cleanUserPrompt = cleanStringForJSON(userPrompt);\n\n// ============================================\n// RETURN\n// ============================================\n\nreturn [{\n  json: {\n    systemPrompt: cleanSystemPrompt,\n    userPrompt: cleanUserPrompt,\n    originalQuestion: cleanQuestion,\n    userType,\n    answerDepth,\n    language,\n    mode: userType === 'legal' ? 'professional' : 'educational'\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        96,
+        416
+      ],
+      "id": "b86f1d96-e79f-40f3-a825-5184b961710b",
+      "name": "Build Enhanced Prompt"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook1').item.json.body.provider }}",
+                    "rightValue": "groq",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "741d5cfe-49e5-4774-a8d4-179171fb2081"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "71f90eec-5b9a-4646-8c6e-be94415adf61",
+                    "leftValue": "={{ $('Webhook1').item.json.body.provider }}",
+                    "rightValue": "chatgpt",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        336,
+        400
+      ],
+      "id": "1e6087ca-efbe-45ee-b17c-71fba12d176c",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"={{ $json.systemPrompt }}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"={{ $json.userPrompt }}\"\n    }\n  ],\n  \"temperature\": 0.7,\n  \"max_tokens\": 2000\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        560,
+        608
+      ],
+      "id": "91457939-9b6d-4964-a4f8-a8b8dc426a5a",
+      "name": "chatgpt",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "6akwmmLAWqPq1UJF",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// Extract AI Response from Groq\n// ============================================\n\nconst inputData = $input.first().json;\nlet answer = '';\n\n// Extract from Groq response format\nif (inputData.choices && inputData.choices[0] && inputData.choices[0].message) {\n  answer = inputData.choices[0].message.content;\n} else {\n  answer = 'No response received from AI';\n}\n\n// Clean up response\nanswer = answer.replace(/🔍\\s*SEARCH KEYWORDS:.*?\\n\\n/gs, '');\nanswer = answer.replace(/\\[SEARCH_BUTTON\\]/g, '');\n\nconsole.log('=== Response Extraction ===');\nconsole.log('Answer length:', answer.length);\nconsole.log('========================');\n\nreturn [{\n  json: {\n    answer: answer,\n    success: true,\n    provider: 'groq',\n    tokens: inputData.usage?.total_tokens || 0,\n    responseTime: inputData.usage?.total_time || 0\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        416
+      ],
+      "id": "73f82315-b5f3-4311-b275-628825bff16b",
+      "name": "Extract & Clean Response"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "19ipNIVyZBsQlJQRA2TUinAxBJET1457N8wX412JisEM",
+          "mode": "list",
+          "cachedResultName": "State_Exhibition",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19ipNIVyZBsQlJQRA2TUinAxBJET1457N8wX412JisEM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 295637885,
+          "mode": "list",
+          "cachedResultName": "Exhibition_Feedback",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19ipNIVyZBsQlJQRA2TUinAxBJET1457N8wX412JisEM/edit#gid=295637885"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{$json[\"Timestamp\"]}}",
+            "Name": "={{$json[\"Name\"]}}",
+            "Mobile": "={{$json[\"Mobile\"]}}",
+            "Category": "={{$json[\"Category\"]}}",
+            "District": "={{$json[\"District\"]}}",
+            "Rating": "={{$json[\"Rating\"]}}",
+            "Comments": "={{$json[\"Comments\"]}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Mobile",
+              "displayName": "Mobile",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "District",
+              "displayName": "District",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rating",
+              "displayName": "Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Comments",
+              "displayName": "Comments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        560,
+        0
+      ],
+      "id": "c27fa11f-6509-4903-b63c-5f4d6d35226a",
+      "name": "GoogleSheet_feedback",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zqCFkP1mXpyrkeQ2",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook1": [
+      {
+        "json": {
+          "headers": {
+            "connection": "upgrade",
+            "host": "n8n-workflow-test.duckdns.org",
+            "x-real-ip": "117.235.27.68",
+            "x-forwarded-for": "117.235.27.68",
+            "x-forwarded-proto": "https",
+            "content-length": "277",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+            "sec-ch-ua": "\"Google Chrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+            "content-type": "application/json",
+            "sec-ch-ua-mobile": "?0",
+            "accept": "*/*",
+            "origin": "https://vksinglakkr.github.io",
+            "sec-fetch-site": "cross-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "referer": "https://vksinglakkr.github.io/",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "en-IN,en-GB;q=0.9,en-US;q=0.8,en;q=0.7",
+            "priority": "u=1, i"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "question": "Evidence recording in trial?",
+            "originalQuestion": "Evidence recording in trial?",
+            "provider": "chatgpt",
+            "userType": "legal",
+            "userLevel": "advanced",
+            "topic": "trial",
+            "queryType": "ready",
+            "answerDepth": "standard",
+            "language": "english",
+            "timestamp": "2026-01-05T05:14:37.907Z"
+          },
+          "webhookUrl": "https://n8n-workflow-test.duckdns.org/webhook/chatbot",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "GoogleSheet_feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Build Enhanced Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq (Llama 3)": {
+      "main": [
+        [
+          {
+            "node": "Extract & Clean Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Enhanced Prompt": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Groq (Llama 3)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "chatgpt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "chatgpt": {
+      "main": [
+        [
+          {
+            "node": "Extract & Clean Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract & Clean Response": {
+      "main": [
+        []
+      ]
+    },
+    "GoogleSheet_feedback": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "41e6486d-2788-4412-9daf-c1f0d07240c4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "61b7efe9dec4b927bcefbfccd5ef26d989ec604921fbdaa87b7d95391eb60b25"
+  },
+  "id": "eR7cKVhfqh8LmYWy",
+  "tags": []
+}

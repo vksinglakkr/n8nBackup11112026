@@ -1,0 +1,345 @@
+{
+  "name": "Project08_WhatsApp VIP Alert - Keyword Trigger",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-vip-alert",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "4344c2dc-f370-403b-afeb-1aa33dfadd17",
+      "name": "WhatsApp Message (Twilio)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -512,
+        192
+      ],
+      "webhookId": "whatsapp-vip-twilio"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "vip-keyword-check",
+              "leftValue": "={{ $('WhatsApp Message (Twilio)').item.json.body.Body.toLowerCase() }}",
+              "rightValue": "vinod",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "76b9e8f3-ded6-4fe7-8183-5c0f64b234ad",
+              "leftValue": "={{ $('WhatsApp Message (Twilio)').item.json.body.Body.toLowerCase() }}",
+              "rightValue": "nic",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "86d5e99b-b44f-428d-af9e-2060ffc4d1df",
+      "name": "Is VIP Keyword?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -288,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ntfy.sh/vinod-vip-alert",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Title",
+              "value": "VIP WhatsApp Alert!"
+            },
+            {
+              "name": "Priority",
+              "value": "urgent"
+            },
+            {
+              "name": "Tags",
+              "value": "bell,star"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"alert\": \"VIP WhatsApp Message Received!\",\n  \"from\": \"{{ $('WhatsApp Message (Twilio)').item.json.body.From }}\",\n  \"message\": \"{{ $('WhatsApp Message (Twilio)').item.json.body.Body }}\",\n  \"time\": \"{{ new Date().toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'}) }}\",\n  \"sound\": true,\n  \"priority\": \"high\"\n}",
+        "options": {}
+      },
+      "id": "17ee5f96-5a91-4fbd-aba3-a10d6827ed19",
+      "name": "Trigger VIP Alert Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -64,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1T1D3gRbkmhb4NOhVKce1ktt6NwxyppED2mfBQm1MDRA",
+          "mode": "list",
+          "cachedResultName": "GoodMorning",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T1D3gRbkmhb4NOhVKce1ktt6NwxyppED2mfBQm1MDRA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 788718164,
+          "mode": "list",
+          "cachedResultName": "Project08_WhatsApp VIP Alert - Keyword Trigger",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T1D3gRbkmhb4NOhVKce1ktt6NwxyppED2mfBQm1MDRA/edit#gid=788718164"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "=\n{{ new Date().toLocaleString('en-IN', {timeZone:'Asia/Kolkata'}) }}",
+            "From": "={{ $('WhatsApp Message (Twilio)').item.json.body.From }}",
+            "Name": "={{ $('WhatsApp Message (Twilio)').item.json.body.ProfileName }}",
+            "Message": "={{ $('WhatsApp Message (Twilio)').item.json.body.Body }}",
+            "Keyword": "=GITA"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "From",
+              "displayName": "From",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Keyword",
+              "displayName": "Keyword",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "120090e4-8f67-4b37-9f2f-df71ec5675c6",
+      "name": "Log VIP Message",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        -64,
+        192
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zqCFkP1mXpyrkeQ2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=Twilio received. Checked.",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "5854cf23-ea04-401f-92c7-bdff034770b3",
+      "name": "Acknowledge Twilio (VIP)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        160,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "OK",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "ddad8798-2766-4543-8a42-1c37037248b9",
+      "name": "Acknowledge Twilio (Normal)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        384
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Message (Twilio)": {
+      "main": [
+        [
+          {
+            "node": "Is VIP Keyword?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is VIP Keyword?": {
+      "main": [
+        [
+          {
+            "node": "Trigger VIP Alert Webhook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log VIP Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Acknowledge Twilio (Normal)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger VIP Alert Webhook": {
+      "main": [
+        [
+          {
+            "node": "Acknowledge Twilio (VIP)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log VIP Message": {
+      "main": [
+        [
+          {
+            "node": "Acknowledge Twilio (VIP)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8a3d11d7-6bf3-427c-a2e3-9d347b7a719a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "61b7efe9dec4b927bcefbfccd5ef26d989ec604921fbdaa87b7d95391eb60b25"
+  },
+  "id": "0DhAYv3QAzjRdzrd",
+  "tags": [
+    {
+      "updatedAt": "2026-06-10T03:39:49.290Z",
+      "createdAt": "2026-06-10T03:39:49.290Z",
+      "id": "HN61jMKUigNBO04Z",
+      "name": "gmail-trigger"
+    },
+    {
+      "updatedAt": "2026-06-10T03:39:49.285Z",
+      "createdAt": "2026-06-10T03:39:49.285Z",
+      "id": "HzCsYn3rNpybcw7B",
+      "name": "kurukshetra"
+    },
+    {
+      "updatedAt": "2026-06-10T03:39:49.294Z",
+      "createdAt": "2026-06-10T03:39:49.294Z",
+      "id": "RuHftwwC1yOObgs2",
+      "name": "district-admin"
+    },
+    {
+      "updatedAt": "2026-06-10T03:39:49.276Z",
+      "createdAt": "2026-06-10T03:39:49.276Z",
+      "id": "b3tfANPNbr9XhucS",
+      "name": "complaints"
+    },
+    {
+      "updatedAt": "2026-06-10T04:22:19.724Z",
+      "createdAt": "2026-06-10T04:22:19.724Z",
+      "id": "hVxHiM72vGkVqW4h",
+      "name": "keyword-trigger"
+    },
+    {
+      "updatedAt": "2026-06-11T09:31:44.976Z",
+      "createdAt": "2026-06-11T09:31:44.976Z",
+      "id": "pwFX0Xs7XwZu4B7z",
+      "name": "smart-routing"
+    },
+    {
+      "updatedAt": "2026-06-11T09:31:44.983Z",
+      "createdAt": "2026-06-11T09:31:44.983Z",
+      "id": "xDmAxed39GmJhfyz",
+      "name": "duplicate-protection"
+    }
+  ]
+}

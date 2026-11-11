@@ -1,0 +1,158 @@
+{
+  "name": "5-gita-wisdom-ai-qa",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gita-wisdom",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "933f366b-fc28-4870-89ef-c4caab446f59",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        64,
+        -96
+      ],
+      "webhookId": "gita-wisdom-post"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst question = (body.question || '').toString().trim();\nconst language = (body.language || 'english').toString().toLowerCase();\nconst style = (body.style || 'simple').toString().toLowerCase();\n\nif (!question) {\n  throw new Error('No question was provided.');\n}\n\nconst languageInstruction = language === 'hindi'\n  ? 'Reply entirely in Hindi, using Devanagari script.'\n  : 'Reply entirely in English.';\n\nconst styleInstructions = {\n  simple: 'Keep the answer short (3-5 sentences), warm, and easy to follow for someone with no background in scripture. Avoid Sanskrit terms unless you immediately explain them in plain words.',\n  reflective: 'Write in a gentle, contemplative tone, as a wise friend would speak. End with one short reflective question for the person to sit with, on its own line.',\n  scholarly: 'Write a fuller answer (6-10 sentences) that explains the philosophical context (e.g. Karma Yoga, Sankhya, Bhakti) and is suitable for a serious student of the text.'\n};\n\nconst systemPrompt = `You are a Gita Wisdom guide. You answer only using the teachings of the Bhagavad Gita.\nRules:\n- Ground the answer in the Gita's actual teaching, in your own words; do not quote long passages verbatim.\n- When one specific verse is clearly the best fit, cite it on its own final line in the exact format \"BG <chapter>.<verse>\", for example \"BG 2.47\". Cite at most one verse.\n- If no single verse fits cleanly, do not invent a citation - simply omit it.\n- Never claim the Gita teaches something it does not.\n- ${languageInstruction}\n- ${styleInstructions[style] || styleInstructions.simple}`;\n\nreturn [{\n  json: { question, language, style, systemPrompt }\n}];"
+      },
+      "id": "12393b3f-b2fd-4284-835a-329fa7434e32",
+      "name": "Build Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nlet content = '';\ntry {\n  content = response.choices[0].message.content || '';\n} catch (e) {\n  content = \"I couldn't form an answer just now. Please try again in a moment.\";\n}\n\ncontent = content.trim();\n\nlet citation = null;\nconst match = content.match(/BG\\s?(\\d{1,2})\\.(\\d{1,3})\\s*$/i);\nif (match) {\n  citation = `BG ${match[1]}.${match[2]}`;\n  content = content.replace(/\\n?BG\\s?\\d{1,2}\\.\\d{1,3}\\s*$/i, '').trim();\n}\n\nconst model = response.model || null;\n\nreturn [{ json: { answer: content, citation, model } }];"
+      },
+      "id": "c25e4100-a719-4e79-b27a-3b606c11428d",
+      "name": "Extract Answer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        736,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { answer: $json.answer, citation: $json.citation, model: $json.model } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "3ec77b3e-0fff-49e8-9c99-591db49bc3e2",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        944,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "groqApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"openai/gpt-oss-120b\", temperature: 0.4, max_tokens: 600, messages: [ { role: \"system\", content: $json.systemPrompt }, { role: \"user\", content: $json.question } ] }) }}",
+        "options": {}
+      },
+      "id": "086052fe-c878-4a13-b790-c00f17ae8f5b",
+      "name": "Ask Groq",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        512,
+        -96
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "SVypylwZhqG2a8gE",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Build Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt": {
+      "main": [
+        [
+          {
+            "node": "Ask Groq",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Answer": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Groq": {
+      "main": [
+        [
+          {
+            "node": "Extract Answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "53bd8dfe-37fd-4bbd-8303-e37841b363dc",
+  "meta": {
+    "instanceId": "61b7efe9dec4b927bcefbfccd5ef26d989ec604921fbdaa87b7d95391eb60b25"
+  },
+  "id": "xxVVA1vzzetwM6k0",
+  "tags": []
+}

@@ -1,0 +1,68 @@
+{
+  "name": "WorkFlowToVerifyPhoneNumberWhatsapp",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f9bea923-1900-4615-b1b3-2d2f658f7767",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v21.0/849628844903257/register",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer EAAMswZAGjFWABQaNJmEA3C57QDUqgcRYLILiMBJWypY1cGtqLueoSRkL7grhBP34CIgB8FwlHZC4CZCSciFOjaDZBBCO124LzewdMRKnEKtNqxfRsj9bPDwRefEo8ZAosChKn6BnjOXqiEMOoKEgfRQXZAXEqOwZCZA89aYSDObnRYlIexYhHnTAX57KikA3ZAwZDZD"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"pin\": \"123456\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "5a3074d2-c855-4d91-9b3c-07dc7355675e",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "13319971-7662-4cc3-b339-ab4e2b4dfa5a",
+  "meta": {
+    "instanceId": "61b7efe9dec4b927bcefbfccd5ef26d989ec604921fbdaa87b7d95391eb60b25"
+  },
+  "id": "1mLiWuXWpO7nntdj",
+  "tags": []
+}

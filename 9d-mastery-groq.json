@@ -1,0 +1,1102 @@
+{
+  "name": "9d-mastery-groq",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gita-oracle",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "66640c94-2522-446b-a4bf-ac4e133026f0",
+      "name": "Gita Question",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1808,
+        1952
+      ],
+      "webhookId": "8ded50f8-7a49-4b6b-8807-22beb7d788c1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cond1",
+              "leftValue": "={{ [\"agent\",\"predefined\",\"header_auth\",\"bearer_auth\",\"header_auth_persona\",\"code_prompt\",\"static_header\"].includes($json.body.method) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "363f9a6a-c5d3-4ffb-a3ea-a2b47c7c16aa",
+      "name": "Validate Method",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -1584,
+        1952
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.question }}",
+        "options": {
+          "systemMessage": "You are a patient, knowledgeable guide to the Bhagavad Gita. Answer clearly in plain language, cite chapter and verse where relevant, and keep answers under 150 words."
+        }
+      },
+      "id": "e23c9729-688f-48de-ad1c-012007b79790",
+      "name": "Gita Guide – Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -1136,
+        1136
+      ]
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "id": "0c816362-4da1-40c6-afa2-6fab7a8e8dee",
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -1056,
+        1360
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "SVypylwZhqG2a8gE",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "reply",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "method",
+              "value": "agent",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4e2f346f-8c2b-48d5-b3ea-4de641b16b72",
+      "name": "Shape Agent Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -784,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"reply\": $json.reply, \"method\": $json.method } }}",
+        "options": {}
+      },
+      "id": "7f9ebdc2-b6d3-4efa-9750-b5cf548dfe92",
+      "name": "Respond – Agent",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "groqApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"llama-3.3-70b-versatile\", messages: [ { role: \"system\", content: \"You are a patient guide to the Bhagavad Gita. Keep answers under 150 words.\" }, { role: \"user\", content: $json.body.question } ] }) }}",
+        "options": {}
+      },
+      "id": "c059f0eb-9787-4627-9528-866a68b51c52",
+      "name": "Groq via Predefined Credential",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1072,
+        1536
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "SVypylwZhqG2a8gE",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1",
+              "name": "reply",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            },
+            {
+              "id": "b2",
+              "name": "method",
+              "value": "predefined",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2217f747-6828-4002-a4bf-f0fd72f5fb59",
+      "name": "Shape Predefined Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -784,
+        1536
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"reply\": $json.reply, \"method\": $json.method } }}",
+        "options": {}
+      },
+      "id": "c86083ef-5d66-479f-933b-60acd4b346d4",
+      "name": "Respond – Predefined",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        1536
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"llama-3.3-70b-versatile\", messages: [ { role: \"system\", content: \"You are a patient guide to the Bhagavad Gita. Keep answers under 150 words.\" }, { role: \"user\", content: $json.body.question } ] }) }}",
+        "options": {}
+      },
+      "id": "6d6ba523-f2ea-405c-bd73-3fb1daa6007f",
+      "name": "Groq via Header Auth",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1072,
+        1728
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "KPHEWlDfrDJ3w8uh",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1",
+              "name": "reply",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            },
+            {
+              "id": "c2",
+              "name": "method",
+              "value": "header_auth",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "98270077-43b4-40b2-8908-e54c219591f1",
+      "name": "Shape Header Auth Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -784,
+        1728
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"reply\": $json.reply, \"method\": $json.method } }}",
+        "options": {}
+      },
+      "id": "67eeaebb-dbaf-46ff-8086-b460d0fa964f",
+      "name": "Respond – Header Auth",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        1728
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"llama-3.3-70b-versatile\", messages: [ { role: \"system\", content: \"You are a patient guide to the Bhagavad Gita. Keep answers under 150 words.\" }, { role: \"user\", content: $json.body.question } ] }) }}",
+        "options": {}
+      },
+      "id": "17c82346-4aa3-46a6-bb9b-541a9bd42879",
+      "name": "Groq via Bearer Auth",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1072,
+        1920
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "6akwmmLAWqPq1UJF",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "reply",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            },
+            {
+              "id": "f2",
+              "name": "method",
+              "value": "bearer_auth",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9e8e18b5-3efc-4a43-95e4-0b9e008bc5e8",
+      "name": "Shape Bearer Auth Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -784,
+        1920
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"reply\": $json.reply, \"method\": $json.method } }}",
+        "options": {}
+      },
+      "id": "dd774670-bfd1-43b8-a76a-2b385f0eb214",
+      "name": "Respond – Bearer Auth",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        1920
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d1",
+              "name": "systemPrompt",
+              "value": "You are Krishna's patient scribe — warm, concise, and precise about chapter and verse. Explain rather than moralize, and let the reader draw their own conclusion. Keep answers under 150 words.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "29ceb237-228b-4c4a-93c8-56a86aefe177",
+      "name": "Define Persona",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1072,
+        2112
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"llama-3.3-70b-versatile\", messages: [ { role: \"system\", content: $json.systemPrompt }, { role: \"user\", content: $('Gita Question').item.json.body.question } ] }) }}",
+        "options": {}
+      },
+      "id": "8c2ac638-9bf6-4f88-a63a-6adee4cf9c31",
+      "name": "Groq via Header Auth + Persona",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -784,
+        2112
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "KPHEWlDfrDJ3w8uh",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1",
+              "name": "reply",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            },
+            {
+              "id": "e2",
+              "name": "method",
+              "value": "header_auth_persona",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7d23cdf7-ef8f-4875-8693-7f6568ea185f",
+      "name": "Shape Persona Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        2112
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"reply\": $json.reply, \"method\": $json.method } }}",
+        "options": {}
+      },
+      "id": "e87cf46f-f873-43c7-b3f8-c98272d25f35",
+      "name": "Respond – Persona",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -336,
+        2112
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Case 6 — build the prompt in code instead of an inline expression.\n// Demonstrates: input sanitising, a length guard, and assembling the\n// messages[] array by hand before it ever reaches the HTTP Request node.\n\nconst rawQuestion = $json.body.question || '';\nconst trimmedQuestion = rawQuestion.trim().slice(0, 500); // guard against oversized input\n\nconst systemPrompt =\n  \"You are a patient, well-read guide to the Bhagavad Gita. \" +\n  \"Ground every answer in a specific chapter and verse where possible. \" +\n  \"If the question falls outside the Gita's scope, say so plainly instead of guessing. \" +\n  \"Keep the answer under 150 words.\";\n\nconst messages = [\n  { role: 'system', content: systemPrompt },\n  { role: 'user', content: trimmedQuestion }\n];\n\nreturn [{\n  json: {\n    ...$json,\n    messages,\n    systemPrompt,\n    questionLength: trimmedQuestion.length\n  }\n}];"
+      },
+      "id": "7dc1eaa6-7bf7-4eb8-b82d-7b667639b66e",
+      "name": "Build Prompt (Code)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1072,
+        2304
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"llama-3.3-70b-versatile\", messages: $json.messages }) }}",
+        "options": {}
+      },
+      "id": "2f44aa31-7707-4dc2-9f9e-ba153d330c84",
+      "name": "Groq via Header Auth (Code Prompt)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -784,
+        2304
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "KPHEWlDfrDJ3w8uh",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "g1",
+              "name": "reply",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            },
+            {
+              "id": "g2",
+              "name": "method",
+              "value": "code_prompt",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a9fb6af4-b6ad-4df7-9e38-4bb2d072e9c8",
+      "name": "Shape Code Prompt Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        2304
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"reply\": $json.reply, \"method\": $json.method } }}",
+        "options": {}
+      },
+      "id": "662ac99c-2883-4380-b481-663f7cb9faa8",
+      "name": "Respond – Code Prompt",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -336,
+        2304
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"error\": \"Unknown method: \" + ($json.method || \"missing\"), \"validMethods\": [\"agent\",\"predefined\",\"header_auth\",\"bearer_auth\",\"header_auth_persona\",\"code_prompt\"] } }}",
+        "options": {}
+      },
+      "id": "5dc46654-0124-4c5f-ba1b-8ad0ffdaa630",
+      "name": "Respond – Unknown Method",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -1440,
+        2160
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.method }}",
+                    "rightValue": "agent",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "ea2486cb-c842-455a-aa11-8bebaebcdf30"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "dbdbbc2f-85f4-4f5f-a4f6-097df2562621",
+                    "leftValue": "={{ $json.body.method }}",
+                    "rightValue": "predefined",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "4f4458fe-f33e-4a1c-b1cc-702231244108",
+                    "leftValue": "={{ $json.body.method }}",
+                    "rightValue": "header_auth",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9429967f-2ec4-45bc-b22b-495f2ba616a7",
+                    "leftValue": "={{ $json.body.method }}",
+                    "rightValue": "bearer_auth",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ab62a89a-e219-4b2c-b5b4-a98d72e80969",
+                    "leftValue": "={{ $json.body.method }}",
+                    "rightValue": "header_auth_persona",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1be13868-c00a-4ea4-9ee5-b442b3500e09",
+                    "leftValue": "={{ $json.body.method }}",
+                    "rightValue": "code_prompt",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "fadccd13-78ed-4fec-81e4-9f902d406dbc",
+                    "leftValue": "={{ $json.body.method }}",
+                    "rightValue": "static_header",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1360,
+        1760
+      ],
+      "id": "e979f7ae-fb32-4e18-baca-d1c61ce959fb",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer PASTE_YOUR_RAW_GROQ_KEY_HERE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"llama-3.3-70b-versatile\", messages: [ { role: \"system\", content: \"You are a patient guide to the Bhagavad Gita. Keep answers under 150 words.\" }, { role: \"user\", content: $json.question } ] }) }}",
+        "options": {}
+      },
+      "id": "cccd8360-297b-4a77-8740-da3deeaabf2f",
+      "name": "Groq via Static Header (⚠️ anti-pattern)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1072,
+        2496
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "h1",
+              "name": "reply",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            },
+            {
+              "id": "h2",
+              "name": "method",
+              "value": "static_header",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7e1937ed-6048-41b9-9c66-a4ba63ac1300",
+      "name": "Shape Static Header Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -832,
+        2496
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"reply\": $json.reply, \"method\": $json.method, \"warning\": \"The key was typed directly into the node's header field — no credential involved. It works, but it's sitting in plain text in this workflow's exported JSON. Never do this outside a demo.\" } }}",
+        "options": {}
+      },
+      "id": "a65aad4e-9da2-4f68-883d-865c45f453e3",
+      "name": "Respond – Static Header",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -608,
+        2496
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 🕉️ Gita Oracle — Day 4: HTTP & Credentials Deep Dive\n\nOne webhook, **six ways** to reach the same Groq model. Same question in, same response shape out — only the auth mechanism and prompt-building method change per branch. Study them side by side.\n\n| # | `method` value | What it teaches |\n|---|---|---|\n| 1 | `agent` | n8n AI Agent — fully managed, no manual HTTP |\n| 2 | `predefined` | Dedicated `groqApi` credential type |\n| 3 | `header_auth` | Generic **Header Auth** — you type the header name |\n| 4 | `bearer_auth` | Generic **Bearer Auth** — built-in, no header typing |\n| 5 | `header_auth_persona` | Hidden key + custom system prompt |\n| 6 | `code_prompt` | Prompt built in a **Code node**, not inline |\n| 7 | `static_header` | ⚠️ Key typed directly into the header — no credential, anti-pattern |\n\n**Payload in:** `{ question, method, ts }`\n**Response out:** `{ reply, method }` or `{ error, validMethods }`",
+        "height": 420,
+        "width": 620,
+        "color": 4
+      },
+      "id": "b5323087-a7e5-4660-be45-c00f75624eda",
+      "name": "📖 Project Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1872,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 🔐 Before You Run This\n\n- [ ] `groqApi` credential → **Groq Chat Model** + **Groq via Predefined Credential**\n- [ ] **Header Auth** credential (`Authorization: Bearer <key>`) → Header Auth, Persona, and Code Prompt branches\n- [ ] **Bearer Auth** credential (raw token, *no* \"Bearer \" prefix — n8n adds it) → Bearer Auth branch\n- [ ] Activate workflow → copy the **production** webhook URL\n- [ ] Test all 6 branches with `mock-test-payloads.json`\n\n⚠️ **Never commit real API keys into this workflow's exported JSON.** That's the whole point of today's lesson — every credential above lives in n8n's vault, not in this file.",
+        "height": 380,
+        "width": 460,
+        "color": 6
+      },
+      "id": "577ba93a-bd00-4b26-8fd5-4db647ce8eb2",
+      "name": "🔐 Before You Run This",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1872,
+        1360
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gita Question": {
+      "main": [
+        [
+          {
+            "node": "Validate Method",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Method": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond – Unknown Method",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gita Guide – Agent": {
+      "main": [
+        [
+          {
+            "node": "Shape Agent Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Gita Guide – Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Agent Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond – Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq via Predefined Credential": {
+      "main": [
+        [
+          {
+            "node": "Shape Predefined Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Predefined Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond – Predefined",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq via Header Auth": {
+      "main": [
+        [
+          {
+            "node": "Shape Header Auth Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Header Auth Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond – Header Auth",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq via Bearer Auth": {
+      "main": [
+        [
+          {
+            "node": "Shape Bearer Auth Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Bearer Auth Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond – Bearer Auth",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define Persona": {
+      "main": [
+        [
+          {
+            "node": "Groq via Header Auth + Persona",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq via Header Auth + Persona": {
+      "main": [
+        [
+          {
+            "node": "Shape Persona Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Persona Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond – Persona",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt (Code)": {
+      "main": [
+        [
+          {
+            "node": "Groq via Header Auth (Code Prompt)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq via Header Auth (Code Prompt)": {
+      "main": [
+        [
+          {
+            "node": "Shape Code Prompt Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Code Prompt Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond – Code Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Gita Guide – Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Groq via Predefined Credential",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Groq via Header Auth",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Groq via Bearer Auth",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Define Persona",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Prompt (Code)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Groq via Static Header (⚠️ anti-pattern)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq via Static Header (⚠️ anti-pattern)": {
+      "main": [
+        [
+          {
+            "node": "Shape Static Header Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Static Header Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond – Static Header",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "fb10f638-b4e2-4af4-b671-6aa90afe21e3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "61b7efe9dec4b927bcefbfccd5ef26d989ec604921fbdaa87b7d95391eb60b25"
+  },
+  "id": "GJXMs0HgIuHBmujD",
+  "tags": []
+}

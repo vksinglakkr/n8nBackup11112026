@@ -1,0 +1,113 @@
+{
+  "name": "1d-good-morning-twilio",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "id": "e24f20b0-ed05-43e7-8b63-aacc3e718426",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "l1a-wa-msg",
+              "name": "message",
+              "value": "👋 Good Morning! n8n is working perfectly. Have a great day!",
+              "type": "string"
+            },
+            {
+              "id": "l1a-wa-ts",
+              "name": "sent_at",
+              "value": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1131a3e3-4925-4283-8909-9b5f2d6292c9",
+      "name": "Set Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        80,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "from": "+14155238886",
+        "to": "+919466137300",
+        "toWhatsapp": "={{ $json.message }}",
+        "message": "={{ $json.message }}",
+        "options": {}
+      },
+      "id": "58473427-c020-4846-b97d-13db95c153b3",
+      "name": "Twilio: Send WhatsApp",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        304,
+        240
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "8NOOttA5LuarQM1v",
+          "name": "Twilio account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Message": {
+      "main": [
+        [
+          {
+            "node": "Twilio: Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5f8b513f-80b0-4951-a59e-2f180a78053d",
+  "meta": {
+    "instanceId": "61b7efe9dec4b927bcefbfccd5ef26d989ec604921fbdaa87b7d95391eb60b25"
+  },
+  "id": "pbhJVK0knS06yalr",
+  "tags": []
+}

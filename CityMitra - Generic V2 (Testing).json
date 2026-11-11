@@ -1,0 +1,2642 @@
+{
+  "name": "CityMitra - Generic V2 (Testing)",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA",
+          "mode": "list",
+          "cachedResultName": "Kurukshetra-InfoBot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 669490141,
+          "mode": "list",
+          "cachedResultName": "InfoBot_GenFeedback",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit#gid=669490141"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Usage_Frequency": "={{ $json.body.usageFrequency }}",
+            "Answers_Helpful": "={{ $json.body.helpful }}",
+            "Response_Speed": "={{ $json.body.responseSpeed }}",
+            "Overall_Rating": "={{ $json.body.rating }}",
+            "Use_Again": "={{ $json.body.useAgain }}",
+            "Additional_Comments": "={{ $json.body.comments }}",
+            "Timestamp ": "={{ $json.body.timestamp }}",
+            "Email": "={{ $json.body.email }}",
+            "consent": "={{ $json.body.consent }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp ",
+              "displayName": "Timestamp ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Usage_Frequency",
+              "displayName": "Usage_Frequency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Answers_Helpful",
+              "displayName": "Answers_Helpful",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Response_Speed",
+              "displayName": "Response_Speed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Overall_Rating",
+              "displayName": "Overall_Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Use_Again",
+              "displayName": "Use_Again",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Additional_Comments",
+              "displayName": "Additional_Comments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "consent",
+              "displayName": "consent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "38defab7-84e4-46c7-ab42-363a023acfd6",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        -880,
+        -256
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zqCFkP1mXpyrkeQ2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"message\": \"Feedback received successfully!\" } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "195c409a-0a40-4e0d-8bb2-ab1ef74f932b",
+      "name": "Respond to Webhook2",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -656,
+        -256
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "InfoBot_Feed",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "220b7cbd-3a50-45a1-af6f-dd93cef1758f",
+      "name": "Webhook1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1104,
+        -256
+      ],
+      "webhookId": "6a5924e7-83d5-4e67-9e07-00dff3094e6e"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "InfoBot_AskGita",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1104,
+        -1648
+      ],
+      "id": "8ca5ae58-2442-4940-b919-0a9d34b827f5",
+      "name": "1. Set Mock Input",
+      "webhookId": "9ca83406-866c-48d1-a981-56c34a52835b"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "groqApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-oss-120b\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are AskGita, an AI scholar for International Gita Mahotsav 2025. Answer ONLY about: 1) Bhagavad Gita (chapters 1-18), 2) Kurukshetra's 48 Kos sites, 3) Today's IGM program. Respond in {{ $json.language }}. NEVER give legal/medical advice.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.question }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        -1744
+      ],
+      "id": "8fdfcbdf-c263-4b40-85b9-3f9a0faea031",
+      "name": "Groq (Llama 3)",
+      "credentials": {
+        "groqApi": {
+          "id": "SVypylwZhqG2a8gE",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "969b9bc1-ff26-43ff-ba35-982ea1add8c0",
+              "name": "answer",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        464,
+        -1744
+      ],
+      "id": "7959ef1b-19f9-48b3-b4b9-affe625a92bf",
+      "name": "Edit_Fieldsanswer",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        -1744
+      ],
+      "id": "c537052e-b09b-4d0c-8a2b-2090cd55e5ef",
+      "name": "Wait1",
+      "webhookId": "cf53af27-a065-471a-a881-e1192829f306"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA",
+          "mode": "list",
+          "cachedResultName": "Kurukshetra-InfoBot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1851210683,
+          "mode": "list",
+          "cachedResultName": "InfoBot_GitaLogs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit#gid=1851210683"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) }}",
+            "question": "={{ $json.question }}",
+            "answer": "={{ $json.answer }}",
+            "language": "={{ $json.language }}",
+            "deviceType": "={{ $json.deviceType }}",
+            "source": "={{ $('Is Answer Cached?1').item.json.cached }}",
+            "response_id": "={{ $json.response_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "question",
+              "displayName": "question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "answer",
+              "displayName": "answer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "deviceType",
+              "displayName": "deviceType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "response_id",
+              "displayName": "response_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "feedback",
+              "displayName": "feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "feedback_time",
+              "displayName": "feedback_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1136,
+        -1744
+      ],
+      "id": "db2eeb28-9c37-45ac-816c-3981aad31221",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zqCFkP1mXpyrkeQ2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA",
+          "mode": "list",
+          "cachedResultName": "Kurukshetra-InfoBot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1851210683,
+          "mode": "list",
+          "cachedResultName": "InfoBot_GitaLogs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit#gid=1851210683"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "question",
+              "lookupValue": "={{ $json.body.question }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -880,
+        -1648
+      ],
+      "id": "f25a8e83-0d2e-435b-9523-bbbac70fb15f",
+      "name": "Read IGM Saathi Logs1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zqCFkP1mXpyrkeQ2",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get user's question from webhook\nconst webhookNode = $('1. Set Mock Input').first();\nconst webhookBody = webhookNode.json.body;\n\nconst userQuestion = webhookBody?.question;\nconst userLanguage = webhookBody?.language || 'English';\n\n// Get all logs from Google Sheets (previous node)\nconst allLogs = $input.all();\n\n// Validate input\nif (!userQuestion) {\n    return [{\n        json: {\n            cached: false,\n            needsAI: true,\n            error: \"No question provided\",\n            question: \"\",\n            language: userLanguage\n        }\n    }];\n}\n\n// **NEW: Handle empty Google Sheets response**\nif (!allLogs || allLogs.length === 0) {\n    return [{\n        json: {\n            question: userQuestion,\n            cached: false,\n            needsAI: true,\n            similarQuestions: [],\n            contextForAI: '',\n            language: userLanguage,\n            totalSimilarFound: 0,\n            message: \"No cached data found, proceeding with AI\",\n            // Pass through metadata\n            latitude: webhookBody?.latitude,\n            longitude: webhookBody?.longitude,\n            deviceType: webhookBody?.deviceType,\n            browser: webhookBody?.browser,\n            queryType: webhookBody?.queryType,\n            mobNo: webhookBody?.mobNo\n        }\n    }];\n}\n\n// Normalize text for comparison\nfunction normalizeText(text) {\n    if (!text) return '';\n    return text.toLowerCase()\n        .trim()\n        .replace(/[^\\w\\s\\u0900-\\u097F]/g, '') // Keep Hindi characters\n        .replace(/\\s+/g, ' ');\n}\n\n// Calculate similarity between two strings\nfunction calculateSimilarity(str1, str2) {\n    const words1 = str1.split(' ').filter(w => w.length > 2);\n    const words2 = str2.split(' ').filter(w => w.length > 2);\n    \n    if (words1.length === 0 || words2.length === 0) return 0;\n    \n    // Count matching words\n    const matchingWords = words1.filter(word => words2.includes(word));\n    \n    // Calculate similarity score\n    const similarity = matchingWords.length / Math.max(words1.length, words2.length);\n    return similarity;\n}\n\nconst normalizedUserQuestion = normalizeText(userQuestion);\n\n// Search through logs for similar questions\nconst matches = [];\n\nfor (const log of allLogs) {\n    const logData = log.json;\n    \n    // Skip if no question or answer\n    if (!logData.question || !logData.answer) continue;\n    \n    // Skip if language doesn't match (optional)\n    if (logData.language && userLanguage && logData.language !== userLanguage) continue;\n    \n    const normalizedLogQuestion = normalizeText(logData.question);\n    const similarity = calculateSimilarity(normalizedUserQuestion, normalizedLogQuestion);\n    \n    // Only consider matches > 50% similar\n    if (similarity > 0.5) {\n        matches.push({\n            originalQuestion: logData.question,\n            question: normalizedLogQuestion,\n            answer: logData.answer,\n            response: logData.answer,\n            language: logData.language || 'English',\n            similarity: similarity,\n            timestamp: logData.Timestamp,\n            response_id: logData.response_id  // ← ADD THIS LINE\n        });\n    }\n}\n\n// Sort by similarity (highest first)\nmatches.sort((a, b) => b.similarity - a.similarity);\n\n// Check for very high match (>85% = exact/near-exact match)\nconst exactMatch = matches.find(m => m.similarity > 0.85);\n\nif (exactMatch) {\n    // Return cached response immediately\n    return [{\n        json: {\n            response: exactMatch.answer,\n            source: 'cache',\n            cached: true,\n            similarity: exactMatch.similarity,\n            question: userQuestion,\n            language: exactMatch.language,\n            success: true,\n            matchedQuestion: exactMatch.originalQuestion,\n            totalMatches: matches.length,\n            // Pass through metadata\n            latitude: webhookBody?.latitude,\n            longitude: webhookBody?.longitude,\n            deviceType: webhookBody?.deviceType,\n            browser: webhookBody?.browser,\n            queryType: webhookBody?.queryType,\n            response_id: exactMatch.response_id,\n            mobNo: webhookBody?.mobNo\n        }\n    }];\n}\n\n// No exact match - prepare context for AI\nconst topMatches = matches.slice(0, 5); // Top 5 similar questions\n\nlet contextForAI = '';\nif (topMatches.length > 0) {\n    if (userLanguage === 'Hindi') {\n        contextForAI = 'पिछले समान प्रश्न और उत्तर:\\n\\n';\n    } else {\n        contextForAI = 'Previous similar questions and answers:\\n\\n';\n    }\n    \n    topMatches.forEach((match, index) => {\n        contextForAI += `${index + 1}. Q: ${match.originalQuestion}\\n`;\n        contextForAI += `   A: ${match.answer}\\n\\n`;\n    });\n    contextForAI += '---\\n\\n';\n}\n\nreturn [{\n    json: {\n        question: userQuestion,\n        cached: false,\n        needsAI: true,\n        similarQuestions: topMatches,\n        contextForAI: contextForAI,\n        language: userLanguage,\n        totalSimilarFound: topMatches.length,\n        // Pass through metadata\n        latitude: webhookBody?.latitude,\n        longitude: webhookBody?.longitude,\n        deviceType: webhookBody?.deviceType,\n        browser: webhookBody?.browser,\n        queryType: webhookBody?.queryType,\n        mobNo: webhookBody?.mobNo\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -656,
+        -1648
+      ],
+      "id": "310ab303-0bd6-4564-8d31-f67659319e9d",
+      "name": "Search Cache for Similar Questions1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1cf788a2-2d38-4232-97a9-179b9a2d413e",
+              "leftValue": "={{ $json.cached }}",
+              "rightValue": "={{ $json.cached }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -432,
+        -1648
+      ],
+      "id": "d577b03c-f7b1-415a-99c9-914369b25dbe",
+      "name": "Is Answer Cached?1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d69a8de2-f01d-4314-857a-f6e585393ae7",
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "967b49e9-8707-428f-b0e1-cc0b5af95514",
+              "name": "question",
+              "value": "={{ $json.question || $node[\"1. Set Mock Input\"].json.body.question }}",
+              "type": "string"
+            },
+            {
+              "id": "18541ac3-7e45-4ae6-89a6-a92be29e5215",
+              "name": "answer",
+              "value": "={{ $json.answer }} || {{ $json.response }}",
+              "type": "string"
+            },
+            {
+              "id": "f6924c19-89f8-45a7-9edd-9b799bfa423e",
+              "name": "language",
+              "value": "={{ $json.language || $node[\"1. Set Mock Input\"].json.body.language }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        688,
+        -1744
+      ],
+      "id": "61a36d00-f0e7-4136-9cb2-19cdbf836390",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Simplified Extract Question & Language\nconst items = $input.all();\n\n// Try to get from first item directly (most common case)\nlet question = $input.first().json.question || $input.first().json.queryQuestion || '';\nlet language = $input.first().json.language || 'English';\nlet deviceType = $input.first().json.deviceType || 'NA';\nlet browser = $input.first().json.browser || 'NA';\nlet latitude = $input.first().json.latitude || 'NA';\nlet longitude = $input.first().json.longitude || 'NA';\n\nconsole.log('Direct access - Question:', question);\n\n// If not found, search through all items\nif (!question) {\n    for (const item of items) {\n        if (item.json.question) {\n            question = item.json.question;\n            language = item.json.language || 'English';\n            deviceType = item.json.deviceType || 'NA';\n            browser = item.json.browser || 'NA';\n            latitude = item.json.latitude || 'NA';\n            longitude = item.json.longitude || 'NA';\n            console.log('Found in items array');\n            break;\n        }\n        \n        // Check body (webhook)\n        if (item.json.body?.question) {\n            question = item.json.body.question;\n            language = item.json.body.language || 'English';\n            deviceType = item.json.body.deviceType || 'NA';\n            browser = item.json.body.browser || 'NA';\n            latitude = item.json.body.latitude || 'NA';\n            longitude = item.json.body.longitude || 'NA';\n            console.log('Found in body');\n            break;\n        }\n    }\n}\n\nreturn [{\n    json: {\n        question: question || 'Error: No question found',\n        language: language,\n        deviceType: deviceType,\n        browser: browser,\n        latitude: latitude,\n        longitude: longitude\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        16,
+        -1744
+      ],
+      "id": "35ebd70d-e99f-4942-a681-3dcf95719da3",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        4928,
+        -896
+      ],
+      "id": "e88ddd8c-672d-4803-b23f-c0b15ea94d14",
+      "name": "Respond_To_Webhook1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "groqApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        3584,
+        -1104
+      ],
+      "id": "29b0a74d-42f1-4bf6-ad5f-50a2e9f54e28",
+      "name": "AI_Statistics_Generator1",
+      "credentials": {
+        "groqApi": {
+          "id": "SVypylwZhqG2a8gE",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "text",
+              "cssSelector": "body"
+            }
+          ]
+        },
+        "options": {
+          "trimValues": true
+        }
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        2912,
+        -1104
+      ],
+      "id": "3afc31f6-29ee-4b19-bc1f-c0f212292629",
+      "name": "HTML Extract"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1424,
+        -944
+      ],
+      "id": "82451d4f-607f-4ec3-8456-c4ae01113565",
+      "name": "Webhook",
+      "webhookId": "c698819e-a79d-4283-9cb4-975b23b85a59"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// VERIFIED CODE v9.6 - GENERIC DISTRICT PROMPT BUILDER\n// Fixed: Clean API Payload for Groq\n// ============================================\n\nconst inputData = $input.first().json;\nconst rawText = inputData.text || inputData.data || '';\n\n// Safely pull config from earlier node because HTML Extract wipes it\nlet config = {};\ntry {\n    config = $('Apply District Config').first().json.config;\n} catch (e) {\n    console.log(\"Could not fetch config from Apply District Config node\");\n}\n\n// 1. DYNAMIC DISTRICT VARIABLES\nconst districtName = config?.meta?.districtName || 'the district';\nconst state = config?.meta?.state || 'India';\n\n// 2. DYNAMIC URLS\nconst officialLink = config?.urls?.districtGovt || '';\n\n// 3. CONTENT PREPARATION\nlet question = inputData.message || inputData.query || '';\nlet language = inputData.language || 'en';\nlet isTourism = inputData.isTourism || false;\n\n// If HTML Extract wiped these, pull from earlier node\nif (!question) {\n    try { question = $('Sanitize Query').first().json.message || ''; } catch (e) {}\n}\nif (!language) {\n    try { language = $('Sanitize Query').first().json.language || 'en'; } catch (e) {}\n}\n\nconst lowerMessage = question.toLowerCase();\n\n// 4. BUILD SYSTEM PROMPT\nlet systemPrompt = `You are the official district information assistant for ${districtName}, ${state}.`;\n\nsystemPrompt += `\\n\\n**STRICT INSTRUCTIONS:**\n1. You must extract answers ONLY from the provided scraped context. Do NOT use your general training data.\n2. If the requested information (e.g., MP, MLA, DC) is NOT explicitly mentioned in the scraped text, do NOT provide generic advice, do NOT suggest searching elsewhere, and do NOT guess URLs.\n3. If information is missing, reply EXACTLY with: \"The requested information is currently not listed on the official district website's directory.\"\n4. NEVER invent URLs like 'districts.nic.in'. Use ONLY provided official links.\n5. DO NOT mention Haryana unless the district is in Haryana.`;\n\nif (lowerMessage.match(/hotel|where to stay|accommodation|rest house|dharamshala/i) && isTourism) {\n    systemPrompt += `\\n\\nACCOMMODATION QUERY:\n    - Prioritize Government Facilities: State Tourist Complexes, Yatri Niwas, and Government Rest Houses.`;\n}\n\nsystemPrompt += `\\n\\nLANGUAGE: ${language === 'hi' ? 'NATURAL HINDI' : 'Clear English'}`;\n\n// 5. THE URL FIX\n// ONLY append the official link if we actually successfully retrieved it from config\nif (officialLink) {\n    systemPrompt += '\\n\\n═══════════════════════════════════════════\\nFORMATTING:\\n1. Headers: **bold**\\n2. Lists: • bullets\\n3. Ending: Provide \"---\" followed by the link: ' + officialLink;\n} else {\n    systemPrompt += '\\n\\n═══════════════════════════════════════════\\nFORMATTING:\\n1. Headers: **bold**\\n2. Lists: • bullets\\n3. Ending: Do NOT append any links.';\n}\n\n// 6. CLEAN GROQ PAYLOAD\nreturn [{\n    json: {\n        model: 'openai/gpt-oss-120b',\n        temperature: 0.2,\n        messages: [\n            { role: 'system', content: systemPrompt },\n            { role: 'user', content: 'User Question: ' + question + '\\n\\nContext: ' + rawText.substring(0, 10000) }\n        ]\n        // Removed config, message, and language from here so Groq does not crash!\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3360,
+        -1104
+      ],
+      "id": "960f2a86-cbb7-4a14-aa62-b16b046c833d",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const content = $input.first().json.choices[0].message.content;\n\n// Remove HTML from URLs\n\nconst cleanedContent = content.replace(/https?:\\/\\/[^\\s<>\"']+(<br>|<[^>]+>)/gi, (match, htmlTag) => {\n\n  return match.replace(htmlTag, '');\n\n});\n\n\n\nreturn [{\n\n  json: {\n\n    response: cleanedContent\n\n  }\n\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4032,
+        -992
+      ],
+      "id": "673aaa4c-e140-45b8-8701-d4f870e39944",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cda3aa16-7ab4-4e4f-9524-68f3f98aaa1e",
+              "leftValue": "={{ $json.noResults }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2240,
+        -992
+      ],
+      "id": "8653d6db-9c02-4fb3-9297-f644d59c5757",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst config = data.config || {};\n\nconsole.log('=== Final Link Routing ===');\nconsole.log('District:', config?.meta?.districtName || 'Unknown');\n\nconst getGovtPage = (pageName) => {\n    const fallbackDomain = (config?.urls?.districtGovt || 'kurukshetra.gov.in').replace(/^https?:\\/\\//, '');\n    return config?.govtPages?.[pageName] || `https://${fallbackDomain}`;\n};\n\nif (data.isPrivateBusiness) {\n    return [{ json: { ...data, noResults: true, isPrivateBusiness: true, isTourism: false } }];\n}\n\n// ============================================\n// PERSON QUERIES - THE INTENT SPLITTER\n// ============================================\nif (data.queryCategory === 'person') {\n    let msg = (data.message || '').toLowerCase();\n    \n    // --- THE FIX: Strip the injected generic keywords to reveal the real question ---\n    if (msg.includes('profile contact email')) {\n        msg = msg.split('profile contact email')[0];\n    }\n    \n    const hasAdmin = /\\b(dc|dm|deputy commissioner|district magistrate|collector|sp|ias|ips|officer)\\b/i.test(msg);\n    const hasPolitical = /\\b(mla|mp|minister|political|representative|parliament|assembly|politician)\\b/i.test(msg);\n    \n    const isPolitical = hasPolitical && !hasAdmin;\n\n    // --- PATH A: POLITICAL QUERIES (MLAs, MPs, Ministers) ---\n    if (isPolitical) {\n        console.log('✓ Political query detected:', msg);\n        const politicalLink = config?.govtPages?.politicalSetup;\n        \n        if (politicalLink && politicalLink.trim() !== \"\") {\n            return [{ json: { ...data, link: politicalLink, noResults: false, queryCategory: 'person' } }];\n        }\n        \n        if (data.organic_results && data.organic_results.length > 0) {\n            const bestPolLink = data.organic_results.find(res => \n                res.link.match(/\\/(elected-representatives|political-setup|mla|mp|representatives)\\/?$/i)\n            ) || data.organic_results[0];\n            return [{ json: { ...data, link: bestPolLink.link, noResults: false, queryCategory: 'person' } }];\n        }\n        \n        const fallbackDir = config?.govtPages?.directory || config?.govtPages?.whoswho || getGovtPage('directory');\n        return [{ json: { ...data, link: fallbackDir, noResults: false, queryCategory: 'person' } }];\n        \n    // --- PATH B: ADMINISTRATIVE QUERIES (DC, DM, SP) ---\n    } else {\n        console.log('✓ Admin query detected:', msg);\n        const configUrl = config?.govtPages?.whoswho || '';\n        let finalLink = '';\n\n        if (data.organic_results && data.organic_results.length > 0) {\n            // 1. Exact Config Match\n            let matchedResult = data.organic_results.find(res => res.link === configUrl);\n            \n            // 2. Fuzzy Config Match (Ignore hyphens)\n            if (!matchedResult && configUrl) {\n                const cleanConfig = configUrl.toLowerCase().replace(/-/g, '').replace(/\\/$/, '');\n                matchedResult = data.organic_results.find(res => \n                    res.link.toLowerCase().replace(/-/g, '').replace(/\\/$/, '') === cleanConfig\n                );\n            }\n\n            if (matchedResult) {\n                finalLink = matchedResult.link;\n            } else {\n                // 3. Safe Search Match\n                const validSearchLink = data.organic_results.find(res => \n                    res.link.match(/\\/(whos-who|whoswho|directory)\\/?$/i) && \n                    !res.link.includes('home11')\n                );\n                if (validSearchLink) finalLink = validSearchLink.link;\n            }\n        }\n\n        // 4. Force JSON if Search fails\n        if (!finalLink && configUrl) {\n            finalLink = configUrl;\n        }\n\n        // 5. Absolute Last Resort\n        if (!finalLink) finalLink = getGovtPage('directory');\n\n        return [{ json: { ...data, link: finalLink, noResults: false, queryCategory: 'person' } }];\n    }\n}\n\n// ============================================\n// VILLAGE ADMIN / ADMIN STRUCTURE / DEMOGRAPHIC\n// ============================================\nif (data.queryCategory === 'village_admin') {\n    return [{ json: { ...data, link: getGovtPage('directory'), noResults: false } }];\n}\nif (data.queryCategory === 'admin_structure') {\n    return [{ json: { ...data, link: getGovtPage('adminSetup'), noResults: false } }];\n}\nif (['demographic', 'village_demographic', 'tehsil_demographic'].includes(data.queryCategory)) {\n    return [{ json: { ...data, link: getGovtPage('knowAbout'), noResults: false } }];\n}\n\n// ============================================\n// TOURISM & REGULAR FALLBACK\n// ============================================\nif (data.isTourism && (data.primaryLink || data.secondaryLink)) {\n    return [{ json: { ...data, link: data.primaryLink || data.secondaryLink, noResults: false } }];\n}\n\nif (!data.organic_results || data.organic_results.length === 0) {\n    return [{ json: { ...data, noResults: true } }];\n} else {\n    return [{ json: { ...data, link: data.organic_results[0].link, noResults: false } }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        -992
+      ],
+      "id": "4a97f56c-c02a-4360-9301-92c01d417328",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "groqApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-oss-120b\",\n  \"temperature\": 0.2,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"(AI) You are an official district information assistant for {{ $json.config?.meta?.districtName || 'the district' }}, {{ $json.config?.meta?.state || 'India' }}. STRICT INSTRUCTIONS: Do NOT invent information, guess URLs, or provide generic advice. If you do not have the specific data to answer the user's query, reply EXACTLY with: 'The requested information is currently not listed on the official district website.' Respond in {{ $json.language === 'hi' ? 'Hindi' : 'English' }}.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.query || $json.message }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        2912,
+        -896
+      ],
+      "id": "5e107eab-1ba4-4ceb-a7ac-4b4972197628",
+      "name": "AI_Statistics_Generator2",
+      "credentials": {
+        "groqApi": {
+          "id": "SVypylwZhqG2a8gE",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "feea53f4-5324-4538-afa1-f557f6cca014",
+              "leftValue": "={{ $json.isTourism }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        -992
+      ],
+      "id": "af624db8-700e-4c21-be53-dd6823b78c79",
+      "name": "Is_Tourism_Query"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "={{ $('Select_SerpAPI_Key').first().json.serpapi_key }}"
+            },
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "={{ \n  (function() {\n    const data = $('Check_Tourism_Query').first().json;\n    const primaryUrl = data.config?.urls?.tourism_primary || 'kkrtour.com';\n    return `${data.message} site:${primaryUrl}`;\n  })() \n}}"
+            },
+            {
+              "name": "num",
+              "value": "3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        672,
+        -1088
+      ],
+      "id": "6b33c88e-7565-4fd3-b77a-66b5cadbc765",
+      "name": "Search_KKRTour"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "={{ $('Select_SerpAPI_Key').first().json.serpapi_key }}"
+            },
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "={{ \n  (function() {\n    const data = $('Check_Tourism_Query').first().json;\n    let query = data.message || '';\n    \n    if (data.perspective === 'buddhist') query += ' buddhist heritage sites';\n    if (data.perspective === 'sikh') query += ' sikh gurudwara guru';\n    if (data.perspective === 'jain') query += ' jain temple';\n    if (data.perspective === 'historical') query += ' history archaeological heritage';\n    if (data.perspective === 'parikrama') query += ' 48 kos parikrama';\n    \n    // Safely build the search using your NEW config structure\n    const govBase = data.config?.urls?.gov_base || 'kurukshetra.gov.in';\n    const siteSearch = `site:${govBase} -inurl:class- -inurl:recruitment -inurl:tender`;\n    \n    return query.trim() + ' ' + siteSearch;\n  })() \n}}"
+            },
+            {
+              "name": "num",
+              "value": "3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        896,
+        -1088
+      ],
+      "id": "e5a5e866-1e41-4b95-95c4-e24a9d9ef89c",
+      "name": "Search_Govt_Tourism"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// MERGE TOURISM LINKS - GENERIC VERSION\n// ============================================\n\nconst checkTourismData = $('Check_Tourism_Query').first().json;\nconst config = checkTourismData.config || {};\nconst message = checkTourismData.message || '';\nconst language = checkTourismData.language || 'en';\nconst isBroad = checkTourismData.isBroadTourism || false;\nconst perspective = checkTourismData.perspective || 'general';\n\nconst districtKey = config?.meta?.districtKey || 'kurukshetra';\n\nconsole.log('=== Merge Tourism Links ===');\nconsole.log('District:', districtKey);\nconsole.log('Message:', message);\nconsole.log('Is Broad:', isBroad);\nconsole.log('Perspective:', perspective);\n\n// Assuming node names remained the same. If you renamed them to Search_Tourism1 etc., update here.\nlet searchRes1 = { organic_results: [] }, searchRes2 = { organic_results: [] }, searchRes3 = { organic_results: [] };\ntry { searchRes1 = $('Search_KKRTour').first().json; } catch(e){}\ntry { searchRes2 = $('Search_Govt_Tourism').first().json; } catch(e){}\ntry { searchRes3 = $('Search_Haryana_Tourism').first().json; } catch(e){}\n\n// Fallback URLs from Config\nconst broadPrimary = config?.tourismSites?.broadQueryPrimary || 'https://haryanatourism.gov.in';\nconst broadSecondary = config?.tourismSites?.broadQuerySecondary || config?.govtPages?.attractions || 'https://haryana.gov.in';\nconst genPrimary = config?.tourismSites?.generalListPrimary || broadPrimary;\nconst genSecondary = config?.tourismSites?.generalListSecondary || broadSecondary;\n\nlet primaryLink = '';\nlet secondaryLink = '';\nlet tertiaryLink = '';\n\n// ============================================\n// DETECT GENERAL LIST QUERIES\n// ============================================\nconst generalQueryKeywords = [\n    'tourist places', 'tourist spots', 'places to visit',\n    'attractions', 'sightseeing', 'what to see', 'tourism',\n    'main places', 'important places', 'famous places',\n    'top places', 'best places', 'all places',\n    `${districtKey} mein`, `${districtKey} ke`, `${districtKey} ki`,\n    'पर्यटन स्थल', 'दर्शनीय स्थल', 'घूमने की जगह',\n    'मुख्य स्थान', 'प्रमुख स्थान'\n];\n\nconst lowerMessage = message.toLowerCase();\n\n// Get specific sites from config to ensure we don't treat specific queries as general\nconst specificSites = config?.keywords?.tourismSpecifics || [];\nconst mentionsSpecificSite = specificSites.some(site => lowerMessage.includes(site.toLowerCase()));\n\nconst isGeneralListQuery = generalQueryKeywords.some(kw => lowerMessage.includes(kw)) && !mentionsSpecificSite;\n\nconsole.log('isGeneralListQuery:', isGeneralListQuery);\n\nif (isGeneralListQuery) {\n    console.log('General tourism query - returning overview links');\n    return [{\n        json: {\n            ...checkTourismData,\n            isTourism: true,\n            is48Kos: false,\n            isGeneralQuery: true,\n            primaryLink: genPrimary,\n            secondaryLink: genSecondary,\n            tertiaryLink: null,\n            matchedSite: null\n        }\n    }];\n}\n\n// PERSPECTIVE FALLBACKS (Dynamic from config)\nconst PERSPECTIVE_URLS = config?.perspectiveFallbackUrls || {\n    general: { primary: broadPrimary, secondary: broadSecondary }\n};\n\n// ============================================\n// BROAD QUERY CHECK\n// ============================================\nif (isBroad) {\n    console.log('✓ BROAD query detected');\n    primaryLink = broadPrimary;\n    secondaryLink = broadSecondary;\n    \n} else {\n    // ============================================\n    // DYNAMIC KNOWN_SITES MAPPING\n    // ============================================\n    const KNOWN_SITES = config?.knownSites || {};\n    \n    // SMART MATCHING LOGIC\n    function normalizeForMatching(text) {\n        return text.toLowerCase()\n            .replace(/[_\\-\\s]+/g, ' ')\n            .replace(/[^a-z0-9\\s\\u0900-\\u097F]/g, '') \n            .trim();\n    }\n    \n    function wordsMatch(word1, word2) {\n        if (word1 === word2) return true;\n        if (word1.length >= 4 && word2.length >= 4 && (word1.includes(word2) || word2.includes(word1))) return true;\n        if (word1.length >= 5 && word2.length >= 5 && word1.substring(0, 5) === word2.substring(0, 5)) return true;\n        return false;\n    }\n    \n    const normalizedMessage = normalizeForMatching(lowerMessage);\n    let siteData = null;\n    let matchedSite = null;\n    \n    console.log('Normalized message:', normalizedMessage);\n    \n    // PASS 1: Exact substring match\n    for (const [siteName, data] of Object.entries(KNOWN_SITES)) {\n        if (lowerMessage.includes(siteName.toLowerCase())) {\n            siteData = data;\n            matchedSite = siteName;\n            console.log(`→ Exact match: \"${siteName}\"`);\n            break;\n        }\n    }\n    \n    // PASS 2: Normalized fuzzy match\n    if (!siteData) {\n        for (const [siteName, data] of Object.entries(KNOWN_SITES)) {\n            const normalizedSiteName = normalizeForMatching(siteName);\n            \n            if (normalizedMessage.includes(normalizedSiteName)) {\n                siteData = data;\n                matchedSite = siteName;\n                console.log(`→ Normalized match: \"${siteName}\"`);\n                break;\n            }\n            \n            const siteWords = normalizedSiteName.split(' ').filter(w => w.length > 0);\n            const messageWords = normalizedMessage.split(' ').filter(w => w.length > 0);\n            \n            if (siteWords.length >= 2) {\n                const matchCount = siteWords.filter(siteWord => messageWords.some(msgWord => wordsMatch(siteWord, msgWord))).length;\n                const requiredMatches = siteWords.length > 2 ? siteWords.length - 1 : siteWords.length;\n                \n                if (matchCount >= requiredMatches) {\n                    siteData = data;\n                    matchedSite = siteName;\n                    console.log(`→ Word match: \"${siteName}\" (${matchCount}/${siteWords.length} words)`);\n                    break;\n                }\n            }\n        }\n    }\n    \n    // ============================================\n    // GENERATE LINKS FROM MATCHED SITE\n    // ============================================\n    if (siteData) {\n        \n        // Handle New Config Object Format: { \"type\": \"tourism\", \"url\": \"https://...\" }\n        if (typeof siteData === 'object') {\n            \n            // 48 KOS SPECIFIC ROUTING\n            if (siteData.type === '48kos') {\n                console.log('→ 48 Kos Tirtha detected');\n                if (siteData.kkrId && config.tourismSites?.kkrTourListTemplate) {\n                    primaryLink = config.tourismSites.kkrTourListTemplate.replace('{siteId}', siteData.kkrId);\n                } else if (config.tourismSites?.['48kosTemplate'] && siteData.kosSite) {\n                    primaryLink = config.tourismSites['48kosTemplate'].replace('{kosSite}', siteData.kosSite);\n                }\n                \n                if (siteData.govSite) {\n                    secondaryLink = `https://${config.urls.districtGovt}/${siteData.govSite}/`;\n                } else {\n                    secondaryLink = config.govtPages?.['48kosMain'] || broadSecondary;\n                }\n                \n                if (config.tourismSites?.['48kosTemplate'] && siteData.kosSite) {\n                    tertiaryLink = config.tourismSites['48kosTemplate'].replace('{kosSite}', siteData.kosSite);\n                }\n            } \n            // STANDARD CONFIG URL\n            else if (siteData.url) {\n                primaryLink = siteData.url;\n                secondaryLink = broadSecondary;\n            }\n            // LEGACY KKRTOUR ID\n            else if (siteData.id && config.tourismSites?.kkrTourListTemplate) {\n                primaryLink = config.tourismSites.kkrTourListTemplate.replace('{siteId}', siteData.id);\n                secondaryLink = broadSecondary;\n            }\n        } \n        // Fallbacks for Legacy String/Number configs\n        else if (typeof siteData === 'string' && siteData.startsWith('http')) {\n            primaryLink = siteData;\n            secondaryLink = broadSecondary;\n        } else if (typeof siteData === 'number' && config.tourismSites?.kkrTourListTemplate) {\n            primaryLink = config.tourismSites.kkrTourListTemplate.replace('{siteId}', siteData);\n            secondaryLink = broadSecondary;\n        }\n    } else {\n        // FALLBACK TO SEARCH RESULTS\n        if (searchRes1.organic_results && searchRes1.organic_results.length > 0) {\n            primaryLink = searchRes1.organic_results[0].link.trim().split(/[\\s<>]/)[0];\n        } else if (searchRes2.organic_results && searchRes2.organic_results.length > 0) {\n            primaryLink = searchRes2.organic_results[0].link.trim().split(/[\\s<>]/)[0];\n        } else if (searchRes3.organic_results && searchRes3.organic_results.length > 0) {\n            primaryLink = searchRes3.organic_results[0].link.trim().split(/[\\s<>]/)[0];\n        } else {\n            const fallback = PERSPECTIVE_URLS[perspective] || PERSPECTIVE_URLS['general'] || {};\n            primaryLink = fallback.primary || broadPrimary;\n            secondaryLink = fallback.secondary || broadSecondary;\n        }\n    }\n    \n    // GET SECONDARY IF NOT SET\n    if (!secondaryLink) {\n        if (searchRes2.organic_results && searchRes2.organic_results.length > 0) {\n            const govUrl = searchRes2.organic_results[0].link.trim().split(/[\\s<>]/)[0];\n            if (govUrl !== primaryLink) secondaryLink = govUrl;\n        }\n        if (!secondaryLink) secondaryLink = broadSecondary;\n    }\n    \n    // DUPLICATE CHECK\n    if (secondaryLink === primaryLink) {\n        if (primaryLink.includes(config.urls?.districtGovt)) {\n            secondaryLink = broadPrimary;\n        } else {\n            secondaryLink = broadSecondary;\n        }\n    }\n}\n\n// VALIDATE\nif (!primaryLink || !primaryLink.startsWith('http')) primaryLink = broadPrimary;\nif (!secondaryLink || !secondaryLink.startsWith('http')) secondaryLink = broadSecondary;\n\nconsole.log('=== FINAL LINKS ===');\nconsole.log('Primary:', primaryLink);\nconsole.log('Secondary:', secondaryLink);\nconsole.log('Tertiary:', tertiaryLink || 'none');\n\n// RETURN\nreturn [{\n    json: {\n        ...checkTourismData, // Keep config safe!\n        isTourism: true,\n        isBroadTourism: isBroad,\n        primaryLink: primaryLink,\n        secondaryLink: secondaryLink,\n        tertiaryLink: tertiaryLink || null,\n        is48Kos: !!tertiaryLink,\n        noResults: false,\n        organic_results: searchRes2.organic_results || []\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        -1088
+      ],
+      "id": "67430a96-d348-4f72-915d-10a223f11862",
+      "name": "Merge_Tourism_Links"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "={{ $('Select_SerpAPI_Key1').first().json.serpapi_key }}"
+            },
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "={{ \n  (function() {\n    const data = $('Smart_Query_Enhancer').first().json;\n    const config = data.config || {};\n    const cat = data.queryCategory || 'general';\n    let msg = (data.message || '').toLowerCase();\n    \n    // --- THE FIX: Strip the injected generic keywords to reveal the real question ---\n    if (msg.includes('profile contact email')) {\n        msg = msg.split('profile contact email')[0];\n    }\n    \n    const state = config?.meta?.state || '';\n    const districtName = config?.meta?.districtName || '';\n    const stripToDomain = (url) => url ? url.replace(/^https?:\\/\\//, '').split('/')[0] : '';\n    const govDomain = stripToDomain(config?.urls?.districtGovt) || 'nic.in';\n\n    if (cat === 'person') {\n        const hasAdmin = /\\b(dc|dm|deputy commissioner|district magistrate|collector|sp|ias|ips|officer)\\b/i.test(msg);\n        const hasPolitical = /\\b(mla|mp|minister|political|representative|parliament|assembly|politician)\\b/i.test(msg);\n        \n        const isPolitical = hasPolitical && !hasAdmin;\n        \n        if (isPolitical) {\n            return `${districtName} ${state} elected representatives political setup site:${govDomain}`;\n        } else {\n            return `${districtName} ${state} district administration whos-who directory site:${govDomain}`;\n        }\n    }\n\n    return `${msg} ${districtName} site:${govDomain}`;\n  })() \n}}"
+            },
+            {
+              "name": "num",
+              "value": "3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1120,
+        -784
+      ],
+      "id": "2043f6a9-4579-45b1-a550-6a745c403fa5",
+      "name": "Search_Regular"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1568,
+        -992
+      ],
+      "id": "7c61d54d-d08f-4a37-b7a4-a93599802b00",
+      "name": "Merge_All_Paths"
+    },
+    {
+      "parameters": {
+        "jsCode": "const searchResult = $input.first().json;\n\n// Safely grab all our data and config from the Enhancer node\nlet enhancerData = {};\ntry {\n    enhancerData = $('Smart_Query_Enhancer').first().json;\n} catch (e) {\n    console.log('Warning: Could not get data from Smart_Query_Enhancer');\n}\n\nconst message = enhancerData.message || $('Check_Tourism_Query').first().json.message || '';\nconst language = enhancerData.language || $('Check_Tourism_Query').first().json.language || 'en';\nconst queryCategory = enhancerData.queryCategory || 'general';\n\n// Grab our dynamic config\nconst config = enhancerData.config || {};\nconst districtName = config?.meta?.districtName || 'the district';\nconst knowAboutLink = config?.govtPages?.knowAbout || 'https://kurukshetra.gov.in/know-about-kurukshetra/';\n\n// ============================================\n// DEMOGRAPHIC QUERIES - USE DYNAMIC LINK\n// ============================================\nlet finalResults = searchResult.organic_results || [];\n\nif (queryCategory === 'demographic') {\n    console.log(`→ Demographic query detected - using dynamic know-about link for ${districtName}`);\n    \n    // Replace search results with dynamic know-about page\n    finalResults = [{\n        link: knowAboutLink,\n        title: `Know ${districtName} - Demographics`,\n        snippet: `Official demographic information for ${districtName} district`\n    }];\n}\n\nreturn [{\n    json: {\n        ...searchResult, // Preserve any other search data\n        message: message,\n        language: language,\n        isTourism: false,\n        queryCategory: queryCategory,\n        organic_results: finalResults,\n        config: config   // ← CRITICAL: Pass the config forward to the next node!\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        -784
+      ],
+      "id": "df175155-ab50-4a95-ae99-c5672c4d9304",
+      "name": "Format_Regular"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst message = data.message || '';\nconst language = data.language || 'en';\nconst config = data.config; // <-- Pulling the dynamic JSON config we attached earlier!\n\nconsole.log('=== Check Tourism Query ===');\nconsole.log('District:', config?.meta?.districtName || 'Unknown');\nconsole.log('Input message:', message);\n\nconst lowerMessage = message.toLowerCase();\n\n// ============================================\n// 1. TOURISM DETECTION (DYNAMIC)\n// ============================================\n\n// These are universal tourism words that apply to any city (English & Hindi combined)\nconst generalTourismKeywords = [\n    'tourist', 'tourism', 'temple', 'mandir', 'tirath', 'tirtha', 'yaksh', 'yaksha',\n    'pilgrimage', 'museum', 'archaeological', 'heritage', 'attraction',\n    'visit', 'sightseeing', 'places to see', 'things to do',\n    'sacred', 'holy', 'site', 'place', 'memorial', 'historical', 'monument', 'experience', 'kendra',\n    'पर्यटन', 'मंदिर', 'तीर्थ', 'दर्शनीय', 'स्थल', 'यक्ष',\n    'संग्रहालय', 'पुरातात्विक', 'पवित्र', 'धार्मिक', 'घूमने', 'अनुभव', 'केंद्र'\n];\n\n// Dynamically pull the specific sites for the current district from JSON\n// (Make sure your JSON's tourismSpecifics array includes the Hindi names too!)\nconst districtSpecificSites = config?.keywords?.tourismSpecifics || [];\n\n// Combine universal keywords with district-specific ones\nconst allKeywords = [...generalTourismKeywords, ...districtSpecificSites];\n\nconst isTourism = allKeywords.some(kw => lowerMessage.includes(kw.toLowerCase()));\n\nconsole.log('Is Tourism Query:', isTourism);\n\n// ============================================\n// 2. PRIVATE BUSINESS DETECTION (Universal)\n// ============================================\n// This logic remains exactly the same as your original, as it applies to any city\nconst privateBusinessKeywords = [\n    'pizza', 'burger', 'chinese', 'italian', 'mexican', 'fast food',\n    'cafe', 'coffee shop', 'bakery', 'sweet shop', 'confectionery',\n    'dhaba', 'eatery', 'food joint',\n    'best pizza', 'best burger', 'best restaurant', 'best food',\n    'where to eat', 'food delivery', 'home delivery',\n    'pg', 'paying guest', 'hostel private', 'flat for rent',\n    'shop', 'store', 'market', 'grocery', 'supermarket', 'mall',\n    'pharmacy', 'medical store', 'chemist',\n    'clinic private', 'diagnostic center', 'doctor private',\n    'gym', 'fitness center', 'salon', 'spa', 'parlour',\n    'showroom', 'dealer', 'retailer',\n    'workshop', 'garage', 'service center',\n    'coaching', 'tuition', 'classes private',\n    'lawyer private', 'advocate private', 'ca private',\n    'real estate agent', 'property dealer',\n    'plumber', 'electrician', 'carpenter', 'painter',\n    'taxi private', 'cab', 'ola', 'uber',\n    'दुकान', 'बाज़ार', 'किराना', 'कैफे', 'माल', 'जिम', 'सैलून',\n    'पिज्जा', 'बर्गर', 'कोचिंग', 'ट्यूशन'\n];\n\nconst isPrivateBusiness = privateBusinessKeywords.some(kw => \n    lowerMessage.includes(kw)\n);\n\nconsole.log('Is Private Business Query:', isPrivateBusiness);\n\n// ============================================\n// 3. PERSPECTIVE/THEME DETECTION (Universal)\n// ============================================\n// This logic also remains exactly the same, applying to any city\nconst perspectiveKeywords = {\n    buddhist: ['buddha', 'buddhist', 'buddhism', 'बुद्ध', 'बौद्ध'],\n    sikh: ['sikh', 'guru nanak', 'gurudwara', 'gurdwara', 'guru', 'सिख', 'गुरुद्वारा', 'गुरु नानक', 'गुरु'],\n    jain: ['jain', 'jainism', 'tirthankar', 'जैन', 'तीर्थंकर'],\n    historical: ['historical', 'history', 'ancient', 'archaeological', 'through the ages', 'heritage', 'civilization', 'इतिहास', 'ऐतिहासिक', 'पुरातात्विक'],\n    hindu: ['hindu', 'mahabharata', 'mahabharat', 'krishna', 'geeta', 'gita', 'हिंदू', 'महाभारत', 'कृष्ण', 'गीता'],\n    parikrama: ['kos', 'parikrama', 'parikra', 'yatra', 'circumambulation', 'कोस', 'परिक्रमा', 'यात्रा']\n};\n\nlet detectedPerspective = 'general';  // default\n\nfor (const [perspective, keywords] of Object.entries(perspectiveKeywords)) {\n    if (keywords.some(kw => lowerMessage.includes(kw))) {\n        detectedPerspective = perspective;\n        console.log(`✓ Detected perspective: ${perspective}`);\n        break;\n    }\n}\nconsole.log('Perspective:', detectedPerspective);\n\n// ============================================\n// 4. BROAD QUERY DETECTION (DYNAMIC)\n// ============================================\n\nfunction isBroadTourismQuery(query) {\n    const lowerQuery = query.toLowerCase().trim();\n    \n    // Universal broad phrases\n    const standardBroadPhrases = [\n        'tourist places', 'tourist place', 'tourism',\n        'places to visit', 'places to see',\n        'tourist spots', 'tourist attractions', 'attractions',\n        'sightseeing', 'things to do', \n        'what to see', 'where to go', 'places of interest',\n        'tourist destination', 'places to explore',\n        'पर्यटन स्थल', 'पर्यटक स्थल', 'घूमने के स्थान',\n        'दर्शनीय स्थल', 'देखने लायक', 'कहाँ जाएं', 'पर्यटन'\n    ];\n    \n    // Pull city-specific broad phrases (e.g., 'visit kurukshetra', 'places in karnal') from JSON\n    const queryModifiers = config?.keywords?.queryModifiers || [];\n    const exactBroadPhrases = [...standardBroadPhrases, ...queryModifiers];\n    \n    // Check if query EXACTLY matches or CONTAINS broad phrase\n    for (const phrase of exactBroadPhrases) {\n        if (lowerQuery === phrase || lowerQuery.includes(phrase)) {\n            console.log(`✓ Broad phrase matched: \"${phrase}\"`);\n            return true;\n        }\n    }\n    \n    // If it mentions a specific site for this district, it's NOT broad\n    for (const site of districtSpecificSites) {\n        if (lowerQuery.includes(site.toLowerCase())) {\n            console.log(`✓ Specific site mentioned: \"${site}\" - NOT broad`);\n            return false;\n        }\n    }\n    \n    // Fallback generic terms\n    const genericTerms = ['places', 'sites', 'spots', 'attractions', 'स्थल'];\n    const hasGenericTerm = genericTerms.some(term => lowerQuery.includes(term));\n    \n    if (hasGenericTerm && !lowerQuery.includes('specific')) {\n        console.log('✓ Generic term without specific site - is broad');\n        return true;\n    }\n    \n    return false;\n}\n\nconst isBroad = isTourism ? isBroadTourismQuery(message) : false;\n\nconsole.log('Is Broad Tourism:', isBroad);\nconsole.log('========================');\n\n// ============================================\n// RETURN DATA\n// ============================================\n\nreturn [{\n    json: {\n        ...data, // Extremely important: pass the whole payload (including config) forward\n        isTourism: isTourism,\n        isBroadTourism: isBroad,\n        isPrivateBusiness: isPrivateBusiness,\n        perspective: detectedPerspective  \n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -992
+      ],
+      "id": "84adbb77-b80d-491f-8cab-bc7b01c20b84",
+      "name": "Check_Tourism_Query"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA",
+          "mode": "list",
+          "cachedResultName": "Kurukshetra-InfoBot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 948203654,
+          "mode": "list",
+          "cachedResultName": "InfoBot_Logs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit#gid=948203654"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "question",
+              "lookupValue": "={{ $json.body.question }}"
+            }
+          ]
+        },
+        "combineFilters": "OR",
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -672,
+        -896
+      ],
+      "id": "7ddb9f32-6ebc-420f-af2d-bf0d28fc847a",
+      "name": "Read IGM Saathi Logs",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zqCFkP1mXpyrkeQ2",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// FIXED: Search Cache - Clean Data Only!\n// ========================================\n\n// 1. === CRITICAL FIX ===\n// Pull ALL data (question, language, config) directly from 'Apply District Config'.\n// Do NOT reach back to the Webhook, otherwise emojis and dirty data will return!\nlet coreData = {};\ntry {\n    coreData = $('Apply District Config').first().json;\n} catch (e) {\n    throw new Error(\"Could not find 'Apply District Config' node. Make sure it executed successfully.\");\n}\n\nconst userQuestion = coreData.question || coreData.message || '';\nconst userLanguage = coreData.language || 'en';\nconst cityConfig = coreData.config || {};\n\n// Validate question exists\nif (!userQuestion) {\n    return [{\n        json: {\n            ...coreData,\n            cached: false,\n            needsAI: false,\n            error: \"No question provided\"\n        }\n    }];\n}\n\n// Get Google Sheets data (the cached logs)\nconst allLogs = $input.all();\n\nconsole.log(`📊 Cache records available: ${allLogs.length}`);\n\n// ========================================\n// EMPTY CACHE IS FINE! Just continue to web search\n// ========================================\nif (!allLogs || allLogs.length === 0 || Object.keys(allLogs[0].json).length === 0) {\n    console.log('ℹ️ Cache is empty (first time questions) - continuing to web search');\n    \n    return [{\n        json: {\n            ...coreData, // Safely passes the clean question, city, and config forward\n            cached: false,\n            needsAI: false,\n            similarQuestions: [],\n            contextForAI: '',\n            totalSimilarFound: 0,\n            cacheStatus: \"Cache empty - first query\",\n            source: 'no-cache-continue-search'\n        }\n    }];\n}\n\n// ========================================\n// HELPER FUNCTIONS\n// ========================================\n\nfunction normalizeText(text) {\n    if (!text) return '';\n    const str = String(text);\n    return str.toLowerCase().trim()\n        .replace(/[?!.,;:'\"]/g, '')\n        .replace(/\\s+/g, ' ')\n        .trim();\n}\n\nfunction calculateSimilarity(str1, str2) {\n    if (str1 === str2) return 1.0;\n    \n    const words1 = str1.split(' ').filter(w => w.length > 0);\n    const words2 = str2.split(' ').filter(w => w.length > 0);\n    \n    if (words1.length === 0 || words2.length === 0) return 0;\n    \n    let matchCount = 0;\n    for (const word of words1) {\n        if (words2.includes(word)) matchCount++;\n    }\n    \n    const totalUniqueWords = new Set([...words1, ...words2]).size;\n    return matchCount / totalUniqueWords;\n}\n\nfunction levenshteinDistance(str1, str2) {\n    const matrix = [];\n    for (let i = 0; i <= str2.length; i++) matrix[i] = [i];\n    for (let j = 0; j <= str1.length; j++) matrix[0][j] = j;\n    \n    for (let i = 1; i <= str2.length; i++) {\n        for (let j = 1; j <= str1.length; j++) {\n            if (str2[i - 1] === str1[j - 1]) {\n                matrix[i][j] = matrix[i - 1][j - 1];\n            } else {\n                matrix[i][j] = Math.min(\n                    matrix[i - 1][j - 1] + 1,\n                    matrix[i][j - 1] + 1,\n                    matrix[i - 1][j] + 1\n                );\n            }\n        }\n    }\n    return matrix[str2.length][str1.length];\n}\n\nfunction fuzzyMatch(str1, str2) {\n    const distance = levenshteinDistance(str1, str2);\n    const maxLength = Math.max(str1.length, str2.length);\n    return maxLength > 0 ? 1 - (distance / maxLength) : 0;\n}\n\n// ========================================\n// SEARCH THROUGH CACHE\n// ========================================\n\nconsole.log(`🔍 Searching ${allLogs.length} cached records for: \"${userQuestion}\"`);\n\nconst normalizedUserQuestion = normalizeText(userQuestion);\nconst matches = [];\n\n// Search through logs\nfor (const log of allLogs) {\n    const logData = log.json;\n    \n    if (!logData.question || (!logData.answer && !logData.response)) continue;\n    \n    const logAnswer = logData.answer || logData.response || '';\n    \n    // Language matching\n    if (logData.language && userLanguage) {\n        const logLang = logData.language.toLowerCase();\n        const userLang = userLanguage.toLowerCase();\n        if (logLang !== userLang && \n            !(logLang.includes('hindi') && userLang.includes('hi')) &&\n            !(logLang.includes('english') && userLang.includes('en'))) {\n            continue;\n        }\n    }\n    \n    const normalizedLogQuestion = normalizeText(logData.question);\n    const wordSimilarity = calculateSimilarity(normalizedUserQuestion, normalizedLogQuestion);\n    const fuzzySimilarity = fuzzyMatch(normalizedUserQuestion, normalizedLogQuestion);\n    const similarity = Math.max(wordSimilarity, fuzzySimilarity);\n    \n    if (similarity > 0.4) {\n        matches.push({\n            originalQuestion: logData.question,\n            question: normalizedLogQuestion,\n            answer: logAnswer,\n            response: logAnswer,\n            language: logData.language || userLanguage,\n            similarity: similarity,\n            timestamp: logData.Timestamp || logData.timestamp,\n            response_id: logData.response_id\n        });\n    }\n}\n\nmatches.sort((a, b) => b.similarity - a.similarity);\n\nconsole.log(`✅ Found ${matches.length} similar questions`);\n\n// ========================================\n// CHECK FOR CACHE HIT (>85% match)\n// ========================================\n\nconst exactMatch = matches.find(m => m.similarity > 0.85);\n\nif (exactMatch) {\n    console.log(`🎯 CACHE HIT! Similarity: ${(exactMatch.similarity * 100).toFixed(1)}%`);\n    console.log(`   Matched: \"${exactMatch.originalQuestion}\"`);\n    \n    return [{\n        json: {\n            ...coreData, // Safely passes the clean question, city, and config forward\n            response: exactMatch.answer,\n            source: 'cache',\n            cached: true,\n            similarity: exactMatch.similarity,\n            success: true,\n            matchedQuestion: exactMatch.originalQuestion,\n            totalMatches: matches.length,\n            response_id: exactMatch.response_id\n        }\n    }];\n}\n\n// ========================================\n// CACHE MISS - Continue to web search\n// ========================================\n\nconsole.log(`❌ CACHE MISS - continuing to web search`);\n\nconst topMatches = matches.slice(0, 5);\nlet contextForAI = '';\n\nif (topMatches.length > 0) {\n    console.log(`📚 Providing ${topMatches.length} similar Q&As as context`);\n    \n    contextForAI = userLanguage === 'hi' \n        ? 'पिछले समान प्रश्न और उत्तर:\\n\\n'\n        : 'Previous similar questions and answers:\\n\\n';\n    \n    topMatches.forEach((match, index) => {\n        contextForAI += `${index + 1}. Q: ${match.originalQuestion}\\n`;\n        contextForAI += `   A: ${match.answer}\\n`;\n        contextForAI += `   (Similarity: ${(match.similarity * 100).toFixed(1)}%)\\n\\n`;\n    });\n}\n\n// ========================================\n// RETURN: Not cached, proceed to web search\n// ========================================\n\nreturn [{\n    json: {\n        ...coreData, // Safely passes the clean question, city, and config forward\n        cached: false,\n        needsAI: false,\n        similarQuestions: topMatches,\n        contextForAI: contextForAI,\n        totalSimilarFound: topMatches.length,\n        bestMatchSimilarity: matches[0]?.similarity || 0,\n        source: 'cache-miss-continue-search'\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        -896
+      ],
+      "id": "7fb16171-3a9f-4258-94fa-77094a5ac8d1",
+      "name": "Search Cache for Similar Questions"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1cf788a2-2d38-4232-97a9-179b9a2d413e",
+              "leftValue": "={{ $json.cached }}",
+              "rightValue": "={{ $json.cached }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        -672
+      ],
+      "id": "45e1c49b-6db2-42a0-8baa-4a5cd00d0cdd",
+      "name": "Is Answer Cached?"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA",
+          "mode": "list",
+          "cachedResultName": "Kurukshetra-InfoBot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 481698351,
+          "mode": "list",
+          "cachedResultName": "InfoBot_Logs_TotalHits",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit#gid=481698351"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "response": "={{ $json.response }}",
+            "language": "={{ $json.language }}",
+            "question": "={{ $json.question }}",
+            "source": "={{ $('Is Answer Cached?').item.json.cached }}",
+            "Timestamp": "={{ new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) }}",
+            "response_id": "={{ $json.response_id }}",
+            "Response_Type": "={{ $json.Response_Type }}",
+            "Source_URL": "={{ $json.Source_URL }}",
+            "Cache_Flag": "={{ $json.Cache_Flag }}",
+            "Flag_Reason": "={{ $json.Flag_Reason }}",
+            "Query_Category": "={{ $json.Query_Category }}",
+            "deviceType": "={{ $json.deviceType }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "question",
+              "displayName": "question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "response",
+              "displayName": "response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deviceType",
+              "displayName": "deviceType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "response_id",
+              "displayName": "response_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Response_Type",
+              "displayName": "Response_Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Source_URL",
+              "displayName": "Source_URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Cache_Flag",
+              "displayName": "Cache_Flag",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Flag_Reason",
+              "displayName": "Flag_Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Query_Category",
+              "displayName": "Query_Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1104,
+        -480
+      ],
+      "id": "59f75c0e-1311-482a-9b97-e8bced8e68de",
+      "name": "Append row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zqCFkP1mXpyrkeQ2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// FIXED: Filter Valid URLs (Generic Version)\n// Handles both link field AND organic_results array\n// ========================================\n\nconst data = $input.first().json;\nconst config = data.config || {};\n\n// Dynamically grab the district key for URL matching (fallback to kurukshetra just in case)\nconst districtKey = config?.meta?.districtKey?.toLowerCase() || 'kurukshetra';\n\nconsole.log('=== Filter Valid URLs ===');\nconsole.log('District:', districtKey);\nconsole.log('Input link:', data.link);\nconsole.log('noResults:', data.noResults);\nconsole.log('organic_results count:', data.organic_results?.length || 0);\n\n// ========================================\n// CASE 1: Already marked as no results\n// ========================================\nif (data.noResults === true && !data.link) {\n    console.log('✓ Already marked as noResults, passing through');\n    return [$input.first()];\n}\n\n// ========================================\n// CASE 2: Direct link field is populated (from Code in JavaScript2)\n// ========================================\nif (data.link && data.link.trim() !== '') {\n    const url = data.link.trim();\n    \n    console.log(`✓ Direct link found: ${url}`);\n    \n    // Check if it's a bad URL pattern - ENHANCED PATTERNS\n    const skipPatterns = [\n        // Dead/old sections\n        '/adhaun/', '/old/', '/archive/', '/404', '/error',\n        \n        // Education pages\n        '/class-0', '/class-1', '/class-2', '/class-3', '/class-4',\n        '/class-5', '/class-6', '/class-7', '/class-8', '/class-9',\n        '/syllabus/', '/curriculum/', '/examination/', '/results/',\n        '/admission/', '/datesheet/',\n        \n        // HR/Administrative\n        '/recruitment/', '/vacancy/', '/tender/', '/bid/', '/auction/',\n        '/circulars/', '/orders/', '/notification/', '/noc/',\n        \n        // Technical/Downloads\n        '/downloads/', '/forms/', '/applications/', '/upload/',\n        \n        // Media galleries\n        '/gallery/', '/photo-gallery/', '/video-gallery/', '/images/',\n        \n        // Other irrelevant\n        '/events-calendar/', '/feedback/', '/contact-form/',\n        '/guest-book/', '/sitemap/', '/search/', '/login/'\n    ];\n    \n    const isBad = skipPatterns.some(pattern => url.toLowerCase().includes(pattern));\n    \n    if (isBad) {\n        const matchedPattern = skipPatterns.find(p => url.toLowerCase().includes(p));\n        console.log(`❌ Bad URL detected: ${url}`);\n        console.log(`   Reason: Contains pattern \"${matchedPattern}\"`);\n        console.log('   Will check organic_results for alternatives...');\n        // Continue to check organic_results below\n    } else {\n        console.log(`✅ Valid URL, keeping it: ${url}`);\n        // URL is good, keep it as-is\n        return [{\n            json: {\n                ...data,\n                link: url,\n                noResults: false,\n                filteredCount: 1,\n                filterApplied: 'direct-link-validated'\n            }\n        }];\n    }\n}\n\n// ========================================\n// CASE 3: Check organic_results array\n// ========================================\nconst allResults = data.organic_results || [];\n\nif (allResults.length === 0) {\n    console.log('❌ No organic_results to filter');\n    return [{\n        json: {\n            ...data,\n            link: '',\n            noResults: true,\n            organic_results: []\n        }\n    }];\n}\n\nconsole.log(`📊 Filtering ${allResults.length} organic results...`);\n\n// Known bad URL patterns - ENHANCED (same as above)\nconst skipPatterns = [\n    // Dead/old sections\n    '/adhaun/', '/old/', '/archive/', '/404', '/error',\n    \n    // Education pages\n    '/class-0', '/class-1', '/class-2', '/class-3', '/class-4',\n    '/class-5', '/class-6', '/class-7', '/class-8', '/class-9',\n    '/syllabus/', '/curriculum/', '/examination/', '/results/',\n    '/admission/', '/datesheet/',\n    \n    // HR/Administrative\n    '/recruitment/', '/vacancy/', '/tender/', '/bid/', '/auction/',\n    '/circulars/', '/orders/', '/notification/', '/noc/',\n    \n    // Technical/Downloads\n    '/downloads/', '/forms/', '/applications/', '/upload/',\n    \n    // Media galleries\n    '/gallery/', '/photo-gallery/', '/video-gallery/', '/images/',\n    \n    // Other irrelevant\n    '/events-calendar/', '/feedback/', '/contact-form/',\n    '/guest-book/', '/sitemap/', '/search/', '/login/'\n];\n\n// DYNAMIC Good URL patterns (priority scores)\nconst goodPatterns = [\n    { pattern: `know-${districtKey}`, score: 10 },    // e.g., know-karnal, know-kurukshetra\n    { pattern: `about-${districtKey}`, score: 10 },   // e.g., about-karnal, about-kurukshetra\n    { pattern: 'about-district', score: 10 },\n    { pattern: 'demographic', score: 9 },\n    { pattern: 'census', score: 9 },\n    { pattern: 'population', score: 8 },\n    { pattern: 'administration', score: 8 },\n    { pattern: 'services', score: 7 }\n];\n\n// Filter and score URLs\nconst validUrls = [];\n\nfor (const result of allResults) {\n    const url = result.link || '';\n    \n    if (!url) continue;\n    \n    // Skip bad patterns\n    const isBad = skipPatterns.some(pattern => \n        url.toLowerCase().includes(pattern)\n    );\n    \n    if (isBad) {\n        const matchedPattern = skipPatterns.find(p => url.toLowerCase().includes(p));\n        console.log(`⏭️ Skipping bad URL: ${url}`);\n        console.log(`   Reason: Contains pattern \"${matchedPattern}\"`);\n        continue;\n    }\n    \n    // Calculate priority score\n    let score = 0;\n    for (const good of goodPatterns) {\n        if (url.toLowerCase().includes(good.pattern)) {\n            score += good.score;\n        }\n    }\n    \n    // Prefer HTTPS\n    if (url.startsWith('https://')) score += 1;\n    \n    // Prefer shorter URLs\n    const pathDepth = url.split('/').length;\n    if (pathDepth <= 5) score += 2;\n    \n    validUrls.push({\n        ...result,\n        link: url,\n        priorityScore: score\n    });\n}\n\n// Sort by priority\nvalidUrls.sort((a, b) => b.priorityScore - a.priorityScore);\n\nconsole.log(`✅ Filtered: ${validUrls.length} valid URLs (from ${allResults.length})`);\n\n// ========================================\n// RETURN RESULT\n// ========================================\nif (validUrls.length === 0) {\n    console.log('❌ No valid URLs found after filtering');\n    return [{\n        json: {\n            ...data,\n            link: '',\n            noResults: true,\n            organic_results: [],\n            filterApplied: 'all-urls-filtered-out'\n        }\n    }];\n}\n\n// Return with BEST URL as primary link\nconst bestUrl = validUrls[0].link;\n\nconsole.log(`🎯 Selected best URL: ${bestUrl}`);\nconsole.log(`   Priority score: ${validUrls[0].priorityScore}`);\n\nreturn [{\n    json: {\n        ...data,\n        link: bestUrl,  // ← CRITICAL: This is what next nodes need\n        noResults: false,  // ← CRITICAL: We HAVE results\n        organic_results: validUrls.slice(0, 3),\n        originalCount: allResults.length,\n        filteredCount: validUrls.length,\n        filterApplied: 'organic-results-filtered'\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        -992
+      ],
+      "id": "3dd0e318-dcff-4ff3-a171-272079bd64db",
+      "name": "Filter Valid URLs"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// SMART SCRAPER - High Resilience Version\n// ============================================\nconst data = $input.first().json;\n\nlet url = data.link;\n\nif (data.is48Kos && data.tertiaryLink) {\n    url = data.tertiaryLink;\n    console.log('→ Heritage/Tertiary site detected:', url);\n} else {\n    console.log('→ Regular site:', url);\n}\n\nif (url && !url.startsWith('http')) {\n    url = 'https://' + url;\n    console.log('🔧 Auto-fixed URL protocol:', url);\n}\n\nconsole.log('=== Smart Scraper ===');\nconsole.log('URL to scrape:', url);\n\nif (!url || url.trim() === '') {\n    return [{ json: { ...data, error: 'No URL to scrape', success: false } }];\n}\n\nconsole.log(`📡 Attempting to scrape: ${url}`);\n\n// HELPER: Simple check to see if a string is mostly readable text instead of binary\nfunction isReadableText(str) {\n    if (str.length < 500) return false;\n    // Check if it has a high ratio of standard ASCII/text characters\n    const readableChars = str.match(/[a-zA-Z0-9\\s<>{}=\"':;\\.,\\/\\-]/g);\n    if (!readableChars) return false;\n    const ratio = readableChars.length / str.length;\n    // If more than 70% of the document is standard characters, it's a webpage, not a JPEG.\n    return ratio > 0.7;\n}\n\ntry {\n    const response = await this.helpers.httpRequest({\n        method: 'GET',\n        url: url,\n        timeout: 15000,\n        headers: {\n            'Accept': 'text/html,application/xhtml+xml,application/xml',\n            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'\n        },\n        returnFullResponse: false,\n        skipSslCertificateValidation: true\n    });\n\n    if (response) {\n        const html = String(response);\n        console.log(`✅ SUCCESS: Downloaded ${html.length} bytes`);\n\n        // Use the relaxed text-ratio check instead of strict tag checking\n        if (isReadableText(html)) {\n            return [{\n                json: {\n                    ...data,\n                    data: html,\n                    url: url,\n                    success: true,\n                    htmlLength: html.length\n                }\n            }];\n        } else {\n            console.log('⚠️ Response appears to be an image or binary file (failed text ratio)');\n            throw new Error('Received binary/image data instead of webpage');\n        }\n    }\n\n} catch (error) {\n    console.log('Scraping failed:', error.message);\n    \n    let fallbackUrl = url;\n    if (data.link && url !== data.link) {\n        fallbackUrl = data.link;\n        console.log('Falling back to primary link:', fallbackUrl);\n    } else if (data.secondaryLink && url !== data.secondaryLink) {\n        fallbackUrl = data.secondaryLink;\n        console.log('Falling back to secondary link:', fallbackUrl);\n    } else {\n        return [{ json: { ...data, success: false, error: error.message, url: url } }];\n    }\n\n    try {\n        const fallbackResponse = await this.helpers.httpRequest({\n            method: 'GET',\n            url: fallbackUrl,\n            timeout: 15000,\n            headers: {\n                'Accept': 'text/html',\n                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'\n            },\n            returnFullResponse: false,\n            skipSslCertificateValidation: true\n        });\n        \n        if (fallbackResponse) {\n            const html = String(fallbackResponse);\n            \n            if (isReadableText(html)) {\n                console.log('Fallback SUCCESS:', html.length, 'chars');\n                return [{\n                    json: {\n                        ...data,\n                        data: html,\n                        url: fallbackUrl,\n                        success: true,\n                        htmlLength: html.length,\n                        usedFallback: true\n                    }\n                }];\n            }\n        }\n    } catch (fallbackError) {\n        console.log('Fallback also failed:', fallbackError.message);\n    }\n    \n    return [{\n        json: {\n            ...data,\n            success: false,\n            error: error.message,\n            url: url\n        }\n    }];\n}\n\nreturn [{\n    json: {\n        ...data,\n        success: false,\n        error: 'No response received',\n        url: url\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2464,
+        -1056
+      ],
+      "id": "b1a6bbdb-fb5e-46d8-a4bd-bb3d175ba960",
+      "name": "Smart Scraper with Retry"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b77a601a-4c06-4906-a8f4-4fec2b8165ba",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2688,
+        -1056
+      ],
+      "id": "07452b20-cf59-46b6-ae43-2ad2ce5344be",
+      "name": "Check Scrape Success"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "={{ $('Select_SerpAPI_Key').first().json.serpapi_key }}"
+            },
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "={{ \n  (function() {\n    const data = $('Check_Tourism_Query').first().json;\n    let query = data.message || '';\n    \n    if (data.perspective === 'buddhist') query += ' buddhist';\n    if (data.perspective === 'sikh') query += ' sikh gurudwara';\n    if (data.perspective === 'jain') query += ' jain';\n    if (data.perspective === 'historical') query += ' history heritage';\n    if (data.perspective === 'parikrama') query += ' yaksha';\n    \n    // Build Tertiary search based on new config\n    const heritageUrl = data.config?.urls?.tourism_heritage;\n    const govUrl = data.config?.urls?.gov_base || 'kurukshetra.gov.in';\n    \n    let siteSearch = '';\n    if (heritageUrl) {\n        siteSearch = `(site:${heritageUrl} OR site:${govUrl}) -inurl:class- -inurl:recruitment`;\n    } else {\n        siteSearch = `site:${govUrl} -inurl:class- -inurl:recruitment`;\n    }\n    \n    return query.trim() + ' ' + siteSearch;\n  })() \n}}"
+            },
+            {
+              "name": "num",
+              "value": "3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1120,
+        -1088
+      ],
+      "id": "4ca74702-f846-4e2e-80d2-781f0438808b",
+      "name": "Search_Haryana_Tourism"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all existing data\nconst inputData = $input.first().json;\n\n// Generate unique response ID\nconst timestamp = Date.now();\nconst random = Math.random().toString(36).substring(2, 9);\nconst responseId = `${timestamp}_${random}`;\n\nconsole.log('✓ Generated Response ID:', responseId);\n\n// Return all data plus the new response_id\nreturn [{\n    json: {\n        ...inputData,\n        response_id: responseId\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4256,
+        -992
+      ],
+      "id": "01179d46-ed18-4520-b9bb-e2dc3cd9cf42",
+      "name": "Generate_Response_ID"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA",
+          "mode": "list",
+          "cachedResultName": "Kurukshetra-InfoBot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1823979396,
+          "mode": "list",
+          "cachedResultName": "InfoBot_GitaLogs_TotalHits",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit#gid=1823979396"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) }}",
+            "question": "={{ $json.question }}",
+            "answer": "={{ $json.answer }}",
+            "language": "={{ $json.language }}",
+            "deviceType": "={{ $json.deviceType }}",
+            "source": "={{ $('Is Answer Cached?1').item.json.cached }}",
+            "response_id": "={{ $json.response_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "question",
+              "displayName": "question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "answer",
+              "displayName": "answer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "deviceType",
+              "displayName": "deviceType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "response_id",
+              "displayName": "response_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "feedback",
+              "displayName": "feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "feedback_time",
+              "displayName": "feedback_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1136,
+        -1552
+      ],
+      "id": "1457c248-3f55-48dd-96e6-4ec704c5f341",
+      "name": "Append row in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zqCFkP1mXpyrkeQ2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d69a8de2-f01d-4314-857a-f6e585393ae7",
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "967b49e9-8707-428f-b0e1-cc0b5af95514",
+              "name": "question",
+              "value": "={{ $json.question || $node[\"1. Set Mock Input\"].json.body.question }}",
+              "type": "string"
+            },
+            {
+              "id": "18541ac3-7e45-4ae6-89a6-a92be29e5215",
+              "name": "answer",
+              "value": "={{ $json.answer }} || {{ $json.response }}",
+              "type": "string"
+            },
+            {
+              "id": "f6924c19-89f8-45a7-9edd-9b799bfa423e",
+              "name": "language",
+              "value": "={{ $json.language || $node[\"1. Set Mock Input\"].json.body.language }}",
+              "type": "string"
+            },
+            {
+              "id": "24aba2f0-8505-4030-bd19-c278268b53f2",
+              "name": "response_id",
+              "value": "={{ $json.response_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        912,
+        -1552
+      ],
+      "id": "59c5a24b-2d5e-4976-b6fd-23b7a4eba4ab",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all existing data\nconst inputData = $input.first().json;\n\n// Generate unique response ID\nconst timestamp = Date.now();\nconst random = Math.random().toString(36).substring(2, 9);\nconst responseId = `${timestamp}_${random}`;\n\nconsole.log('✓ Generated Response ID:', responseId);\n\n// Return all data plus the new response_id\nreturn [{\n    json: {\n        ...inputData,\n        response_id: responseId\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        -1744
+      ],
+      "id": "74822db9-5583-41b9-8aea-d142e157ec10",
+      "name": "Generate_Response_ID3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst config = input.config || {};\n\nconsole.log('=== Adding Feedback Link ===');\n\n// Get the response text\nconst originalText = input.reply || input.response || input.answer || '';\nconst responseId = input.response_id;\n\n// DYNAMIC SCRIPT URL: Pulls from config, falls back to Kurukshetra\nconst scriptBaseUrl = config?.feedback?.googleAppsScriptUrl || 'https://script.google.com/macros/s/AKfycbxCvs-tk8PecmOgORx8WIgszAO0VfqobnCCj75RM0kOiwxZep5UHJFl0Eub28uvHL2WWA/exec';\n\n// Validate response_id exists\nif (!responseId) {\n    return [{\n        json: {\n            ...input,\n            reply: originalText,\n            response: originalText,\n            answer: originalText\n        }\n    }];\n}\n\nconst encodedResponseId = encodeURIComponent(responseId);\nconst feedbackUrl = `${scriptBaseUrl}?id=${encodedResponseId}`;\n\nconst textWithFeedback = originalText + `\\n\\n───────────────\\n📊 Help us improve!\\n\\nShare your feedback:\\n${feedbackUrl}`;\n\nreturn [{\n    json: {\n        ...input,\n        reply: textWithFeedback,\n        response: textWithFeedback,\n        answer: textWithFeedback,\n        feedback_url: feedbackUrl,\n        original_reply: originalText\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4704,
+        -896
+      ],
+      "id": "6893b844-b70c-4f6e-89f1-06d58490e4f2",
+      "name": "Add_Feedback_Text"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst config = input.config || {};\n\nconsole.log('=== Adding Feedback Link ===');\n\n// Get the response text\nconst originalText = input.reply || input.response || input.answer || '';\nconst responseId = input.response_id;\n\nconsole.log('Response ID:', responseId);\n\n// DYNAMIC SCRIPT URL: Pulls from config, falls back to Kurukshetra\nconst scriptBaseUrl = config?.feedback?.googleAppsScriptUrl || 'https://script.google.com/macros/s/AKfycbxCvs-tk8PecmOgORx8WIgszAO0VfqobnCCj75RM0kOiwxZep5UHJFl0Eub28uvHL2WWA/exec';\n\n// Validate response_id exists\nif (!responseId) {\n    console.log('⚠️ Warning: No response_id found!');\n    return [{\n        json: {\n            ...input,\n            reply: originalText,\n            response: originalText,\n            answer: originalText\n        }\n    }];\n}\n\n// URL encode the response_id to prevent breaking\nconst encodedResponseId = encodeURIComponent(responseId);\n\n// Create Google Apps Script feedback URL with dynamic base URL\nconst feedbackUrl = `${scriptBaseUrl}?id=${encodedResponseId}`;\n\n// Use plain text\nconst textWithFeedback = originalText + `\\n\\n───────────────\\n📊 Help us improve!\\n\\nShare your feedback:\\n${feedbackUrl}`;\n\nconsole.log('✓ Feedback link added');\nconsole.log('Full URL:', feedbackUrl);\n\n// Return with all fields updated\nreturn [{\n    json: {\n        ...input,\n        reply: textWithFeedback,\n        response: textWithFeedback,\n        answer: textWithFeedback,\n        feedback_url: feedbackUrl,\n        original_reply: originalText\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        -1648
+      ],
+      "id": "43903952-0350-4265-bfe4-4d9626c22b00",
+      "name": "Add_Feedback_Text1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1584,
+        -1648
+      ],
+      "id": "b98dc525-620c-4087-895d-d7ff30c0bec0",
+      "name": "Respond_To_Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// SERPAPI KEY ROTATION - Round Robin Load Balancer\n// ========================================\n\nconst API_KEYS = [\n    '1f39ebb1804779d57b6396b44f926b79c68f96cc54c0fdd17594568ad288e366',  // nickkr27\n// '484ce04f49b4f534f816e6f824c210d0ead5de4e9385a0529953c2f2c652e555',  // pencopy98765\n     'b144db752cfdb608e29dd8e21bf1a4442dc8f81c944888a42640999f2a3e4b6c',    // vksinglakkr\n   \n'292cd2cb967c8b1e7f572f71cb4fafab82a91a1d3f7ebf733e27ef34809e0fd7'    // MohitJain\n\n\n];\n\n// ========================================\n// SAFETY CHECK\n// ========================================\n\nif (!API_KEYS || API_KEYS.length === 0) {\n    throw new Error('❌ No SerpAPI keys configured! Please add at least one API key.');\n}\n\nconsole.log('=== SerpAPI Key Selection ===');\nconsole.log('Total Keys Available:', API_KEYS.length);\n\n// Get current timestamp to create rotation\nconst timestamp = Date.now();\n\n// Simple rotation: use timestamp to select key\nconst keyIndex = Math.floor(timestamp / 1000) % API_KEYS.length;\nconst selectedKey = API_KEYS[keyIndex];\n\nconsole.log('Selected Key Index:', keyIndex);\nconsole.log('Selected Key:', selectedKey ? selectedKey.substring(0, 10) + '...' : 'NONE');\n\n// ========================================\n// VERIFY KEY EXISTS\n// ========================================\n\nif (!selectedKey) {\n    throw new Error('❌ Failed to select API key! keyIndex: ' + keyIndex);\n}\n\n// Pass through all input data plus the selected API key\nconst inputData = $input.first().json;\n\nreturn [{\n    json: {\n        ...inputData,\n        serpapi_key: selectedKey,\n        key_index: keyIndex\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        -1088
+      ],
+      "id": "5934d684-e66d-429e-89e4-6bc321683e90",
+      "name": "Select_SerpAPI_Key"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// SERPAPI KEY ROTATION - Round Robin Load Balancer\n// ========================================\n\nconst API_KEYS = [\n    '1f39ebb1804779d57b6396b44f926b79c68f96cc54c0fdd17594568ad288e366',  // nickkr27\n// '484ce04f49b4f534f816e6f824c210d0ead5de4e9385a0529953c2f2c652e555',  // pencopy98765\n     'b144db752cfdb608e29dd8e21bf1a4442dc8f81c944888a42640999f2a3e4b6c',    // vksinglakkr\n   \n'292cd2cb967c8b1e7f572f71cb4fafab82a91a1d3f7ebf733e27ef34809e0fd7'    // MohitJain\n\n\n];\n\n// ========================================\n// SAFETY CHECK\n// ========================================\n\nif (!API_KEYS || API_KEYS.length === 0) {\n    throw new Error('❌ No SerpAPI keys configured! Please add at least one API key.');\n}\n\nconsole.log('=== SerpAPI Key Selection ===');\nconsole.log('Total Keys Available:', API_KEYS.length);\n\n// Get current timestamp to create rotation\nconst timestamp = Date.now();\n\n// Simple rotation: use timestamp to select key\nconst keyIndex = Math.floor(timestamp / 1000) % API_KEYS.length;\nconst selectedKey = API_KEYS[keyIndex];\n\nconsole.log('Selected Key Index:', keyIndex);\nconsole.log('Selected Key:', selectedKey ? selectedKey.substring(0, 10) + '...' : 'NONE');\n\n// ========================================\n// VERIFY KEY EXISTS\n// ========================================\n\nif (!selectedKey) {\n    throw new Error('❌ Failed to select API key! keyIndex: ' + keyIndex);\n}\n\n// Pass through all input data plus the selected API key\nconst inputData = $input.first().json;\n\nreturn [{\n    json: {\n        ...inputData,\n        serpapi_key: selectedKey,\n        key_index: keyIndex\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        -864
+      ],
+      "id": "947b6256-a740-4c7a-bf6b-358cd91f2120",
+      "name": "Select_SerpAPI_Key1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// VERIFIED CODE v2.1 - MULTI-STATE QUERY ENHANCER\n// Generic logic for DC/DM/Collector and boost keywords\n// ============================================\n\nconst inputData = $input.first().json;\nconst query = inputData.message || inputData.question || '';\nconst language = inputData.language || 'en';\nconst config = inputData.config || {};\n\nconsole.log('=== Smart Query Enhancer ===');\nconsole.log('District:', config?.meta?.districtName || 'Unknown');\n\nconst lowerQuery = query.toLowerCase();\nlet enhancedQuery = query;\nlet category = 'general';\nlet boostKeywords = '';\n\n// 1. REGIONAL STATE LOGIC\nconst state = config?.meta?.state || 'Haryana';\nconst isDMRegion = (state === 'Uttarakhand' || state === 'Uttar Pradesh');\nconst isCollectorRegion = (state === 'Rajasthan');\n\n// ============================================\n// PERSON QUERIES (GENERIC TERMINOLOGY MAPPING)[cite: 2]\n// ============================================\nconst personKeywords = /who is|mla|mp|minister|deputy commissioner|dc|dm|sdm|sub divisional magistrate|sp|superintendent of police|adc|additional deputy|collector|tehsildar|sho|station house officer|विधायक|सांसद|मंत्री/i;\n\nif (lowerQuery.match(personKeywords)) {\n    const isPersonQuery = \n        lowerQuery.includes('who is') || \n        lowerQuery.includes('who\\'s') ||\n        lowerQuery.includes('current') ||\n        lowerQuery.match(/\\bmla\\b/i) || \n        lowerQuery.match(/\\bmp\\b/i) ||\n        lowerQuery.includes('minister') ||\n        lowerQuery.includes('विधायक') ||\n        lowerQuery.includes('सांसद') ||\n        (lowerQuery.match(/\\b(dc|dm|sdm|sp|adc|collector|tehsildar|sho)\\b/) && \n         !lowerQuery.includes('office') && \n         !lowerQuery.includes('location'));\n    \n    if (isPersonQuery) {\n        category = 'person';\n        \n        // MAPPING: Ensure search finds the right title for the right state\n        let titleBoost = 'profile contact email phone designation';\n        \n        if (isDMRegion) {\n            // Force DM keywords for Uttarakhand/UP even if user types DC[cite: 2]\n            titleBoost += ' District Magistrate DM District Collector';\n        } else if (isCollectorRegion) {\n            titleBoost += ' District Collector Collector DM';\n        } else {\n            // Default for Haryana/Punjab[cite: 2]\n            titleBoost += ' Deputy Commissioner DC Collector';\n        }\n\n        boostKeywords = `${titleBoost} MLA MP minister representative`;\n        console.log(`→ Category: Person Query (${state} titles applied)`);\n    }\n}\n\n// ============================================\n// VILLAGE & ADMIN STRUCTURE (STAYS GENERIC)[cite: 2]\n// ============================================\nif (category === 'general') {\n    if (lowerQuery.match(/sarpanch|panch|gram panchayat|village head|pradhan|mukhiya/i)) {\n        boostKeywords = 'sarpanch panch list directory village panchayat pradhan';\n        category = 'village_admin';\n    } \n    else if (lowerQuery.match(/tehsil|sub division|sub-division|block|administrative division/i)) {\n        boostKeywords = 'tehsil list sub-division administrative structure subdivision';\n        category = 'admin_structure';\n    }\n    else if (lowerQuery.match(/sex ratio|population|literacy|census|demograph/i)) {\n        boostKeywords = 'demography statistics census data know about';\n        category = 'demographic';\n    }\n}\n\n// ============================================\n// BUILD FINAL ENHANCED QUERY[cite: 2]\n// ============================================\nif (boostKeywords) {\n    enhancedQuery = `${query} ${boostKeywords}`;\n}\n\nreturn [{\n    json: {\n        ...inputData,\n        message: enhancedQuery,           // Enhanced for SerpAPI search[cite: 2]\n        originalQuery: query,\n        enhancedQuery: enhancedQuery,\n        queryCategory: category,\n        boostKeywords: boostKeywords\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        -864
+      ],
+      "id": "3fc8f23f-04ce-4b89-8ecb-d363c20c4980",
+      "name": "Smart_Query_Enhancer"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// DEMOGRAPHIC DATA EXTRACTOR (SAFE & GENERIC)\n// Forcefully extracts census data from scraped content\n// ============================================\n\nconst inputData = $input.first().json;\n// Check both 'text' and 'data' just in case of different previous nodes\nconst scrapedText = inputData.text || inputData.data || '';\nconst config = inputData.config || {};\n\n// Safely get queryCategory with fallback\nlet queryCategory = inputData.queryCategory || 'general';\ntry {\n    const enhancer = $('Smart_Query_Enhancer').first();\n    if (enhancer && enhancer.json && enhancer.json.queryCategory) {\n        queryCategory = enhancer.json.queryCategory;\n    }\n} catch (e) {\n    console.log('Smart_Query_Enhancer not found, using fallback');\n}\n\nconsole.log('=== Demographic Data Extractor ===');\nconsole.log('Query Category:', queryCategory);\n\nlet extractedData = {\n    population: null,\n    sexRatio: null,\n    literacyRate: null,\n    density: null,\n    growthRate: null\n};\n\n// Only extract if this is a demographic query\n// (Added tehsil/village demographic checks just to be safe)\nif (queryCategory === 'demographic' || queryCategory === 'tehsil_demographic' || queryCategory === 'village_demographic') {\n    console.log('Extracting demographic data...');\n    \n    // Extract Population\n    const popMatch = scrapedText.match(/population of ([\\d,]+)/i);\n    if (popMatch) {\n        extractedData.population = popMatch[1];\n        console.log('✓ Found population from text:', extractedData.population);\n    } else if (config?.meta?.population) {\n        // ⚡ THE SUPER FALLBACK: Pull from our GitHub JSON if Regex fails!\n        extractedData.population = config.meta.population;\n        console.log('✓ Used fallback population from config:', extractedData.population);\n    }\n    \n    // Extract Sex Ratio (multiple patterns)\n    const sexRatioPatterns = [\n        /sex ratio of (\\d+) females/i,\n        /(\\d+) females for every 1000 males/i,\n        /sex ratio[^\\d]*(\\d+)/i\n    ];\n    \n    for (const pattern of sexRatioPatterns) {\n        const match = scrapedText.match(pattern);\n        if (match) {\n            extractedData.sexRatio = match[1];\n            console.log('✓ Found sex ratio:', extractedData.sexRatio);\n            break;\n        }\n    }\n    \n    // Extract Literacy Rate\n    const literacyMatch = scrapedText.match(/literacy rate of ([\\d.]+)%/i);\n    if (literacyMatch) {\n        extractedData.literacyRate = literacyMatch[1];\n        console.log('✓ Found literacy rate:', extractedData.literacyRate);\n    }\n    \n    // Extract Density\n    const densityMatch = scrapedText.match(/density of (\\d+) inhabitants/i);\n    if (densityMatch) {\n        extractedData.density = densityMatch[1];\n        console.log('✓ Found density:', extractedData.density);\n    }\n    \n    // Extract Growth Rate\n    const growthMatch = scrapedText.match(/growth rate[^\\d]*([\\d.]+)%/i);\n    if (growthMatch) {\n        extractedData.growthRate = growthMatch[1];\n        console.log('✓ Found growth rate:', extractedData.growthRate);\n    }\n}\n\nconsole.log('=== Extracted Data ===');\nconsole.log(JSON.stringify(extractedData, null, 2));\nconsole.log('======================');\n\n// Pass through all data plus extracted demographics\nreturn [{\n    json: {\n        ...inputData, // Safe preservation of config and previous data\n        extractedDemographics: extractedData,\n        queryCategory: queryCategory\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3136,
+        -1104
+      ],
+      "id": "595fb6df-451b-4a40-88d4-9d9b4593f31d",
+      "name": "Extract_Demographic_Data"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA",
+          "mode": "list",
+          "cachedResultName": "Kurukshetra-InfoBot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 948203654,
+          "mode": "list",
+          "cachedResultName": "InfoBot_Logs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Po82vtiRaf-Cocx37UekRiFd-IbfX7r6j-dvj6aQmWA/edit#gid=948203654"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "response": "={{ $json.response }}",
+            "language": "={{ $json.language }}",
+            "question": "={{ $('Webhook').item.json.body.question }}",
+            "source": "={{ $('Is Answer Cached?').item.json.cached }}",
+            "Timestamp": "={{ new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) }}",
+            "response_id": "={{ $json.response_id }}",
+            "Response_Type": "={{ $json.Response_Type }}",
+            "Source_URL": "={{ $json.Source_URL }}",
+            "Cache_Flag": "={{ $json.Cache_Flag }}",
+            "Flag_Reason": "={{ $json.Flag_Reason }}",
+            "Query_Category": "={{ $json.Query_Category }}",
+            "deviceType": "={{ $json.deviceType }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "question",
+              "displayName": "question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "response",
+              "displayName": "response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deviceType",
+              "displayName": "deviceType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "response_id",
+              "displayName": "response_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Response_Type",
+              "displayName": "Response_Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Source_URL",
+              "displayName": "Source_URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Cache_Flag",
+              "displayName": "Cache_Flag",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Flag_Reason",
+              "displayName": "Flag_Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Query_Category",
+              "displayName": "Query_Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1040,
+        -1216
+      ],
+      "id": "9db2d9d5-0694-4ec4-a6c1-cad6ab86a6e3",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zqCFkP1mXpyrkeQ2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// PREPARE ANALYTICS DATA FOR LOGGING (Generic)\n// ============================================\n\nconst input = $input.first().json;\n\nconsole.log('=== Preparing Analytics Data ===');\n\n// Get necessary data\nconst aiResponse = input.response || input.reply || '';\nconst question = input.question || input.message || '';\nconst language = input.language || 'en';\nconst responseId = input.response_id || '';\nconst deviceType = input.deviceType || 'unknown';\nconst sourceData = input.source || '';\n\n// Safely grab the config object\nlet config = input.config || {};\ntry {\n    if (!Object.keys(config).length) {\n        config = $('Apply District Config').first().json.config || {};\n    }\n} catch (e) {\n    console.log('Warning: Could not get config from Router node');\n}\n\n// Get sourceLink - check multiple possible locations\nlet sourceLink = '';\ntry {\n    // Note: If you renamed 'Code in JavaScript2', update the name here\n    const jsNode2Data = $('Code in JavaScript2').first().json;\n    sourceLink = jsNode2Data.link || jsNode2Data.sourceLink || '';\n} catch (e) {\n    console.log('Could not get sourceLink from final routing node');\n}\n\n// Get queryCategory\nlet queryCategory = 'general';\ntry {\n    const enhancerData = $('Smart_Query_Enhancer').first().json;\n    queryCategory = enhancerData.queryCategory || 'general';\n} catch (e) {\n    console.log('Could not get queryCategory');\n}\n\n// Get isPrivateBusiness flag\nlet isPrivateBusiness = false;\ntry {\n    const tourismData = $('Check_Tourism_Query').first().json;\n    isPrivateBusiness = tourismData.isPrivateBusiness || false;\n} catch (e) {\n    console.log('Could not get isPrivateBusiness flag');\n}\n\n// ============================================\n// DETERMINE RESPONSE TYPE (DYNAMIC)\n// ============================================\n\n// Helper to strip \"https://\" so we can match domains easily\nconst stripHttps = (url) => url ? url.replace(/^https?:\\/\\//, '') : '';\nconst govBase = stripHttps(config?.urls?.districtGovt) || 'kurukshetra.gov.in';\n\nlet responseType = 'ai_fallback';\nconst respLower = aiResponse.toLowerCase();\n\nif (isPrivateBusiness) {\n    responseType = 'private_business';\n} \nelse if (respLower.includes('not available') || respLower.includes('data not found')) {\n    responseType = 'not_available';\n} \nelse if (respLower.includes('priharyana.nic.in') || \n         respLower.includes('census2011.co.in') ||\n         respLower.includes('ceoharyana.gov.in') ||\n         respLower.includes('jamabandi.nic.in')) {\n    responseType = 'external_link';\n} \n// DYNAMIC CHECK: Does the source link contain the active district's gov domain?\nelse if (sourceLink && sourceLink.includes(govBase)) {\n    responseType = 'website_scraped';\n}\n\nconsole.log('Response Type:', responseType);\n\n// ============================================\n// DETERMINE CACHE FLAG\n// ============================================\n\nlet cacheFlag = 'REVIEW';\nif (responseType === 'private_business' || \n    responseType === 'not_available' || \n    responseType === 'ai_fallback') {\n    cacheFlag = 'NO';\n} else if (responseType === 'website_scraped') {\n    cacheFlag = 'YES';\n}\n\nconsole.log('Cache Flag:', cacheFlag);\n\n// ============================================\n// DETERMINE FLAG REASON\n// ============================================\n\nlet flagReason = 'unknown';\nif (responseType === 'private_business') {\n    flagReason = 'private_business';\n} else if (responseType === 'not_available' || responseType === 'ai_fallback') {\n    flagReason = 'no_website_data';\n} else if (responseType === 'external_link') {\n    flagReason = 'external_portal';\n} else if (responseType === 'website_scraped') {\n    flagReason = 'government_source';\n}\n\nconsole.log('Flag Reason:', flagReason);\n\n// ============================================\n// RETURN ALL DATA WITH NEW FIELDS\n// ============================================\n\nreturn [{\n    json: {\n        // Pass original config just in case downstream nodes need it\n        config: config,\n        \n        // Keep all existing fields\n        Timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n        question: question,\n        response: aiResponse,\n        language: language,\n        deviceType: deviceType,\n        source: sourceData,\n        response_id: responseId,\n        \n        // NEW ANALYTICS FIELDS\n        Response_Type: responseType,\n        Source_URL: sourceLink,\n        Cache_Flag: cacheFlag,\n        Flag_Reason: flagReason,\n        Query_Category: queryCategory\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4480,
+        -992
+      ],
+      "id": "7ed6085f-5b8e-4286-ba1f-09a3f98612a7",
+      "name": "Prepare Analytics Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// PREPARE ANALYTICS DATA FOR LOGGING (Generic)\n// ============================================\n\nconst input = $input.first().json;\n\nconsole.log('=== Preparing Analytics Data ===');\n\n// Get necessary data\nconst aiResponse = input.response || input.reply || '';\nconst question = input.question || input.message || '';\nconst language = input.language || 'en';\nconst responseId = input.response_id || '';\nconst deviceType = input.deviceType || 'unknown';\nconst sourceData = input.source || '';\n\n// ============================================\n// CRITICAL FIX: SAFELY GRAB CONFIG\n// ============================================\nlet config = input.config || {};\ntry {\n    if (!Object.keys(config).length) {\n        config = $('Apply District Config').first().json.config || {};\n    }\n} catch (e) {\n    console.log('Warning: Could not get config from Router node');\n}\n\n// Get sourceLink - check multiple possible locations\nlet sourceLink = '';\ntry {\n    const jsNode2Data = $('Code in JavaScript2').first().json;\n    sourceLink = jsNode2Data.link || jsNode2Data.sourceLink || '';\n} catch (e) {\n    console.log('Could not get sourceLink from Code in JavaScript2');\n}\n\n// Get queryCategory\nlet queryCategory = 'general';\ntry {\n    const enhancerData = $('Smart_Query_Enhancer').first().json;\n    queryCategory = enhancerData.queryCategory || 'general';\n} catch (e) {\n    console.log('Could not get queryCategory');\n}\n\n// Get isPrivateBusiness flag\nlet isPrivateBusiness = false;\ntry {\n    const tourismData = $('Check_Tourism_Query').first().json;\n    isPrivateBusiness = tourismData.isPrivateBusiness || false;\n} catch (e) {\n    console.log('Could not get isPrivateBusiness flag');\n}\n\n// ============================================\n// DETERMINE RESPONSE TYPE (DYNAMIC)\n// ============================================\n\n// Extract the base domain for the active district (e.g., 'karnal.gov.in')\nconst stripHttps = (url) => url ? url.replace(/^https?:\\/\\//, '') : '';\nconst govBase = stripHttps(config?.urls?.districtGovt) || 'kurukshetra.gov.in';\n\nlet responseType = 'ai_fallback';\nconst respLower = aiResponse.toLowerCase();\n\nif (isPrivateBusiness) {\n    responseType = 'private_business';\n} \nelse if (respLower.includes('not available') || respLower.includes('data not found')) {\n    responseType = 'not_available';\n} \nelse if (respLower.includes('priharyana.nic.in') || \n         respLower.includes('census2011.co.in') ||\n         respLower.includes('ceoharyana.gov.in') ||\n         respLower.includes('jamabandi.nic.in')) {\n    responseType = 'external_link';\n} \n// DYNAMIC CHECK: Does the source link contain the active district's gov domain?\nelse if (sourceLink && sourceLink.includes(govBase)) {\n    responseType = 'website_scraped';\n}\n\nconsole.log('Response Type:', responseType);\n\n// ============================================\n// DETERMINE CACHE FLAG\n// ============================================\n\nlet cacheFlag = 'REVIEW';\nif (responseType === 'private_business' || \n    responseType === 'not_available' || \n    responseType === 'ai_fallback') {\n    cacheFlag = 'NO';\n} else if (responseType === 'website_scraped') {\n    cacheFlag = 'YES';\n}\n\nconsole.log('Cache Flag:', cacheFlag);\n\n// ============================================\n// DETERMINE FLAG REASON\n// ============================================\n\nlet flagReason = 'unknown';\nif (responseType === 'private_business') {\n    flagReason = 'private_business';\n} else if (responseType === 'not_available' || responseType === 'ai_fallback') {\n    flagReason = 'no_website_data';\n} else if (responseType === 'external_link') {\n    flagReason = 'external_portal';\n} else if (responseType === 'website_scraped') {\n    flagReason = 'government_source';\n}\n\nconsole.log('Flag Reason:', flagReason);\n\n// ============================================\n// RETURN ALL DATA WITH NEW FIELDS\n// ============================================\n\nreturn [{\n    json: {\n        ...input, // Preserve all incoming data, including config\n        \n        Timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),\n        question: question,\n        response: aiResponse,\n        language: language,\n        deviceType: deviceType,\n        source: sourceData,\n        response_id: responseId,\n        \n        // NEW ANALYTICS FIELDS\n        Response_Type: responseType,\n        Source_URL: sourceLink,\n        Cache_Flag: cacheFlag,\n        Flag_Reason: flagReason,\n        Query_Category: queryCategory\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4480,
+        -704
+      ],
+      "id": "c1393819-54bd-47fc-b22c-841aed0f7c13",
+      "name": "Prepare Analytics Data1"
+    },
+    {
+      "parameters": {
+        "url": "https://raw.githubusercontent.com/vksinglakkr/Kurukshetra-InfoBot/main/citymitra-config.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -1040,
+        -896
+      ],
+      "id": "c305cd10-c875-4053-b5c5-f0361144adbf",
+      "name": "Search_KKRTour1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// APPLY DISTRICT CONFIG (FOOLPROOF VERSION)\n// ============================================\n\n// 1. Get the data from the Sanitize node\nlet inputJson = {};\ntry {\n    inputJson = $('Sanitize Query').first().json;\n} catch(e) {\n    inputJson = $('1. Set Mock Input').first().json || {};\n}\n\n// 2. Extract EXACTLY what we need. \n// We use the cleaned text at the top level. We ignore the dirty webhook body!\nconst cleanMessage = inputJson.message || '';\nconst cleanQuestion = inputJson.question || '';\nconst lang = inputJson.language || (inputJson.body ? inputJson.body.language : 'en');\nconst city = inputJson.city || (inputJson.body ? inputJson.body.city : 'kurukshetra');\n\n// 3. Get the full config fetched from GitHub\nconst allConfigs = $input.first().json;\nconst districtsData = allConfigs.districts ? allConfigs.districts : allConfigs;\n\n// 4. Determine the district being queried\nconst districtKey = city.toLowerCase();\n\n// 5. Extract the specific district's configuration\nconst activeConfig = districtsData[districtKey];\n\nif (!activeConfig) {\n    throw new Error(`Configuration not found for district: ${districtKey}`);\n}\n\n// 6. Output a perfectly flat, clean JSON object for the rest of the workflow\nreturn [{\n    json: {\n        question: cleanQuestion,\n        message: cleanMessage,\n        query: cleanMessage, // Pass 'query' too just to be safe\n        language: lang,\n        city: city,\n        config: activeConfig\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -832,
+        -896
+      ],
+      "id": "19ccd263-35bb-4488-9114-59fa0fd2b022",
+      "name": "Apply District Config"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// EMOJI & SYMBOL SANITIZER (FIXED FOR WEBHOOK)\n// ============================================\nconst data = $input.first().json;\n\n// 1. Locate the actual payload (Webhooks put it inside 'body')\nconst payload = data.body || data;\n\n// 2. Extract the text securely (ignoring empty objects)\nlet rawText = payload.message || payload.question || '';\nif (typeof rawText === 'object') {\n    rawText = ''; // Prevent [object Object] errors\n}\n\nlet text = String(rawText);\n\n// 3. Advanced Regex: Removes emojis but KEEPS English, Hindi, and normal punctuation\nconst cleanText = text\n    .replace(/([\\u2700-\\u27BF]|[\\uE000-\\uF8FF]|\\uD83C[\\uDC00-\\uDFFF]|\\uD83D[\\uDC00-\\uDFFF]|[\\u2011-\\u26FF]|\\uD83E[\\uDD10-\\uDDFF])/g, '')\n    .replace(/\\s+/g, ' ') // Remove extra double spaces left behind by deleted emojis\n    .trim();\n\nconsole.log('Original:', text);\nconsole.log('Cleaned:', cleanText);\n\n// 4. Return data, promoting variables to the top level so the next nodes can easily read them\nreturn [{\n    json: {\n        ...data,\n        ...payload, // Brings 'city', 'language', etc., to the top level\n        message: cleanText,\n        question: cleanText,\n        query: cleanText, // Overwrites the empty webhook query object\n        original_message_with_emoji: text\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1200,
+        -912
+      ],
+      "id": "95fc1461-d3ef-495b-8daa-0a891dd5ee1e",
+      "name": "Sanitize Query"
+    },
+    {
+      "parameters": {
+        "url": "=",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1680,
+        -2784
+      ],
+      "id": "25b43ce5-985a-4f15-9f7a-702178389310",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {
+    "1. Set Mock Input": [
+      {
+        "json": {
+          "headers": {
+            "connection": "upgrade",
+            "host": "n8n-workflow-test.duckdns.org",
+            "x-real-ip": "103.164.204.52",
+            "x-forwarded-for": "103.164.204.52",
+            "x-forwarded-proto": "https",
+            "content-length": "98",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+            "sec-ch-ua": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\"",
+            "content-type": "application/json",
+            "sec-ch-ua-mobile": "?0",
+            "accept": "*/*",
+            "origin": "https://vksinglakkr.github.io",
+            "sec-fetch-site": "cross-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "referer": "https://vksinglakkr.github.io/",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "en-IN,en-GB;q=0.9,en-US;q=0.8,en;q=0.7",
+            "priority": "u=1, i"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "question": "What gita says about Karma?",
+            "message": "What gita says about Karma?",
+            "language": "en"
+          },
+          "webhookUrl": "https://n8n-workflow-test.duckdns.org/webhook/InfoBot_AskGita",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "Webhook1": [
+      {
+        "json": {
+          "headers": {
+            "connection": "upgrade",
+            "host": "n8n-workflow-test.duckdns.org",
+            "x-real-ip": "103.87.26.133",
+            "x-forwarded-for": "103.87.26.133",
+            "x-forwarded-proto": "https",
+            "content-length": "223",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+            "sec-ch-ua": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\"",
+            "content-type": "application/json",
+            "sec-ch-ua-mobile": "?0",
+            "accept": "*/*",
+            "origin": "https://vksinglakkr.github.io",
+            "sec-fetch-site": "cross-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "referer": "https://vksinglakkr.github.io/",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "en-IN,en-GB;q=0.9,en-US;q=0.8,en;q=0.7",
+            "priority": "u=1, i"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "rating": "3",
+            "helpful": "Very",
+            "responseSpeed": "Average",
+            "usageFrequency": "Daily",
+            "useAgain": "",
+            "comments": "ghfh",
+            "email": "",
+            "consent": "on",
+            "timestamp": "2026-02-24T05:33:41.463Z",
+            "source": "InfoBot Feedback (Separate Page)"
+          },
+          "webhookUrl": "https://n8n-workflow-test.duckdns.org/webhook/InfoBot_Feed",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "connection": "upgrade",
+            "host": "n8n-workflow-test.duckdns.org",
+            "x-real-ip": "103.87.26.133",
+            "x-forwarded-for": "103.87.26.133",
+            "x-forwarded-proto": "https",
+            "content-length": "108",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+            "sec-ch-ua": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\"",
+            "content-type": "application/json",
+            "sec-ch-ua-mobile": "?0",
+            "accept": "*/*",
+            "origin": "https://karnal.citymitra.app",
+            "sec-fetch-site": "cross-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "referer": "https://karnal.citymitra.app/",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "en-IN,en-GB;q=0.9,en-US;q=0.8,en;q=0.7",
+            "priority": "u=1, i"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "question": "Who is the DC of Karnal?",
+            "message": "Who is the DC of Karnal?",
+            "language": "en",
+            "city": "karnal"
+          },
+          "webhookUrl": "https://n8n-workflow-test.duckdns.org/webhook/chat",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Set Mock Input": {
+      "main": [
+        [
+          {
+            "node": "Read IGM Saathi Logs1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq (Llama 3)": {
+      "main": [
+        [
+          {
+            "node": "Edit_Fieldsanswer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit_Fieldsanswer": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Add_Feedback_Text1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read IGM Saathi Logs1": {
+      "main": [
+        [
+          {
+            "node": "Search Cache for Similar Questions1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Cache for Similar Questions1": {
+      "main": [
+        [
+          {
+            "node": "Is Answer Cached?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Answer Cached?1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Generate_Response_ID3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Groq (Llama 3)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI_Statistics_Generator1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML Extract": {
+      "main": [
+        [
+          {
+            "node": "Extract_Demographic_Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Sanitize Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI_Statistics_Generator1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Generate_Response_ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Smart Scraper with Retry",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI_Statistics_Generator2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Filter Valid URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI_Statistics_Generator2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is_Tourism_Query": {
+      "main": [
+        [
+          {
+            "node": "Select_SerpAPI_Key",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Smart_Query_Enhancer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search_KKRTour": {
+      "main": [
+        [
+          {
+            "node": "Search_Govt_Tourism",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search_Govt_Tourism": {
+      "main": [
+        [
+          {
+            "node": "Search_Haryana_Tourism",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge_Tourism_Links": {
+      "main": [
+        [
+          {
+            "node": "Merge_All_Paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search_Regular": {
+      "main": [
+        [
+          {
+            "node": "Format_Regular",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge_All_Paths": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format_Regular": {
+      "main": [
+        [
+          {
+            "node": "Merge_All_Paths",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Check_Tourism_Query": {
+      "main": [
+        [
+          {
+            "node": "Is_Tourism_Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read IGM Saathi Logs": {
+      "main": [
+        [
+          {
+            "node": "Search Cache for Similar Questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Cache for Similar Questions": {
+      "main": [
+        [
+          {
+            "node": "Is Answer Cached?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Answer Cached?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Analytics Data1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check_Tourism_Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet2": {
+      "main": [
+        []
+      ]
+    },
+    "Filter Valid URLs": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Smart Scraper with Retry": {
+      "main": [
+        [
+          {
+            "node": "Check Scrape Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Scrape Success": {
+      "main": [
+        [
+          {
+            "node": "HTML Extract",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI_Statistics_Generator2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search_Haryana_Tourism": {
+      "main": [
+        [
+          {
+            "node": "Merge_Tourism_Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate_Response_ID": {
+      "main": [
+        [
+          {
+            "node": "Prepare Analytics Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond_To_Webhook1": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet3": {
+      "main": [
+        [
+          {
+            "node": "Add_Feedback_Text1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate_Response_ID3": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add_Feedback_Text": {
+      "main": [
+        [
+          {
+            "node": "Respond_To_Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add_Feedback_Text1": {
+      "main": [
+        [
+          {
+            "node": "Respond_To_Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select_SerpAPI_Key": {
+      "main": [
+        [
+          {
+            "node": "Search_KKRTour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select_SerpAPI_Key1": {
+      "main": [
+        [
+          {
+            "node": "Search_Regular",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Smart_Query_Enhancer": {
+      "main": [
+        [
+          {
+            "node": "Select_SerpAPI_Key1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract_Demographic_Data": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Prepare Analytics Data": {
+      "main": [
+        [
+          {
+            "node": "Add_Feedback_Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Analytics Data1": {
+      "main": [
+        [
+          {
+            "node": "Add_Feedback_Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search_KKRTour1": {
+      "main": [
+        [
+          {
+            "node": "Apply District Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply District Config": {
+      "main": [
+        [
+          {
+            "node": "Read IGM Saathi Logs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sanitize Query": {
+      "main": [
+        [
+          {
+            "node": "Search_KKRTour1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "QWkjlSI9kEUEx4Ix"
+  },
+  "versionId": "b20c99de-0c46-4f6e-8645-dec0a90a3f78",
+  "meta": {
+    "instanceId": "61b7efe9dec4b927bcefbfccd5ef26d989ec604921fbdaa87b7d95391eb60b25"
+  },
+  "id": "QWkjlSI9kEUEx4Ix",
+  "tags": []
+}
